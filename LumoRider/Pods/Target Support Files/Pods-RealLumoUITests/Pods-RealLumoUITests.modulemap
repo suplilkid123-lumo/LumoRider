@@ -1,0 +1,6 @@
+framework module Pods_RealLumoUITests {
+  umbrella header "Pods-RealLumoUITests-umbrella.h"
+
+  export *
+  module * { export * }
+}

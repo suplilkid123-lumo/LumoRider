@@ -1,0 +1,28 @@
+platform :ios, '15.0'
+project 'RealLumo.xcodeproj'
+
+target 'RealLumo' do
+  use_frameworks!
+
+  # Firebase
+  pod 'Firebase/Auth'
+  pod 'Firebase/Firestore'
+
+  # Google Sign-In / AppAuth
+  pod 'AppAuth'
+
+  # Google Maps (only if you actually use it)
+  pod 'GoogleMaps'
+  pod 'Google-Maps-iOS-Utils'
+
+  # Stripe (uncomment only if you're really using Stripe)
+  # pod 'Stripe'
+
+  target 'RealLumoTests' do
+    inherit! :search_paths
+  end
+
+  target 'RealLumoUITests' do
+    inherit! :search_paths
+  end
+end

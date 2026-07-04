@@ -1,0 +1,880 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 77;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		75E0DD4F26FD6A2076AB4921 /* Pods_RealLumo.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E3593DBB8540CD33F4BCF6F0 /* Pods_RealLumo.framework */; };
+		7C1FAB0099334B1701D3E44A /* Pods_RealLumoUITests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 7045A54ED34152D04A0C48AD /* Pods_RealLumoUITests.framework */; };
+		BAE462EE3D082085F266B3C7 /* Pods_RealLumoTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D94D791E4D1549FDD8C79A84 /* Pods_RealLumoTests.framework */; };
+		C122E43A2ED8E57C00EEE5DA /* ScheduleRideView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C122E4392ED8E57C00EEE5DA /* ScheduleRideView.swift */; };
+		C13C1F342ED8C59900F9CCBE /* DestinationSearchView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C13C1F332ED8C59900F9CCBE /* DestinationSearchView.swift */; };
+		C1595C2A2EDA6F8C0098FD1D /* AddPaymentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1595C292EDA6F8C0098FD1D /* AddPaymentView.swift */; };
+		C1595C2D2EDA83960098FD1D /* Stripe in Frameworks */ = {isa = PBXBuildFile; productRef = C1595C2C2EDA83960098FD1D /* Stripe */; };
+		C1595C2F2EDA83D60098FD1D /* StripeConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1595C2E2EDA83D60098FD1D /* StripeConfig.swift */; };
+		C1595C312EDA88820098FD1D /* CardPaymentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1595C302EDA88820098FD1D /* CardPaymentView.swift */; };
+		C1595C332EDA8B600098FD1D /* RideConfirmedView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1595C322EDA8B600098FD1D /* RideConfirmedView.swift */; };
+		C1595C382EDA9BD50098FD1D /* GoogleMaps in Frameworks */ = {isa = PBXBuildFile; productRef = C1595C372EDA9BD50098FD1D /* GoogleMaps */; };
+		C1595C3A2EDA9CFD0098FD1D /* GoogleMapView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1595C392EDA9CFD0098FD1D /* GoogleMapView.swift */; };
+		C1595C3E2EDAA8530098FD1D /* LumoMapStyle.json in Sources */ = {isa = PBXBuildFile; fileRef = C1595C3D2EDAA84C0098FD1D /* LumoMapStyle.json */; };
+		C17FBF942ED6CBE300E6CA1D /* FirebaseAuth in Frameworks */ = {isa = PBXBuildFile; productRef = C17FBF932ED6CBE300E6CA1D /* FirebaseAuth */; };
+		C17FBF962ED6CBE300E6CA1D /* FirebaseCore in Frameworks */ = {isa = PBXBuildFile; productRef = C17FBF952ED6CBE300E6CA1D /* FirebaseCore */; };
+		C1876E462ED69DCB00FD8CAC /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = C1876E452ED69DCB00FD8CAC /* Assets.xcassets */; };
+		C1C6243A2EDBCCAF00889D32 /* NavigationCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1C624392EDBCCAF00889D32 /* NavigationCoordinator.swift */; };
+		C1CFC0FB2ED8FE3300CCA712 /* LocationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1CFC0FA2ED8FE3300CCA712 /* LocationManager.swift */; };
+		C1CFC0FD2ED90FAC00CCA712 /* RideOptionsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1CFC0FC2ED90FAC00CCA712 /* RideOptionsView.swift */; };
+		C1CFC0FF2ED9130100CCA712 /* ConfirmPickupView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1CFC0FE2ED9130100CCA712 /* ConfirmPickupView.swift */; };
+		C1D548A82ED6925600A387ED /* LumoApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1D548A72ED6925600A387ED /* LumoApp.swift */; };
+		C1D548AC2ED6927800A387ED /* HomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1D548AA2ED6927800A387ED /* HomeView.swift */; };
+		C1D548AD2ED6927800A387ED /* SplashScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1D548AB2ED6927800A387ED /* SplashScreen.swift */; };
+		C1D548AE2ED6927800A387ED /* GetStartedView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1D548A92ED6927800A387ED /* GetStartedView.swift */; };
+		C1DC3FFE2ED8093700E98BD5 /* VerificationView .swift in Sources */ = {isa = PBXBuildFile; fileRef = C1DC3FFD2ED8093700E98BD5 /* VerificationView .swift */; };
+		C1E8D8F42EDB56DB00B866B3 /* GMSMapView+LumoStyle.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1E8D8F32EDB56DB00B866B3 /* GMSMapView+LumoStyle.swift */; };
+		C1E8D8F72EDB65E200B866B3 /* GoogleSignIn in Frameworks */ = {isa = PBXBuildFile; productRef = C1E8D8F62EDB65E200B866B3 /* GoogleSignIn */; };
+		C1E8D8F92EDB860500B866B3 /* RouteService.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1E8D8F82EDB860500B866B3 /* RouteService.swift */; };
+		C1E8D8FB2EDB8D7900B866B3 /* DriverTrackingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1E8D8FA2EDB8D7900B866B3 /* DriverTrackingView.swift */; };
+		C1F77E912ED6DCD600C14D4F /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = C1F77E902ED6DCD600C14D4F /* GoogleService-Info.plist */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		C1B44A782ED567210095C550 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = C1B44A622ED567210095C550 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = C1B44A692ED567210095C550;
+			remoteInfo = RealLumo;
+		};
+		C1B44A822ED567210095C550 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = C1B44A622ED567210095C550 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = C1B44A692ED567210095C550;
+			remoteInfo = RealLumo;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXFileReference section */
+		4596DDCCBB30A7D1886A3213 /* Pods-RealLumoTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-RealLumoTests.debug.xcconfig"; path = "Target Support Files/Pods-RealLumoTests/Pods-RealLumoTests.debug.xcconfig"; sourceTree = "<group>"; };
+		5477BBA8B9C6C58047A4FDEF /* Pods-RealLumoUITests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-RealLumoUITests.release.xcconfig"; path = "Target Support Files/Pods-RealLumoUITests/Pods-RealLumoUITests.release.xcconfig"; sourceTree = "<group>"; };
+		6A4A15342AF611EAA99A1ABF /* Pods-RealLumo.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-RealLumo.debug.xcconfig"; path = "Target Support Files/Pods-RealLumo/Pods-RealLumo.debug.xcconfig"; sourceTree = "<group>"; };
+		6AF8D4A01AF157E852A771B2 /* Pods-RealLumoUITests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-RealLumoUITests.debug.xcconfig"; path = "Target Support Files/Pods-RealLumoUITests/Pods-RealLumoUITests.debug.xcconfig"; sourceTree = "<group>"; };
+		7045A54ED34152D04A0C48AD /* Pods_RealLumoUITests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_RealLumoUITests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		8679465014E19B19E2574A96 /* Pods-RealLumoTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-RealLumoTests.release.xcconfig"; path = "Target Support Files/Pods-RealLumoTests/Pods-RealLumoTests.release.xcconfig"; sourceTree = "<group>"; };
+		AF92FF7C3ECB28A31B8360DC /* Pods-RealLumo.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-RealLumo.release.xcconfig"; path = "Target Support Files/Pods-RealLumo/Pods-RealLumo.release.xcconfig"; sourceTree = "<group>"; };
+		C122E4392ED8E57C00EEE5DA /* ScheduleRideView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScheduleRideView.swift; sourceTree = "<group>"; };
+		C13C1F332ED8C59900F9CCBE /* DestinationSearchView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DestinationSearchView.swift; sourceTree = "<group>"; };
+		C1595C292EDA6F8C0098FD1D /* AddPaymentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddPaymentView.swift; sourceTree = "<group>"; };
+		C1595C2E2EDA83D60098FD1D /* StripeConfig.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StripeConfig.swift; sourceTree = "<group>"; };
+		C1595C302EDA88820098FD1D /* CardPaymentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardPaymentView.swift; sourceTree = "<group>"; };
+		C1595C322EDA8B600098FD1D /* RideConfirmedView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RideConfirmedView.swift; sourceTree = "<group>"; };
+		C1595C392EDA9CFD0098FD1D /* GoogleMapView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GoogleMapView.swift; sourceTree = "<group>"; };
+		C1595C3D2EDAA84C0098FD1D /* LumoMapStyle.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = LumoMapStyle.json; sourceTree = "<group>"; };
+		C1876E422ED69B0500FD8CAC /* RealLumoTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = RealLumoTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		C1876E432ED69B0500FD8CAC /* RealLumoUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = RealLumoUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		C1876E452ED69DCB00FD8CAC /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		C1C624392EDBCCAF00889D32 /* NavigationCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NavigationCoordinator.swift; sourceTree = "<group>"; };
+		C1CFC0FA2ED8FE3300CCA712 /* LocationManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationManager.swift; sourceTree = "<group>"; };
+		C1CFC0FC2ED90FAC00CCA712 /* RideOptionsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RideOptionsView.swift; sourceTree = "<group>"; };
+		C1CFC0FE2ED9130100CCA712 /* ConfirmPickupView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConfirmPickupView.swift; sourceTree = "<group>"; };
+		C1D548A72ED6925600A387ED /* LumoApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LumoApp.swift; sourceTree = "<group>"; };
+		C1D548A92ED6927800A387ED /* GetStartedView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GetStartedView.swift; sourceTree = "<group>"; };
+		C1D548AA2ED6927800A387ED /* HomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeView.swift; sourceTree = "<group>"; };
+		C1D548AB2ED6927800A387ED /* SplashScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SplashScreen.swift; sourceTree = "<group>"; };
+		C1D548AF2ED6942400A387ED /* RealLumo.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = RealLumo.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		C1DC3FFD2ED8093700E98BD5 /* VerificationView .swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "VerificationView .swift"; sourceTree = "<group>"; };
+		C1E8D8F32EDB56DB00B866B3 /* GMSMapView+LumoStyle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "GMSMapView+LumoStyle.swift"; sourceTree = "<group>"; };
+		C1E8D8F82EDB860500B866B3 /* RouteService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RouteService.swift; sourceTree = "<group>"; };
+		C1E8D8FA2EDB8D7900B866B3 /* DriverTrackingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DriverTrackingView.swift; sourceTree = "<group>"; };
+		C1F77E902ED6DCD600C14D4F /* GoogleService-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
+		C1F77E922ED6DD6400C14D4F /* RealLumo-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "RealLumo-Info.plist"; sourceTree = "<group>"; };
+		D94D791E4D1549FDD8C79A84 /* Pods_RealLumoTests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_RealLumoTests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		E3593DBB8540CD33F4BCF6F0 /* Pods_RealLumo.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_RealLumo.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		C1B44A672ED567210095C550 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				C1E8D8F72EDB65E200B866B3 /* GoogleSignIn in Frameworks */,
+				C1595C382EDA9BD50098FD1D /* GoogleMaps in Frameworks */,
+				C17FBF962ED6CBE300E6CA1D /* FirebaseCore in Frameworks */,
+				C17FBF942ED6CBE300E6CA1D /* FirebaseAuth in Frameworks */,
+				C1595C2D2EDA83960098FD1D /* Stripe in Frameworks */,
+				75E0DD4F26FD6A2076AB4921 /* Pods_RealLumo.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		C1B44A742ED567210095C550 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				BAE462EE3D082085F266B3C7 /* Pods_RealLumoTests.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		C1B44A7E2ED567210095C550 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				7C1FAB0099334B1701D3E44A /* Pods_RealLumoUITests.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		3909F79A0BAE09D011EAF9EE /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				E3593DBB8540CD33F4BCF6F0 /* Pods_RealLumo.framework */,
+				D94D791E4D1549FDD8C79A84 /* Pods_RealLumoTests.framework */,
+				7045A54ED34152D04A0C48AD /* Pods_RealLumoUITests.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		C1B44A612ED567210095C550 = {
+			isa = PBXGroup;
+			children = (
+				C1D548A72ED6925600A387ED /* LumoApp.swift */,
+				C1D548AB2ED6927800A387ED /* SplashScreen.swift */,
+				C1D548A92ED6927800A387ED /* GetStartedView.swift */,
+				C1DC3FFD2ED8093700E98BD5 /* VerificationView .swift */,
+				C1D548AA2ED6927800A387ED /* HomeView.swift */,
+				C13C1F332ED8C59900F9CCBE /* DestinationSearchView.swift */,
+				C1CFC0FE2ED9130100CCA712 /* ConfirmPickupView.swift */,
+				C1CFC0FC2ED90FAC00CCA712 /* RideOptionsView.swift */,
+				C122E4392ED8E57C00EEE5DA /* ScheduleRideView.swift */,
+				C1CFC0FA2ED8FE3300CCA712 /* LocationManager.swift */,
+				C1595C292EDA6F8C0098FD1D /* AddPaymentView.swift */,
+				C1595C2E2EDA83D60098FD1D /* StripeConfig.swift */,
+				C1595C302EDA88820098FD1D /* CardPaymentView.swift */,
+				C1595C322EDA8B600098FD1D /* RideConfirmedView.swift */,
+				C1595C392EDA9CFD0098FD1D /* GoogleMapView.swift */,
+				C1595C3D2EDAA84C0098FD1D /* LumoMapStyle.json */,
+				C1E8D8F32EDB56DB00B866B3 /* GMSMapView+LumoStyle.swift */,
+				C1E8D8F82EDB860500B866B3 /* RouteService.swift */,
+				C1E8D8FA2EDB8D7900B866B3 /* DriverTrackingView.swift */,
+				C1C624392EDBCCAF00889D32 /* NavigationCoordinator.swift */,
+				C1F77E922ED6DD6400C14D4F /* RealLumo-Info.plist */,
+				C1D548AF2ED6942400A387ED /* RealLumo.app */,
+				C1876E422ED69B0500FD8CAC /* RealLumoTests.xctest */,
+				C1876E432ED69B0500FD8CAC /* RealLumoUITests.xctest */,
+				C1876E452ED69DCB00FD8CAC /* Assets.xcassets */,
+				C1F77E902ED6DCD600C14D4F /* GoogleService-Info.plist */,
+				CC9B1246C7A83DCE2DCE4B8F /* Pods */,
+				3909F79A0BAE09D011EAF9EE /* Frameworks */,
+			);
+			sourceTree = "<group>";
+		};
+		CC9B1246C7A83DCE2DCE4B8F /* Pods */ = {
+			isa = PBXGroup;
+			children = (
+				6A4A15342AF611EAA99A1ABF /* Pods-RealLumo.debug.xcconfig */,
+				AF92FF7C3ECB28A31B8360DC /* Pods-RealLumo.release.xcconfig */,
+				4596DDCCBB30A7D1886A3213 /* Pods-RealLumoTests.debug.xcconfig */,
+				8679465014E19B19E2574A96 /* Pods-RealLumoTests.release.xcconfig */,
+				6AF8D4A01AF157E852A771B2 /* Pods-RealLumoUITests.debug.xcconfig */,
+				5477BBA8B9C6C58047A4FDEF /* Pods-RealLumoUITests.release.xcconfig */,
+			);
+			path = Pods;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		C1B44A692ED567210095C550 /* RealLumo */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = C1B44A8B2ED567210095C550 /* Build configuration list for PBXNativeTarget "RealLumo" */;
+			buildPhases = (
+				9D392502B6693A0AA23C3EB6 /* [CP] Check Pods Manifest.lock */,
+				C1B44A662ED567210095C550 /* Sources */,
+				C1B44A672ED567210095C550 /* Frameworks */,
+				C1B44A682ED567210095C550 /* Resources */,
+				028AB2BA2C7A5543139A3E37 /* [CP] Embed Pods Frameworks */,
+				BCAAF89D3C4CA5D15B869911 /* [CP] Copy Pods Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = RealLumo;
+			packageProductDependencies = (
+				C17FBF932ED6CBE300E6CA1D /* FirebaseAuth */,
+				C17FBF952ED6CBE300E6CA1D /* FirebaseCore */,
+				C1595C2C2EDA83960098FD1D /* Stripe */,
+				C1595C372EDA9BD50098FD1D /* GoogleMaps */,
+				C1E8D8F62EDB65E200B866B3 /* GoogleSignIn */,
+			);
+			productName = RealLumo;
+			productReference = C1D548AF2ED6942400A387ED /* RealLumo.app */;
+			productType = "com.apple.product-type.application";
+		};
+		C1B44A762ED567210095C550 /* RealLumoTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = C1B44A8E2ED567210095C550 /* Build configuration list for PBXNativeTarget "RealLumoTests" */;
+			buildPhases = (
+				B10E166E8171B5665173353D /* [CP] Check Pods Manifest.lock */,
+				C1B44A732ED567210095C550 /* Sources */,
+				C1B44A742ED567210095C550 /* Frameworks */,
+				C1B44A752ED567210095C550 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				C1B44A792ED567210095C550 /* PBXTargetDependency */,
+			);
+			name = RealLumoTests;
+			productName = RealLumoTests;
+			productReference = C1876E422ED69B0500FD8CAC /* RealLumoTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+		C1B44A802ED567210095C550 /* RealLumoUITests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = C1B44A912ED567210095C550 /* Build configuration list for PBXNativeTarget "RealLumoUITests" */;
+			buildPhases = (
+				6D5D43614136A2DBAE035E6E /* [CP] Check Pods Manifest.lock */,
+				C1B44A7D2ED567210095C550 /* Sources */,
+				C1B44A7E2ED567210095C550 /* Frameworks */,
+				C1B44A7F2ED567210095C550 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				C1B44A832ED567210095C550 /* PBXTargetDependency */,
+			);
+			name = RealLumoUITests;
+			productName = RealLumoUITests;
+			productReference = C1876E432ED69B0500FD8CAC /* RealLumoUITests.xctest */;
+			productType = "com.apple.product-type.bundle.ui-testing";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		C1B44A622ED567210095C550 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = 1;
+				LastSwiftUpdateCheck = 2610;
+				LastUpgradeCheck = 2610;
+				TargetAttributes = {
+					C1B44A692ED567210095C550 = {
+						CreatedOnToolsVersion = 26.1.1;
+						LastSwiftMigration = 2610;
+					};
+					C1B44A762ED567210095C550 = {
+						CreatedOnToolsVersion = 26.1.1;
+						TestTargetID = C1B44A692ED567210095C550;
+					};
+					C1B44A802ED567210095C550 = {
+						CreatedOnToolsVersion = 26.1.1;
+						TestTargetID = C1B44A692ED567210095C550;
+					};
+				};
+			};
+			buildConfigurationList = C1B44A652ED567210095C550 /* Build configuration list for PBXProject "RealLumo" */;
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = C1B44A612ED567210095C550;
+			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				C17FBF922ED6CBE300E6CA1D /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
+				C1595C2B2EDA83960098FD1D /* XCRemoteSwiftPackageReference "stripe-ios" */,
+				C1595C362EDA9BD50098FD1D /* XCRemoteSwiftPackageReference "ios-maps-sdk" */,
+				C1E8D8F52EDB65E200B866B3 /* XCRemoteSwiftPackageReference "GoogleSignIn-iOS" */,
+			);
+			preferredProjectObjectVersion = 77;
+			productRefGroup = C1B44A612ED567210095C550;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				C1B44A692ED567210095C550 /* RealLumo */,
+				C1B44A762ED567210095C550 /* RealLumoTests */,
+				C1B44A802ED567210095C550 /* RealLumoUITests */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		C1B44A682ED567210095C550 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				C1876E462ED69DCB00FD8CAC /* Assets.xcassets in Resources */,
+				C1F77E912ED6DCD600C14D4F /* GoogleService-Info.plist in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		C1B44A752ED567210095C550 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		C1B44A7F2ED567210095C550 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		028AB2BA2C7A5543139A3E37 /* [CP] Embed Pods Frameworks */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-RealLumo/Pods-RealLumo-frameworks-${CONFIGURATION}-input-files.xcfilelist",
+			);
+			name = "[CP] Embed Pods Frameworks";
+			outputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-RealLumo/Pods-RealLumo-frameworks-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-RealLumo/Pods-RealLumo-frameworks.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+		6D5D43614136A2DBAE035E6E /* [CP] Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
+				"${PODS_ROOT}/Manifest.lock",
+			);
+			name = "[CP] Check Pods Manifest.lock";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+				"$(DERIVED_FILE_DIR)/Pods-RealLumoUITests-checkManifestLockResult.txt",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
+			showEnvVarsInLog = 0;
+		};
+		9D392502B6693A0AA23C3EB6 /* [CP] Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
+				"${PODS_ROOT}/Manifest.lock",
+			);
+			name = "[CP] Check Pods Manifest.lock";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+				"$(DERIVED_FILE_DIR)/Pods-RealLumo-checkManifestLockResult.txt",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
+			showEnvVarsInLog = 0;
+		};
+		B10E166E8171B5665173353D /* [CP] Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
+				"${PODS_ROOT}/Manifest.lock",
+			);
+			name = "[CP] Check Pods Manifest.lock";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+				"$(DERIVED_FILE_DIR)/Pods-RealLumoTests-checkManifestLockResult.txt",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
+			showEnvVarsInLog = 0;
+		};
+		BCAAF89D3C4CA5D15B869911 /* [CP] Copy Pods Resources */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-RealLumo/Pods-RealLumo-resources-${CONFIGURATION}-input-files.xcfilelist",
+			);
+			name = "[CP] Copy Pods Resources";
+			outputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-RealLumo/Pods-RealLumo-resources-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-RealLumo/Pods-RealLumo-resources.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+/* End PBXShellScriptBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		C1B44A662ED567210095C550 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				C1595C312EDA88820098FD1D /* CardPaymentView.swift in Sources */,
+				C1D548AC2ED6927800A387ED /* HomeView.swift in Sources */,
+				C1CFC0FF2ED9130100CCA712 /* ConfirmPickupView.swift in Sources */,
+				C1DC3FFE2ED8093700E98BD5 /* VerificationView .swift in Sources */,
+				C1E8D8F92EDB860500B866B3 /* RouteService.swift in Sources */,
+				C1595C3E2EDAA8530098FD1D /* LumoMapStyle.json in Sources */,
+				C1595C3A2EDA9CFD0098FD1D /* GoogleMapView.swift in Sources */,
+				C1D548AD2ED6927800A387ED /* SplashScreen.swift in Sources */,
+				C1D548AE2ED6927800A387ED /* GetStartedView.swift in Sources */,
+				C1E8D8F42EDB56DB00B866B3 /* GMSMapView+LumoStyle.swift in Sources */,
+				C1E8D8FB2EDB8D7900B866B3 /* DriverTrackingView.swift in Sources */,
+				C1595C332EDA8B600098FD1D /* RideConfirmedView.swift in Sources */,
+				C1CFC0FB2ED8FE3300CCA712 /* LocationManager.swift in Sources */,
+				C1595C2A2EDA6F8C0098FD1D /* AddPaymentView.swift in Sources */,
+				C1D548A82ED6925600A387ED /* LumoApp.swift in Sources */,
+				C122E43A2ED8E57C00EEE5DA /* ScheduleRideView.swift in Sources */,
+				C13C1F342ED8C59900F9CCBE /* DestinationSearchView.swift in Sources */,
+				C1595C2F2EDA83D60098FD1D /* StripeConfig.swift in Sources */,
+				C1C6243A2EDBCCAF00889D32 /* NavigationCoordinator.swift in Sources */,
+				C1CFC0FD2ED90FAC00CCA712 /* RideOptionsView.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		C1B44A732ED567210095C550 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		C1B44A7D2ED567210095C550 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		C1B44A792ED567210095C550 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = C1B44A692ED567210095C550 /* RealLumo */;
+			targetProxy = C1B44A782ED567210095C550 /* PBXContainerItemProxy */;
+		};
+		C1B44A832ED567210095C550 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = C1B44A692ED567210095C550 /* RealLumo */;
+			targetProxy = C1B44A822ED567210095C550 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+		C1B44A892ED567210095C550 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 26.1;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = iphoneos;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+			};
+			name = Debug;
+		};
+		C1B44A8A2ED567210095C550 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 26.1;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				SDKROOT = iphoneos;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		C1B44A8C2ED567210095C550 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 6A4A15342AF611EAA99A1ABF /* Pods-RealLumo.debug.xcconfig */;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CLANG_ENABLE_MODULES = YES;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 865S59PB5Y;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "RealLumo-Info.plist";
+				INFOPLIST_KEY_CFBundleDisplayName = "";
+				INFOPLIST_KEY_LSApplicationCategoryType = "";
+				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "Lumo uses your location to show nearby rides.\n";
+				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.alyaa.RealLumo;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_OBJC_BRIDGING_HEADER = "";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		C1B44A8D2ED567210095C550 /* Release */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = AF92FF7C3ECB28A31B8360DC /* Pods-RealLumo.release.xcconfig */;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CLANG_ENABLE_MODULES = YES;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 865S59PB5Y;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "RealLumo-Info.plist";
+				INFOPLIST_KEY_CFBundleDisplayName = "";
+				INFOPLIST_KEY_LSApplicationCategoryType = "";
+				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "Lumo uses your location to show nearby rides.\n";
+				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.alyaa.RealLumo;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_OBJC_BRIDGING_HEADER = "";
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+		C1B44A8F2ED567210095C550 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 4596DDCCBB30A7D1886A3213 /* Pods-RealLumoTests.debug.xcconfig */;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 26.1;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.alyaa.RealLumoTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				STRING_CATALOG_GENERATE_SYMBOLS = NO;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/RealLumo.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/RealLumo";
+			};
+			name = Debug;
+		};
+		C1B44A902ED567210095C550 /* Release */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 8679465014E19B19E2574A96 /* Pods-RealLumoTests.release.xcconfig */;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 26.1;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.alyaa.RealLumoTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				STRING_CATALOG_GENERATE_SYMBOLS = NO;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/RealLumo.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/RealLumo";
+			};
+			name = Release;
+		};
+		C1B44A922ED567210095C550 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 6AF8D4A01AF157E852A771B2 /* Pods-RealLumoUITests.debug.xcconfig */;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.alyaa.RealLumoUITests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				STRING_CATALOG_GENERATE_SYMBOLS = NO;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_TARGET_NAME = RealLumo;
+			};
+			name = Debug;
+		};
+		C1B44A932ED567210095C550 /* Release */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 5477BBA8B9C6C58047A4FDEF /* Pods-RealLumoUITests.release.xcconfig */;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.alyaa.RealLumoUITests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				STRING_CATALOG_GENERATE_SYMBOLS = NO;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_TARGET_NAME = RealLumo;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		C1B44A652ED567210095C550 /* Build configuration list for PBXProject "RealLumo" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				C1B44A892ED567210095C550 /* Debug */,
+				C1B44A8A2ED567210095C550 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		C1B44A8B2ED567210095C550 /* Build configuration list for PBXNativeTarget "RealLumo" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				C1B44A8C2ED567210095C550 /* Debug */,
+				C1B44A8D2ED567210095C550 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		C1B44A8E2ED567210095C550 /* Build configuration list for PBXNativeTarget "RealLumoTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				C1B44A8F2ED567210095C550 /* Debug */,
+				C1B44A902ED567210095C550 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		C1B44A912ED567210095C550 /* Build configuration list for PBXNativeTarget "RealLumoUITests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				C1B44A922ED567210095C550 /* Debug */,
+				C1B44A932ED567210095C550 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		C1595C2B2EDA83960098FD1D /* XCRemoteSwiftPackageReference "stripe-ios" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/stripe/stripe-ios";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 25.1.1;
+			};
+		};
+		C1595C362EDA9BD50098FD1D /* XCRemoteSwiftPackageReference "ios-maps-sdk" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/googlemaps/ios-maps-sdk";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 10.6.0;
+			};
+		};
+		C17FBF922ED6CBE300E6CA1D /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/firebase/firebase-ios-sdk";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 12.6.0;
+			};
+		};
+		C1E8D8F52EDB65E200B866B3 /* XCRemoteSwiftPackageReference "GoogleSignIn-iOS" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/google/GoogleSignIn-iOS";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 9.0.0;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		C1595C2C2EDA83960098FD1D /* Stripe */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = C1595C2B2EDA83960098FD1D /* XCRemoteSwiftPackageReference "stripe-ios" */;
+			productName = Stripe;
+		};
+		C1595C372EDA9BD50098FD1D /* GoogleMaps */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = C1595C362EDA9BD50098FD1D /* XCRemoteSwiftPackageReference "ios-maps-sdk" */;
+			productName = GoogleMaps;
+		};
+		C17FBF932ED6CBE300E6CA1D /* FirebaseAuth */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = C17FBF922ED6CBE300E6CA1D /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseAuth;
+		};
+		C17FBF952ED6CBE300E6CA1D /* FirebaseCore */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = C17FBF922ED6CBE300E6CA1D /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseCore;
+		};
+		C1E8D8F62EDB65E200B866B3 /* GoogleSignIn */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = C1E8D8F52EDB65E200B866B3 /* XCRemoteSwiftPackageReference "GoogleSignIn-iOS" */;
+			productName = GoogleSignIn;
+		};
+/* End XCSwiftPackageProductDependency section */
+	};
+	rootObject = C1B44A622ED567210095C550 /* Project object */;
+}
