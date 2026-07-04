@@ -233,8 +233,9 @@ struct RouteMapView: UIViewRepresentable {
 struct RideOption: Identifiable {
     let id: String
     let name: String
-    let subtitle: String
-    let eta: String
+    let nameKey: LumoSettingsL10n.Key
+    let subtitleKey: LumoSettingsL10n.Key
+    let etaKey: LumoSettingsL10n.Key
     let price: String
     let crossedOutPrice: String?
     let isRecommended: Bool
@@ -242,6 +243,8 @@ struct RideOption: Identifiable {
 
 // MARK: - Main View
 struct RideOptionsView: View {
+    @EnvironmentObject private var languageStore: LumoLanguageStore
+
     let pickupAddress: String
     let destinationAddress: String
     let pickupCoordinate: CLLocationCoordinate2D
@@ -289,13 +292,13 @@ struct RideOptionsView: View {
     private var resolvedPickupAddress: String {
         let v = (frozenPickupAddress.isEmpty ? pickupAddressFinal : frozenPickupAddress)
         let trimmed = v.trimmingCharacters(in: .whitespacesAndNewlines)
-        return trimmed.isEmpty ? "Current location" : trimmed
+        return trimmed.isEmpty ? languageStore.settingsText(.homeCurrentLocation) : trimmed
     }
 
     private var resolvedDropoffAddress: String {
         let v = (frozenDropoffAddress.isEmpty ? dropoffAddressFinal : frozenDropoffAddress)
         let trimmed = v.trimmingCharacters(in: .whitespacesAndNewlines)
-        return trimmed.isEmpty ? "Destination" : trimmed
+        return trimmed.isEmpty ? languageStore.settingsText(.destinationDestination) : trimmed
     }
 
     private var resolvedDestinationCoordinate: CLLocationCoordinate2D? {
@@ -412,8 +415,9 @@ struct RideOptionsView: View {
             RideOption(
                 id: "saver",
                 name: "Saver",
-                subtitle: "More affordable, shared route",
-                eta: "6:15 PM · 8–17 min",
+                nameKey: .rideOptionsSaverName,
+                subtitleKey: .rideOptionsSaverSubtitle,
+                etaKey: .rideOptionsSaverEta,
                 price: saverText,
                 crossedOutPrice: saverOriginalText,
                 isRecommended: true
@@ -421,8 +425,9 @@ struct RideOptionsView: View {
             RideOption(
                 id: "lumox",
                 name: "LumoX",
-                subtitle: "Standard ride for up to 4",
-                eta: "6:03 PM · 7 min",
+                nameKey: .rideOptionsLumoXName,
+                subtitleKey: .rideOptionsLumoXSubtitle,
+                etaKey: .rideOptionsLumoXEta,
                 price: lumoxText,
                 crossedOutPrice: nil,
                 isRecommended: false
@@ -430,8 +435,9 @@ struct RideOptionsView: View {
             RideOption(
                 id: "lumoxl",
                 name: "LumoXL",
-                subtitle: "Larger car, up to 6",
-                eta: "6:05 PM · 8 min",
+                nameKey: .rideOptionsLumoXLName,
+                subtitleKey: .rideOptionsLumoXLSubtitle,
+                etaKey: .rideOptionsLumoXLEta,
                 price: lumoxlText,
                 crossedOutPrice: nil,
                 isRecommended: false
@@ -508,7 +514,7 @@ struct RideOptionsView: View {
                         .frame(width: 40, height: 4)
                         .padding(.top, 8)
 
-                    Text("Choose a ride")
+                    Text(languageStore.settingsText(.rideOptionsChooseRide))
                         .font(.system(size: 20, weight: .semibold))
                         .foregroundColor(.white)
                         .padding(.bottom, 4)
@@ -571,7 +577,7 @@ struct RideOptionsView: View {
                         destinationCoordinate = dest
                         showConfirmPickup = true
                     } label: {
-                        Text("Choose \(selectedOption?.name ?? "ride")")
+                        Text("\(languageStore.settingsText(.rideOptionsChooseButton)) \(selectedOption.map { languageStore.settingsText($0.nameKey) } ?? languageStore.settingsText(.rideOptionsRideFallback))")
                             .font(.system(size: 17, weight: .semibold))
                             .frame(maxWidth: .infinity)
                             .padding(.vertical, 16)
@@ -759,6 +765,8 @@ struct RideOptionsView: View {
 
 // MARK: - Single ride row
 struct RideOptionRow: View {
+    @EnvironmentObject private var languageStore: LumoLanguageStore
+
     let option: RideOption
     let isSelected: Bool
 
@@ -774,12 +782,12 @@ struct RideOptionRow: View {
 
             VStack(alignment: .leading, spacing: 2) {
                 HStack(spacing: 6) {
-                    Text(option.name)
+                    Text(languageStore.settingsText(option.nameKey))
                         .font(.system(size: 15, weight: .semibold))
                         .foregroundColor(.white)
 
                     if option.isRecommended {
-                        Text("Faster")
+                        Text(languageStore.settingsText(.rideOptionsFasterBadge))
                             .font(.system(size: 11, weight: .bold))
                             .padding(.horizontal, 6)
                             .padding(.vertical, 2)
@@ -789,12 +797,13 @@ struct RideOptionRow: View {
                     }
                 }
 
-                Text(option.eta)
+                Text(languageStore.settingsText(option.etaKey))
                     .font(.system(size: 13))
                     .foregroundColor(.gray.opacity(0.8))
 
-                if !option.subtitle.isEmpty {
-                    Text(option.subtitle)
+                let subtitle = languageStore.settingsText(option.subtitleKey)
+                if !subtitle.isEmpty {
+                    Text(subtitle)
                         .font(.system(size: 12))
                         .foregroundColor(.gray.opacity(0.8))
                 }

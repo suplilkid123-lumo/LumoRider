@@ -53,6 +53,20 @@ enum LumoSettingsL10n {
         case destinationFindingLocation
         case destinationLocationUnavailable
 
+        case rideOptionsChooseRide
+        case rideOptionsChooseButton
+        case rideOptionsRideFallback
+        case rideOptionsSaverName
+        case rideOptionsSaverSubtitle
+        case rideOptionsSaverEta
+        case rideOptionsLumoXName
+        case rideOptionsLumoXSubtitle
+        case rideOptionsLumoXEta
+        case rideOptionsLumoXLName
+        case rideOptionsLumoXLSubtitle
+        case rideOptionsLumoXLEta
+        case rideOptionsFasterBadge
+
         case privacyTitle
         case privacyLocationTracking
         case privacyAllowLocationTitle
@@ -183,6 +197,20 @@ enum LumoSettingsL10n {
         .destinationFindingLocation: "Finding your location...",
         .destinationLocationUnavailable: "Location unavailable",
 
+        .rideOptionsChooseRide: "Choose a ride",
+        .rideOptionsChooseButton: "Choose",
+        .rideOptionsRideFallback: "ride",
+        .rideOptionsSaverName: "Saver",
+        .rideOptionsSaverSubtitle: "More affordable, shared route",
+        .rideOptionsSaverEta: "6:15 PM · 8–17 min",
+        .rideOptionsLumoXName: "LumoX",
+        .rideOptionsLumoXSubtitle: "Standard ride for up to 4",
+        .rideOptionsLumoXEta: "6:03 PM · 7 min",
+        .rideOptionsLumoXLName: "LumoXL",
+        .rideOptionsLumoXLSubtitle: "Larger car, up to 6",
+        .rideOptionsLumoXLEta: "6:05 PM · 8 min",
+        .rideOptionsFasterBadge: "Faster",
+
         .privacyTitle: "Privacy",
         .privacyLocationTracking: "Location & tracking",
         .privacyAllowLocationTitle: "Allow location",
@@ -287,6 +315,20 @@ enum LumoSettingsL10n {
         .destinationContinue: "متابعة",
         .destinationFindingLocation: "جارٍ تحديد موقعك...",
         .destinationLocationUnavailable: "الموقع غير متاح",
+
+        .rideOptionsChooseRide: "اختر رحلة",
+        .rideOptionsChooseButton: "اختر",
+        .rideOptionsRideFallback: "رحلة",
+        .rideOptionsSaverName: "اقتصادي",
+        .rideOptionsSaverSubtitle: "أوفر سعراً، مسار مشترك",
+        .rideOptionsSaverEta: "6:15 م · 8–17 دقيقة",
+        .rideOptionsLumoXName: "LumoX",
+        .rideOptionsLumoXSubtitle: "رحلة عادية حتى 4 ركاب",
+        .rideOptionsLumoXEta: "6:03 م · 7 دقائق",
+        .rideOptionsLumoXLName: "LumoXL",
+        .rideOptionsLumoXLSubtitle: "سيارة أوسع حتى 6 ركاب",
+        .rideOptionsLumoXLEta: "6:05 م · 8 دقائق",
+        .rideOptionsFasterBadge: "أسرع",
 
         .privacyTitle: "الخصوصية",
         .privacyLocationTracking: "الموقع والتتبع",
