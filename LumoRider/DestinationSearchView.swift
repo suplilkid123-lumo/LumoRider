@@ -146,6 +146,7 @@ final class DestinationPickupLocator: NSObject, ObservableObject, CLLocationMana
 
 struct DestinationSearchView: View {
     @Environment(\.dismiss) private var dismiss
+    @EnvironmentObject private var languageStore: LumoLanguageStore
     @ObservedObject var locationManager: LumoLocationManager
     @StateObject private var completer = AddressSearchCompleter()
     @StateObject private var pickupLocator = DestinationPickupLocator()
@@ -172,6 +173,21 @@ struct DestinationSearchView: View {
     @State private var recentPlaces: [String] = []
     private let recentPlacesKey = "lumo_recent_places"
 
+    private var findingLocationText: String {
+        languageStore.settingsText(.destinationFindingLocation)
+    }
+
+    private var locationUnavailableText: String {
+        languageStore.settingsText(.destinationLocationUnavailable)
+    }
+
+    private var findingLocationTexts: Set<String> {
+        [
+            LumoSettingsL10n.text(.destinationFindingLocation, language: .english),
+            LumoSettingsL10n.text(.destinationFindingLocation, language: .arabic)
+        ]
+    }
+
     var body: some View {
         ZStack {
             Color.black.ignoresSafeArea()
@@ -196,7 +212,7 @@ struct DestinationSearchView: View {
 
                     Spacer()
 
-                    Text("Set your trip")
+                    Text(languageStore.settingsText(.destinationSetTrip))
                         .foregroundColor(.white)
                         .font(.system(size: 17, weight: .semibold))
 
@@ -213,11 +229,11 @@ struct DestinationSearchView: View {
                             .foregroundColor(.green)
 
                         VStack(alignment: .leading, spacing: 4) {
-                            Text("Pickup")
+                            Text(languageStore.settingsText(.homePickup))
                                 .font(.system(size: 13))
                                 .foregroundColor(.gray)
 
-                            TextField("Enter pickup", text: $pickupText)
+                            TextField(languageStore.settingsText(.destinationEnterPickup), text: $pickupText)
                                 .font(.system(size: 16, weight: .semibold))
                                 .foregroundColor(.black)
                                 .textInputAutocapitalization(.words)
@@ -254,7 +270,7 @@ struct DestinationSearchView: View {
                                 HStack(spacing: 6) {
                                     Image(systemName: "location.fill")
                                         .font(.system(size: 12, weight: .semibold))
-                                    Text("Use current location")
+                                    Text(languageStore.settingsText(.destinationUseCurrentLocation))
                                         .font(.system(size: 12, weight: .semibold))
                                 }
                                 .foregroundColor(.black.opacity(0.8))
@@ -276,11 +292,11 @@ struct DestinationSearchView: View {
                             .foregroundColor(.black)
 
                         VStack(alignment: .leading, spacing: 4) {
-                            Text("Destination")
+                            Text(languageStore.settingsText(.destinationDestination))
                                 .font(.system(size: 13))
                                 .foregroundColor(.gray)
 
-                            TextField("Where to?", text: $destinationText)
+                            TextField(languageStore.settingsText(.homeWhereTo), text: $destinationText)
                                 .font(.system(size: 16))
                                 .foregroundColor(.black)
                                 .focused($destinationFocused)
@@ -314,7 +330,7 @@ struct DestinationSearchView: View {
                 // Recent places
                 if completer.results.isEmpty && !recentPlaces.isEmpty {
                     VStack(alignment: .leading, spacing: 12) {
-                        Text("Recent places")
+                        Text(languageStore.settingsText(.destinationRecentPlaces))
                             .foregroundColor(.white.opacity(0.8))
                             .font(.system(size: 14, weight: .semibold))
                             .padding(.horizontal, 24)
@@ -486,7 +502,7 @@ struct DestinationSearchView: View {
                         resolveDestinationThenFinish()
                     }
                 } label: {
-                    Text("Continue")
+                    Text(languageStore.settingsText(.destinationContinue))
                         .font(.system(size: 17, weight: .semibold))
                         .frame(maxWidth: .infinity)
                         .padding(.vertical, 14)
@@ -522,9 +538,9 @@ struct DestinationSearchView: View {
         }
         .onChange(of: pickupLocator.locationFailed) { failed in
             guard failed else { return }
-            if pickupText == "Finding your location..." || pickupText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+            if findingLocationTexts.contains(pickupText) || pickupText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
                 isAutoFillingPickup = true
-                pickupText = "Location unavailable"
+                pickupText = locationUnavailableText
                 isAutoFillingPickup = false
             }
         }
@@ -605,7 +621,7 @@ struct DestinationSearchView: View {
         }
 
         let trimmedPickup = pickupText.trimmingCharacters(in: .whitespacesAndNewlines)
-        if !force && !trimmedPickup.isEmpty && trimmedPickup != "Finding your location..." {
+        if !force && !trimmedPickup.isEmpty && !findingLocationTexts.contains(trimmedPickup) {
             return
         }
 
@@ -627,20 +643,20 @@ struct DestinationSearchView: View {
 
             if pickupLocator.locationFailed {
                 isAutoFillingPickup = true
-                pickupText = "Location unavailable"
+                pickupText = locationUnavailableText
                 isAutoFillingPickup = false
                 return
             }
 
             if force && pickupText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
                 isAutoFillingPickup = true
-                pickupText = "Finding your location..."
+                pickupText = findingLocationText
                 isAutoFillingPickup = false
             }
 
             // Try one more time shortly because location permission/location may arrive after tapping.
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.8) {
-                guard self.pickupText == "Finding your location..." || self.pickupText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else { return }
+                guard self.findingLocationTexts.contains(self.pickupText) || self.pickupText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else { return }
                 self.pickupLocator.start()
                 self.fillPickupFromCurrentLocation(force: false)
             }
@@ -660,9 +676,9 @@ struct DestinationSearchView: View {
 
             guard let pm = placemarks?.first else {
                 DispatchQueue.main.async {
-                    if force || self.pickupText == "Finding your location..." || self.pickupText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+                    if force || self.findingLocationTexts.contains(self.pickupText) || self.pickupText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
                         self.isAutoFillingPickup = true
-                        self.pickupText = String(format: "Current location (%.5f, %.5f)", coord.latitude, coord.longitude)
+                        self.pickupText = String(format: "%@ (%.5f, %.5f)", self.languageStore.settingsText(.homeCurrentLocation), coord.latitude, coord.longitude)
                         self.isAutoFillingPickup = false
                     }
                 }
@@ -686,7 +702,7 @@ struct DestinationSearchView: View {
                 if !force {
                     guard !self.pickupUserEdited else { return }
                     let current = self.pickupText.trimmingCharacters(in: .whitespacesAndNewlines)
-                    guard current.isEmpty || current == "Finding your location..." else { return }
+                    guard current.isEmpty || self.findingLocationTexts.contains(current) else { return }
                 }
 
                 self.isAutoFillingPickup = true

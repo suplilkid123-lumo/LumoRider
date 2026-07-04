@@ -9,7 +9,356 @@ import Stripe
 import SafariServices
 import FirebaseFirestore
 
+enum LumoSettingsL10n {
+    enum Key: String {
+        case accountMenuTitle
+        case accountMenuProfile
+        case accountMenuLanguage
+        case accountMenuPrivacy
+        case accountMenuRideHistory
+        case accountMenuDelivery
+        case accountMenuNotifications
+        case accountMenuSupport
+        case accountMenuLegal
+        case accountMenuLogout
+
+        case languageTitle
+        case languageSubtitle
+        case languageEnglishTitle
+        case languageEnglishSubtitle
+        case languageArabicTitle
+        case languageArabicSubtitle
+
+        case homeRideScheduled
+        case homeFromLabel
+        case homeToLabel
+        case homeSearchPrompt
+        case homeNow
+        case homeSchedule
+        case homePlanRide
+        case homePickup
+        case homeDropoff
+        case homeWhereFrom
+        case homeWhereTo
+        case homeNotSet
+        case homeCurrentLocation
+        case homeEnterDestination
+
+        case destinationSetTrip
+        case destinationEnterPickup
+        case destinationUseCurrentLocation
+        case destinationDestination
+        case destinationRecentPlaces
+        case destinationContinue
+        case destinationFindingLocation
+        case destinationLocationUnavailable
+
+        case privacyTitle
+        case privacyLocationTracking
+        case privacyAllowLocationTitle
+        case privacyAllowLocationSubtitle
+        case privacyDiagnosticsTitle
+        case privacyDiagnosticsSubtitle
+        case privacyPersonalization
+        case privacyPersonalizedSuggestionsTitle
+        case privacyPersonalizedSuggestionsSubtitle
+        case privacySharePartnersTitle
+        case privacySharePartnersSubtitle
+        case privacyYourData
+        case privacyDownloadDataTitle
+        case privacyDownloadDataSubtitle
+        case privacyViewPolicyTitle
+
+        case notificationsTitle
+        case notificationsTripSection
+        case notificationsTripStatusTitle
+        case notificationsTripStatusSubtitle
+        case notificationsDriverArrivalTitle
+        case notificationsDriverArrivalSubtitle
+        case notificationsPromotionsSection
+        case notificationsPromotionsTitle
+        case notificationsPromotionsSubtitle
+        case notificationsProductUpdatesTitle
+        case notificationsProductUpdatesSubtitle
+        case notificationsChannelsSection
+        case notificationsSMSTitle
+        case notificationsEmailTitle
+
+        case supportTitle
+        case supportNeedHelpTitle
+        case supportRecentTripTitle
+        case supportRecentTripSubtitle
+        case supportHelpTopicsTitle
+        case supportPaymentChargesTitle
+        case supportPaymentChargesSubtitle
+        case supportAccountLoginTitle
+        case supportAccountLoginSubtitle
+        case supportSafetySecurityTitle
+        case supportSafetySecuritySubtitle
+        case supportUsingLumoTitle
+        case supportUsingLumoSubtitle
+        case supportContactTitle
+        case supportMessageTitle
+        case supportMessageSubtitle
+
+        case legalTitle
+        case legalDocumentsTitle
+        case legalDocumentsSubtitle
+        case legalTermsTitle
+        case legalTermsSubtitle
+        case legalPrivacyTitle
+        case legalPrivacySubtitle
+        case legalGuidelinesTitle
+        case legalGuidelinesSubtitle
+        case legalLicensesTitle
+        case legalLicensesSubtitle
+        case legalBackTitle
+    }
+
+    static func text(_ key: Key, language: LumoAppLanguage) -> String {
+        if language == .arabic, let value = arabic[key] {
+            return value
+        }
+        return english[key] ?? key.rawValue
+    }
+
+    static func languageTitleKey(for language: LumoAppLanguage) -> Key {
+        switch language {
+        case .english:
+            return .languageEnglishTitle
+        case .arabic:
+            return .languageArabicTitle
+        }
+    }
+
+    static func languageSubtitleKey(for language: LumoAppLanguage) -> Key {
+        switch language {
+        case .english:
+            return .languageEnglishSubtitle
+        case .arabic:
+            return .languageArabicSubtitle
+        }
+    }
+
+    private static let english: [Key: String] = [
+        .accountMenuTitle: "Account",
+        .accountMenuProfile: "Profile",
+        .accountMenuLanguage: "Language",
+        .accountMenuPrivacy: "Privacy",
+        .accountMenuRideHistory: "Ride history",
+        .accountMenuDelivery: "Delivery",
+        .accountMenuNotifications: "Notifications",
+        .accountMenuSupport: "Support",
+        .accountMenuLegal: "Legal",
+        .accountMenuLogout: "Log out",
+
+        .languageTitle: "Language",
+        .languageSubtitle: "English is default. Arabic is available with right-to-left layout.",
+        .languageEnglishTitle: "English",
+        .languageEnglishSubtitle: "Default language",
+        .languageArabicTitle: "Arabic",
+        .languageArabicSubtitle: "Right-to-left layout",
+
+        .homeRideScheduled: "Ride scheduled",
+        .homeFromLabel: "From",
+        .homeToLabel: "To",
+        .homeSearchPrompt: "Where are you going?",
+        .homeNow: "Now",
+        .homeSchedule: "Schedule",
+        .homePlanRide: "Plan your ride",
+        .homePickup: "Pickup",
+        .homeDropoff: "Dropoff",
+        .homeWhereFrom: "Where from?",
+        .homeWhereTo: "Where to?",
+        .homeNotSet: "Not set",
+        .homeCurrentLocation: "Current location",
+        .homeEnterDestination: "Enter destination",
+
+        .destinationSetTrip: "Set your trip",
+        .destinationEnterPickup: "Enter pickup",
+        .destinationUseCurrentLocation: "Use current location",
+        .destinationDestination: "Destination",
+        .destinationRecentPlaces: "Recent places",
+        .destinationContinue: "Continue",
+        .destinationFindingLocation: "Finding your location...",
+        .destinationLocationUnavailable: "Location unavailable",
+
+        .privacyTitle: "Privacy",
+        .privacyLocationTracking: "Location & tracking",
+        .privacyAllowLocationTitle: "Allow location",
+        .privacyAllowLocationSubtitle: "Let Lumo use your location for pickups and nearby drivers.",
+        .privacyDiagnosticsTitle: "Share anonymous diagnostics",
+        .privacyDiagnosticsSubtitle: "Help improve Lumo by sending anonymous crash and performance data.",
+        .privacyPersonalization: "Personalization",
+        .privacyPersonalizedSuggestionsTitle: "Personalized suggestions",
+        .privacyPersonalizedSuggestionsSubtitle: "Use your ride history to improve recommendations.",
+        .privacySharePartnersTitle: "Share data with partners",
+        .privacySharePartnersSubtitle: "Share limited, anonymized information to improve partner services.",
+        .privacyYourData: "Your data",
+        .privacyDownloadDataTitle: "Download your data",
+        .privacyDownloadDataSubtitle: "Request a copy of your ride and account data.",
+        .privacyViewPolicyTitle: "View privacy policy",
+
+        .notificationsTitle: "Notifications",
+        .notificationsTripSection: "Trip notifications",
+        .notificationsTripStatusTitle: "Trip status updates",
+        .notificationsTripStatusSubtitle: "Driver assigned, ride started, cancellations, and more.",
+        .notificationsDriverArrivalTitle: "Driver arrival alerts",
+        .notificationsDriverArrivalSubtitle: "Get notified when your driver is nearby.",
+        .notificationsPromotionsSection: "Promotions & news",
+        .notificationsPromotionsTitle: "Promotions and discounts",
+        .notificationsPromotionsSubtitle: "Get notified when there are offers in your area.",
+        .notificationsProductUpdatesTitle: "Product updates",
+        .notificationsProductUpdatesSubtitle: "New features, app changes, and important announcements.",
+        .notificationsChannelsSection: "Channels",
+        .notificationsSMSTitle: "SMS text messages",
+        .notificationsEmailTitle: "Email",
+
+        .supportTitle: "Support",
+        .supportNeedHelpTitle: "Need help with a trip?",
+        .supportRecentTripTitle: "Help with a recent trip",
+        .supportRecentTripSubtitle: "Report an issue, missing item, or incorrect charge.",
+        .supportHelpTopicsTitle: "Help topics",
+        .supportPaymentChargesTitle: "Payment & charges",
+        .supportPaymentChargesSubtitle: "Refunds, receipts, and payment methods",
+        .supportAccountLoginTitle: "Account & login",
+        .supportAccountLoginSubtitle: "Phone number, email, and profile",
+        .supportSafetySecurityTitle: "Safety & security",
+        .supportSafetySecuritySubtitle: "Reporting issues, emergency options",
+        .supportUsingLumoTitle: "Using Lumo",
+        .supportUsingLumoSubtitle: "How rides, pickups, and ETA work",
+        .supportContactTitle: "Contact",
+        .supportMessageTitle: "Message support",
+        .supportMessageSubtitle: "We'll get back to you as soon as possible.",
+
+        .legalTitle: "Legal",
+        .legalDocumentsTitle: "Legal documents",
+        .legalDocumentsSubtitle: "Review the terms that apply to your use of Lumo.",
+        .legalTermsTitle: "Terms of Service",
+        .legalTermsSubtitle: "Your agreement with Lumo",
+        .legalPrivacyTitle: "Privacy Policy",
+        .legalPrivacySubtitle: "How we handle your data",
+        .legalGuidelinesTitle: "Community Guidelines",
+        .legalGuidelinesSubtitle: "Rules for using Lumo",
+        .legalLicensesTitle: "Licenses",
+        .legalLicensesSubtitle: "Open-source components and licenses",
+        .legalBackTitle: "Back"
+    ]
+
+    private static let arabic: [Key: String] = [
+        .accountMenuTitle: "الحساب",
+        .accountMenuProfile: "الملف الشخصي",
+        .accountMenuLanguage: "اللغة",
+        .accountMenuPrivacy: "الخصوصية",
+        .accountMenuRideHistory: "سجل الرحلات",
+        .accountMenuDelivery: "التوصيل",
+        .accountMenuNotifications: "الإشعارات",
+        .accountMenuSupport: "الدعم",
+        .accountMenuLegal: "المستندات القانونية",
+        .accountMenuLogout: "تسجيل الخروج",
+
+        .languageTitle: "اللغة",
+        .languageSubtitle: "الإنجليزية هي الافتراضية. العربية متاحة بتخطيط من اليمين إلى اليسار.",
+        .languageEnglishTitle: "الإنجليزية",
+        .languageEnglishSubtitle: "اللغة الافتراضية",
+        .languageArabicTitle: "العربية",
+        .languageArabicSubtitle: "تخطيط من اليمين إلى اليسار",
+
+        .homeRideScheduled: "تمت جدولة الرحلة",
+        .homeFromLabel: "من",
+        .homeToLabel: "إلى",
+        .homeSearchPrompt: "إلى أين تريد الذهاب؟",
+        .homeNow: "الآن",
+        .homeSchedule: "جدولة",
+        .homePlanRide: "خطط رحلتك",
+        .homePickup: "الانطلاق",
+        .homeDropoff: "الوجهة",
+        .homeWhereFrom: "من أين؟",
+        .homeWhereTo: "إلى أين؟",
+        .homeNotSet: "غير محدد",
+        .homeCurrentLocation: "الموقع الحالي",
+        .homeEnterDestination: "أدخل الوجهة",
+
+        .destinationSetTrip: "حدد رحلتك",
+        .destinationEnterPickup: "أدخل موقع الانطلاق",
+        .destinationUseCurrentLocation: "استخدم الموقع الحالي",
+        .destinationDestination: "الوجهة",
+        .destinationRecentPlaces: "الأماكن الأخيرة",
+        .destinationContinue: "متابعة",
+        .destinationFindingLocation: "جارٍ تحديد موقعك...",
+        .destinationLocationUnavailable: "الموقع غير متاح",
+
+        .privacyTitle: "الخصوصية",
+        .privacyLocationTracking: "الموقع والتتبع",
+        .privacyAllowLocationTitle: "السماح بالموقع",
+        .privacyAllowLocationSubtitle: "السماح لـ Lumo باستخدام موقعك لعمليات الالتقاط والسائقين القريبين.",
+        .privacyDiagnosticsTitle: "مشاركة تشخيصات مجهولة",
+        .privacyDiagnosticsSubtitle: "ساعد في تحسين Lumo بإرسال بيانات أعطال وأداء مجهولة.",
+        .privacyPersonalization: "التخصيص",
+        .privacyPersonalizedSuggestionsTitle: "اقتراحات مخصصة",
+        .privacyPersonalizedSuggestionsSubtitle: "استخدام سجل رحلاتك لتحسين التوصيات.",
+        .privacySharePartnersTitle: "مشاركة البيانات مع الشركاء",
+        .privacySharePartnersSubtitle: "مشاركة معلومات محدودة ومجهولة لتحسين خدمات الشركاء.",
+        .privacyYourData: "بياناتك",
+        .privacyDownloadDataTitle: "تنزيل بياناتك",
+        .privacyDownloadDataSubtitle: "طلب نسخة من بيانات الرحلات والحساب.",
+        .privacyViewPolicyTitle: "عرض سياسة الخصوصية",
+
+        .notificationsTitle: "الإشعارات",
+        .notificationsTripSection: "إشعارات الرحلات",
+        .notificationsTripStatusTitle: "تحديثات حالة الرحلة",
+        .notificationsTripStatusSubtitle: "تعيين السائق وبدء الرحلة والإلغاءات والمزيد.",
+        .notificationsDriverArrivalTitle: "تنبيهات وصول السائق",
+        .notificationsDriverArrivalSubtitle: "تلقي إشعار عندما يكون سائقك قريبًا.",
+        .notificationsPromotionsSection: "العروض والأخبار",
+        .notificationsPromotionsTitle: "العروض والخصومات",
+        .notificationsPromotionsSubtitle: "تلقي إشعار عند توفر عروض في منطقتك.",
+        .notificationsProductUpdatesTitle: "تحديثات المنتج",
+        .notificationsProductUpdatesSubtitle: "ميزات جديدة وتغييرات في التطبيق وإعلانات مهمة.",
+        .notificationsChannelsSection: "القنوات",
+        .notificationsSMSTitle: "الرسائل النصية القصيرة",
+        .notificationsEmailTitle: "البريد الإلكتروني",
+
+        .supportTitle: "الدعم",
+        .supportNeedHelpTitle: "هل تحتاج مساعدة في رحلة؟",
+        .supportRecentTripTitle: "المساعدة في رحلة حديثة",
+        .supportRecentTripSubtitle: "الإبلاغ عن مشكلة أو غرض مفقود أو رسوم غير صحيحة.",
+        .supportHelpTopicsTitle: "مواضيع المساعدة",
+        .supportPaymentChargesTitle: "المدفوعات والرسوم",
+        .supportPaymentChargesSubtitle: "المبالغ المستردة والإيصالات وطرق الدفع",
+        .supportAccountLoginTitle: "الحساب وتسجيل الدخول",
+        .supportAccountLoginSubtitle: "رقم الهاتف والبريد الإلكتروني والملف الشخصي",
+        .supportSafetySecurityTitle: "السلامة والأمان",
+        .supportSafetySecuritySubtitle: "الإبلاغ عن المشكلات وخيارات الطوارئ",
+        .supportUsingLumoTitle: "استخدام Lumo",
+        .supportUsingLumoSubtitle: "كيفية عمل الرحلات ونقاط الالتقاط ووقت الوصول المتوقع",
+        .supportContactTitle: "التواصل",
+        .supportMessageTitle: "مراسلة الدعم",
+        .supportMessageSubtitle: "سنرد عليك في أقرب وقت ممكن.",
+
+        .legalTitle: "المستندات القانونية",
+        .legalDocumentsTitle: "المستندات القانونية",
+        .legalDocumentsSubtitle: "راجع الشروط التي تنطبق على استخدامك لـ Lumo.",
+        .legalTermsTitle: "شروط الخدمة",
+        .legalTermsSubtitle: "اتفاقيتك مع Lumo",
+        .legalPrivacyTitle: "سياسة الخصوصية",
+        .legalPrivacySubtitle: "كيف نتعامل مع بياناتك",
+        .legalGuidelinesTitle: "إرشادات المجتمع",
+        .legalGuidelinesSubtitle: "قواعد استخدام Lumo",
+        .legalLicensesTitle: "التراخيص",
+        .legalLicensesSubtitle: "مكونات وتراخيص مفتوحة المصدر",
+        .legalBackTitle: "رجوع"
+    ]
+}
+
+extension LumoLanguageStore {
+    func settingsText(_ key: LumoSettingsL10n.Key) -> String {
+        LumoSettingsL10n.text(key, language: selectedLanguage)
+    }
+}
+
 struct HomeView: View {
+    @EnvironmentObject private var languageStore: LumoLanguageStore
     @StateObject private var rideService = SupabaseRideService.shared
     @State private var isNow: Bool = true
     
@@ -38,7 +387,7 @@ struct HomeView: View {
 
     // MARK: - Scheduled pill display text
     private var scheduledPillTimeText: String {
-        guard scheduledForEpoch > 0 else { return "Not set" }
+        guard scheduledForEpoch > 0 else { return languageStore.settingsText(.homeNotSet) }
         let d = Date(timeIntervalSince1970: scheduledForEpoch)
         let f = DateFormatter()
         f.locale = .current
@@ -49,12 +398,12 @@ struct HomeView: View {
 
     private var scheduledPillFromText: String {
         let t = scheduledPickupAddress.trimmingCharacters(in: .whitespacesAndNewlines)
-        return t.isEmpty ? "Current location" : t
+        return t.isEmpty ? languageStore.settingsText(.homeCurrentLocation) : t
     }
 
     private var scheduledPillToText: String {
         let t = scheduledDropoffAddress.trimmingCharacters(in: .whitespacesAndNewlines)
-        return t.isEmpty ? "Enter destination" : t
+        return t.isEmpty ? languageStore.settingsText(.homeEnterDestination) : t
     }
 
     // Center of the map (for Google Maps)
@@ -114,7 +463,7 @@ struct HomeView: View {
                                     .font(.system(size: 13, weight: .semibold))
 
                                 VStack(alignment: .leading, spacing: 2) {
-                                    Text("Ride scheduled")
+                                    Text(languageStore.settingsText(.homeRideScheduled))
                                         .font(.system(size: 13, weight: .semibold))
 
                                     Text(scheduledPillTimeText)
@@ -122,12 +471,12 @@ struct HomeView: View {
                                         .foregroundColor(.white.opacity(0.80))
                                         .lineLimit(1)
 
-                                    Text("From: \(scheduledPillFromText)")
+                                    Text("\(languageStore.settingsText(.homeFromLabel)): \(scheduledPillFromText)")
                                         .font(.system(size: 12, weight: .semibold))
                                         .foregroundColor(.white.opacity(0.70))
                                         .lineLimit(1)
 
-                                    Text("To: \(scheduledPillToText)")
+                                    Text("\(languageStore.settingsText(.homeToLabel)): \(scheduledPillToText)")
                                         .font(.system(size: 12, weight: .semibold))
                                         .foregroundColor(.white.opacity(0.70))
                                         .lineLimit(1)
@@ -162,7 +511,7 @@ struct HomeView: View {
                                 .font(.system(size: 17))
                                 .foregroundColor(.gray.opacity(0.8))
 
-                            Text("Where are you going?")
+                            Text(languageStore.settingsText(.homeSearchPrompt))
                                 .foregroundColor(.gray.opacity(0.9))
                                 .font(.system(size: 16))
 
@@ -181,7 +530,7 @@ struct HomeView: View {
                         Button {
                             isNow = true
                         } label: {
-                            Text("Now")
+                            Text(languageStore.settingsText(.homeNow))
                                 .font(.system(size: 16, weight: .semibold))
                                 .foregroundColor(isNow ? .black : .white)
                                 .padding(.vertical, 10)
@@ -195,7 +544,7 @@ struct HomeView: View {
                         NavigationLink {
                             ScheduleRideView()
                         } label: {
-                            Text("Schedule")
+                            Text(languageStore.settingsText(.homeSchedule))
                                 .font(.system(size: 16, weight: .semibold))
                                 .foregroundColor(!isNow ? .black : .white)
                                 .padding(.vertical, 10)
@@ -217,7 +566,7 @@ struct HomeView: View {
                     // MARK: — PLAN YOUR RIDE CARD
                     VStack(alignment: .leading, spacing: 20) {
 
-                        Text("Plan your ride")
+                        Text(languageStore.settingsText(.homePlanRide))
                             .font(.system(size: 18, weight: .semibold))
                             .foregroundColor(.black)
 
@@ -231,11 +580,11 @@ struct HomeView: View {
                                     .frame(width: 10, height: 10)
 
                                 VStack(alignment: .leading, spacing: 2) {
-                                    Text("Pickup")
+                                    Text(languageStore.settingsText(.homePickup))
                                         .font(.system(size: 13))
                                         .foregroundColor(.gray)
 
-                                    Text("Where from?")
+                                    Text(languageStore.settingsText(.homeWhereFrom))
                                         .font(.system(size: 16, weight: .medium))
                                         .foregroundColor(.black)
                                 }
@@ -257,11 +606,11 @@ struct HomeView: View {
                                     .font(.system(size: 18))
 
                                 VStack(alignment: .leading, spacing: 2) {
-                                    Text("Dropoff")
+                                    Text(languageStore.settingsText(.homeDropoff))
                                         .font(.system(size: 13))
                                         .foregroundColor(.gray)
 
-                                    Text("Where to?")
+                                    Text(languageStore.settingsText(.homeWhereTo))
                                         .font(.system(size: 16, weight: .medium))
                                         .foregroundColor(.black)
                                 }
@@ -337,7 +686,7 @@ struct HomeView: View {
 
                         VStack(alignment: .leading, spacing: 18) {
 
-                            Text("Account")
+                            Text(languageStore.settingsText(.accountMenuTitle))
                                 .font(.system(size: 22, weight: .semibold))
                                 .foregroundColor(.white)
                                 .padding(.bottom, 4)
@@ -346,7 +695,7 @@ struct HomeView: View {
                             NavigationLink {
                                 ProfileView(logoutTriggered: $logoutTriggered)
                             } label: {
-                                Text("Profile")
+                                Text(languageStore.settingsText(.accountMenuProfile))
                                     .font(.system(size: 18, weight: .medium))
                                     .foregroundColor(.white)
                                     .frame(maxWidth: .infinity, alignment: .leading)
@@ -360,7 +709,7 @@ struct HomeView: View {
                             NavigationLink {
                                 LanguageSettingsView()
                             } label: {
-                                Text("Language")
+                                Text(languageStore.settingsText(.accountMenuLanguage))
                                     .font(.system(size: 18, weight: .medium))
                                     .foregroundColor(.white)
                                     .frame(maxWidth: .infinity, alignment: .leading)
@@ -374,7 +723,7 @@ struct HomeView: View {
                             NavigationLink {
                                 PrivacyView()
                             } label: {
-                                Text("Privacy")
+                                Text(languageStore.settingsText(.accountMenuPrivacy))
                                     .font(.system(size: 18, weight: .medium))
                                     .foregroundColor(.white)
                                     .frame(maxWidth: .infinity, alignment: .leading)
@@ -388,7 +737,7 @@ struct HomeView: View {
                             NavigationLink {
                                 RideHistoryView()
                             } label: {
-                                Text("Ride history")
+                                Text(languageStore.settingsText(.accountMenuRideHistory))
                                     .font(.system(size: 18, weight: .medium))
                                     .foregroundColor(.white)
                                     .frame(maxWidth: .infinity, alignment: .leading)
@@ -402,7 +751,7 @@ struct HomeView: View {
                             NavigationLink {
                                 DeliveryRootView()
                             } label: {
-                                Text("Delivery")
+                                Text(languageStore.settingsText(.accountMenuDelivery))
                                     .font(.system(size: 18, weight: .medium))
                                     .foregroundColor(.white)
                                     .frame(maxWidth: .infinity, alignment: .leading)
@@ -416,7 +765,7 @@ struct HomeView: View {
                             NavigationLink {
                                 NotificationsView()
                             } label: {
-                                Text("Notifications")
+                                Text(languageStore.settingsText(.accountMenuNotifications))
                                     .font(.system(size: 18, weight: .medium))
                                     .foregroundColor(.white)
                                     .frame(maxWidth: .infinity, alignment: .leading)
@@ -430,7 +779,7 @@ struct HomeView: View {
                             NavigationLink {
                                 SupportView()
                             } label: {
-                                Text("Support")
+                                Text(languageStore.settingsText(.accountMenuSupport))
                                     .font(.system(size: 18, weight: .medium))
                                     .foregroundColor(.white)
                                     .frame(maxWidth: .infinity, alignment: .leading)
@@ -444,7 +793,7 @@ struct HomeView: View {
                             NavigationLink {
                                 LegalView()
                             } label: {
-                                Text("Legal")
+                                Text(languageStore.settingsText(.accountMenuLegal))
                                     .font(.system(size: 18, weight: .medium))
                                     .foregroundColor(.white)
                                     .frame(maxWidth: .infinity, alignment: .leading)
@@ -472,7 +821,7 @@ struct HomeView: View {
                                     showProfileMenu = false
                                 }
                             } label: {
-                                Text("Log out")
+                                Text(languageStore.settingsText(.accountMenuLogout))
                                     .font(.system(size: 18, weight: .medium))
                                     .foregroundColor(.red)
                                     .frame(maxWidth: .infinity, alignment: .leading)
@@ -649,6 +998,7 @@ struct HomeView: View {
 
 #Preview {
     NavigationStack { HomeView() }
+        .environmentObject(LumoLanguageStore())
 }
 
 struct ScheduledRideDetailsView: View {
@@ -1183,11 +1533,11 @@ struct LanguageSettingsView: View {
 
             VStack(spacing: 24) {
                 VStack(alignment: .leading, spacing: 8) {
-                    Text("Language")
+                    Text(languageStore.settingsText(.languageTitle))
                         .font(.system(size: 24, weight: .bold))
                         .foregroundColor(.white)
 
-                    Text("English is default. Arabic is available with right-to-left layout.")
+                    Text(languageStore.settingsText(.languageSubtitle))
                         .font(.system(size: 13))
                         .foregroundColor(.white.opacity(0.6))
                 }
@@ -1204,11 +1554,11 @@ struct LanguageSettingsView: View {
                         } label: {
                             HStack(spacing: 12) {
                                 VStack(alignment: .leading, spacing: 3) {
-                                    Text(language.displayName)
+                                    Text(languageStore.settingsText(LumoSettingsL10n.languageTitleKey(for: language)))
                                         .font(.system(size: 16, weight: .semibold))
                                         .foregroundColor(.white)
 
-                                    Text(language.nativeName)
+                                    Text(languageStore.settingsText(LumoSettingsL10n.languageSubtitleKey(for: language)))
                                         .font(.system(size: 13, weight: .medium))
                                         .foregroundColor(.white.opacity(0.6))
                                 }
@@ -1237,7 +1587,7 @@ struct LanguageSettingsView: View {
                 Spacer()
             }
         }
-        .navigationTitle("Language")
+        .navigationTitle(languageStore.settingsText(.languageTitle))
         .navigationBarTitleDisplayMode(.inline)
     }
 }
@@ -2103,6 +2453,7 @@ struct LumoWalletTransaction: Identifiable, Codable {
 // MARK: - Privacy (polished)
 
 struct PrivacyView: View {
+    @EnvironmentObject private var languageStore: LumoLanguageStore
     @State private var locationAccess: Bool = true
     @State private var personalization: Bool = true
     @State private var dataSharing: Bool = false
@@ -2117,16 +2468,16 @@ struct PrivacyView: View {
 
                     // MARK: - Location & tracking
                     VStack(alignment: .leading, spacing: 16) {
-                        Text("Location & tracking")
+                        Text(languageStore.settingsText(.privacyLocationTracking))
                             .font(.system(size: 18, weight: .semibold))
                             .foregroundColor(.white)
 
                         Toggle(isOn: $locationAccess) {
                             VStack(alignment: .leading, spacing: 4) {
-                                Text("Allow location")
+                                Text(languageStore.settingsText(.privacyAllowLocationTitle))
                                     .font(.system(size: 15, weight: .medium))
                                     .foregroundColor(.white)
-                                Text("Let Lumo use your location for pickups and nearby drivers.")
+                                Text(languageStore.settingsText(.privacyAllowLocationSubtitle))
                                     .font(.system(size: 12))
                                     .foregroundColor(.white.opacity(0.6))
                             }
@@ -2137,10 +2488,10 @@ struct PrivacyView: View {
 
                         Toggle(isOn: $crashReports) {
                             VStack(alignment: .leading, spacing: 4) {
-                                Text("Share anonymous diagnostics")
+                                Text(languageStore.settingsText(.privacyDiagnosticsTitle))
                                     .font(.system(size: 15, weight: .medium))
                                     .foregroundColor(.white)
-                                Text("Help improve Lumo by sending anonymous crash and performance data.")
+                                Text(languageStore.settingsText(.privacyDiagnosticsSubtitle))
                                     .font(.system(size: 12))
                                     .foregroundColor(.white.opacity(0.6))
                             }
@@ -2154,16 +2505,16 @@ struct PrivacyView: View {
 
                     // MARK: - Personalization & data
                     VStack(alignment: .leading, spacing: 16) {
-                        Text("Personalization")
+                        Text(languageStore.settingsText(.privacyPersonalization))
                             .font(.system(size: 18, weight: .semibold))
                             .foregroundColor(.white)
 
                         Toggle(isOn: $personalization) {
                             VStack(alignment: .leading, spacing: 4) {
-                                Text("Personalized suggestions")
+                                Text(languageStore.settingsText(.privacyPersonalizedSuggestionsTitle))
                                     .font(.system(size: 15, weight: .medium))
                                     .foregroundColor(.white)
-                                Text("Use your ride history to improve recommendations.")
+                                Text(languageStore.settingsText(.privacyPersonalizedSuggestionsSubtitle))
                                     .font(.system(size: 12))
                                     .foregroundColor(.white.opacity(0.6))
                             }
@@ -2174,10 +2525,10 @@ struct PrivacyView: View {
 
                         Toggle(isOn: $dataSharing) {
                             VStack(alignment: .leading, spacing: 4) {
-                                Text("Share data with partners")
+                                Text(languageStore.settingsText(.privacySharePartnersTitle))
                                     .font(.system(size: 15, weight: .medium))
                                     .foregroundColor(.white)
-                                Text("Share limited, anonymized information to improve partner services.")
+                                Text(languageStore.settingsText(.privacySharePartnersSubtitle))
                                     .font(.system(size: 12))
                                     .foregroundColor(.white.opacity(0.6))
                             }
@@ -2191,7 +2542,7 @@ struct PrivacyView: View {
 
                     // MARK: - Data controls
                     VStack(alignment: .leading, spacing: 12) {
-                        Text("Your data")
+                        Text(languageStore.settingsText(.privacyYourData))
                             .font(.system(size: 18, weight: .semibold))
                             .foregroundColor(.white)
 
@@ -2200,10 +2551,10 @@ struct PrivacyView: View {
                         } label: {
                             HStack {
                                 VStack(alignment: .leading, spacing: 2) {
-                                    Text("Download your data")
+                                    Text(languageStore.settingsText(.privacyDownloadDataTitle))
                                         .font(.system(size: 15, weight: .medium))
                                         .foregroundColor(.white)
-                                    Text("Request a copy of your ride and account data.")
+                                    Text(languageStore.settingsText(.privacyDownloadDataSubtitle))
                                         .font(.system(size: 12))
                                         .foregroundColor(.white.opacity(0.6))
                                 }
@@ -2220,7 +2571,7 @@ struct PrivacyView: View {
                             print("Privacy policy tapped")
                         } label: {
                             HStack {
-                                Text("View privacy policy")
+                                Text(languageStore.settingsText(.privacyViewPolicyTitle))
                                     .font(.system(size: 14, weight: .medium))
                                     .foregroundColor(.white.opacity(0.8))
                                 Spacer()
@@ -2238,7 +2589,7 @@ struct PrivacyView: View {
                 }
             }
         }
-        .navigationTitle("Privacy")
+        .navigationTitle(languageStore.settingsText(.privacyTitle))
         .navigationBarTitleDisplayMode(.inline)
     }
 }
@@ -2344,6 +2695,7 @@ struct RideHistoryView: View {
 // MARK: - Notifications (polished)
 
 struct NotificationsView: View {
+    @EnvironmentObject private var languageStore: LumoLanguageStore
     @State private var tripUpdates: Bool = true
     @State private var driverArriving: Bool = true
     @State private var promotions: Bool = true
@@ -2360,16 +2712,16 @@ struct NotificationsView: View {
 
                     // MARK: - In-app & push
                     VStack(alignment: .leading, spacing: 16) {
-                        Text("Trip notifications")
+                        Text(languageStore.settingsText(.notificationsTripSection))
                             .font(.system(size: 18, weight: .semibold))
                             .foregroundColor(.white)
 
                         Toggle(isOn: $tripUpdates) {
                             VStack(alignment: .leading, spacing: 4) {
-                                Text("Trip status updates")
+                                Text(languageStore.settingsText(.notificationsTripStatusTitle))
                                     .font(.system(size: 15, weight: .medium))
                                     .foregroundColor(.white)
-                                Text("Driver assigned, ride started, cancellations, and more.")
+                                Text(languageStore.settingsText(.notificationsTripStatusSubtitle))
                                     .font(.system(size: 12))
                                     .foregroundColor(.white.opacity(0.6))
                             }
@@ -2380,10 +2732,10 @@ struct NotificationsView: View {
 
                         Toggle(isOn: $driverArriving) {
                             VStack(alignment: .leading, spacing: 4) {
-                                Text("Driver arrival alerts")
+                                Text(languageStore.settingsText(.notificationsDriverArrivalTitle))
                                     .font(.system(size: 15, weight: .medium))
                                     .foregroundColor(.white)
-                                Text("Get notified when your driver is nearby.")
+                                Text(languageStore.settingsText(.notificationsDriverArrivalSubtitle))
                                     .font(.system(size: 12))
                                     .foregroundColor(.white.opacity(0.6))
                             }
@@ -2397,16 +2749,16 @@ struct NotificationsView: View {
 
                     // MARK: - Marketing
                     VStack(alignment: .leading, spacing: 16) {
-                        Text("Promotions & news")
+                        Text(languageStore.settingsText(.notificationsPromotionsSection))
                             .font(.system(size: 18, weight: .semibold))
                             .foregroundColor(.white)
 
                         Toggle(isOn: $promotions) {
                             VStack(alignment: .leading, spacing: 4) {
-                                Text("Promotions and discounts")
+                                Text(languageStore.settingsText(.notificationsPromotionsTitle))
                                     .font(.system(size: 15, weight: .medium))
                                     .foregroundColor(.white)
-                                Text("Get notified when there are offers in your area.")
+                                Text(languageStore.settingsText(.notificationsPromotionsSubtitle))
                                     .font(.system(size: 12))
                                     .foregroundColor(.white.opacity(0.6))
                             }
@@ -2417,10 +2769,10 @@ struct NotificationsView: View {
 
                         Toggle(isOn: $productUpdates) {
                             VStack(alignment: .leading, spacing: 4) {
-                                Text("Product updates")
+                                Text(languageStore.settingsText(.notificationsProductUpdatesTitle))
                                     .font(.system(size: 15, weight: .medium))
                                     .foregroundColor(.white)
-                                Text("New features, app changes, and important announcements.")
+                                Text(languageStore.settingsText(.notificationsProductUpdatesSubtitle))
                                     .font(.system(size: 12))
                                     .foregroundColor(.white.opacity(0.6))
                             }
@@ -2434,19 +2786,19 @@ struct NotificationsView: View {
 
                     // MARK: - Channels
                     VStack(alignment: .leading, spacing: 16) {
-                        Text("Channels")
+                        Text(languageStore.settingsText(.notificationsChannelsSection))
                             .font(.system(size: 18, weight: .semibold))
                             .foregroundColor(.white)
 
                         Toggle(isOn: $sms) {
-                            Text("SMS text messages")
+                            Text(languageStore.settingsText(.notificationsSMSTitle))
                                 .font(.system(size: 15, weight: .medium))
                                 .foregroundColor(.white)
                         }
                         .toggleStyle(SwitchToggleStyle(tint: .white))
 
                         Toggle(isOn: $email) {
-                            Text("Email")
+                            Text(languageStore.settingsText(.notificationsEmailTitle))
                                 .font(.system(size: 15, weight: .medium))
                                 .foregroundColor(.white)
                         }
@@ -2460,7 +2812,7 @@ struct NotificationsView: View {
                 }
             }
         }
-        .navigationTitle("Notifications")
+        .navigationTitle(languageStore.settingsText(.notificationsTitle))
         .navigationBarTitleDisplayMode(.inline)
     }
 }
@@ -2468,6 +2820,8 @@ struct NotificationsView: View {
 // MARK: - Support (polished)
 
 struct SupportView: View {
+    @EnvironmentObject private var languageStore: LumoLanguageStore
+
     var body: some View {
         ZStack {
             Color.black.ignoresSafeArea()
@@ -2477,7 +2831,7 @@ struct SupportView: View {
 
                     // MARK: - Quick actions
                     VStack(alignment: .leading, spacing: 12) {
-                        Text("Need help with a trip?")
+                        Text(languageStore.settingsText(.supportNeedHelpTitle))
                             .font(.system(size: 18, weight: .semibold))
                             .foregroundColor(.white)
 
@@ -2486,10 +2840,10 @@ struct SupportView: View {
                         } label: {
                             HStack {
                                 VStack(alignment: .leading, spacing: 2) {
-                                    Text("Help with a recent trip")
+                                    Text(languageStore.settingsText(.supportRecentTripTitle))
                                         .font(.system(size: 15, weight: .medium))
                                         .foregroundColor(.white)
-                                    Text("Report an issue, missing item, or incorrect charge.")
+                                    Text(languageStore.settingsText(.supportRecentTripSubtitle))
                                         .font(.system(size: 12))
                                         .foregroundColor(.white.opacity(0.6))
                                 }
@@ -2509,14 +2863,14 @@ struct SupportView: View {
 
                     // MARK: - Help topics
                     VStack(alignment: .leading, spacing: 12) {
-                        Text("Help topics")
+                        Text(languageStore.settingsText(.supportHelpTopicsTitle))
                             .font(.system(size: 18, weight: .semibold))
                             .foregroundColor(.white)
 
-                        SupportRow(title: "Payment & charges", subtitle: "Refunds, receipts, and payment methods")
-                        SupportRow(title: "Account & login", subtitle: "Phone number, email, and profile")
-                        SupportRow(title: "Safety & security", subtitle: "Reporting issues, emergency options")
-                        SupportRow(title: "Using Lumo", subtitle: "How rides, pickups, and ETA work")
+                        SupportRow(titleKey: .supportPaymentChargesTitle, subtitleKey: .supportPaymentChargesSubtitle)
+                        SupportRow(titleKey: .supportAccountLoginTitle, subtitleKey: .supportAccountLoginSubtitle)
+                        SupportRow(titleKey: .supportSafetySecurityTitle, subtitleKey: .supportSafetySecuritySubtitle)
+                        SupportRow(titleKey: .supportUsingLumoTitle, subtitleKey: .supportUsingLumoSubtitle)
                     }
                     .padding(18)
                     .background(Color.white.opacity(0.05))
@@ -2525,7 +2879,7 @@ struct SupportView: View {
 
                     // MARK: - Contact support
                     VStack(alignment: .leading, spacing: 12) {
-                        Text("Contact")
+                        Text(languageStore.settingsText(.supportContactTitle))
                             .font(.system(size: 18, weight: .semibold))
                             .foregroundColor(.white)
 
@@ -2540,10 +2894,10 @@ struct SupportView: View {
                                     .clipShape(Circle())
 
                                 VStack(alignment: .leading, spacing: 2) {
-                                    Text("Message support")
+                                    Text(languageStore.settingsText(.supportMessageTitle))
                                         .font(.system(size: 15, weight: .medium))
                                         .foregroundColor(.white)
-                                    Text("We’ll get back to you as soon as possible.")
+                                    Text(languageStore.settingsText(.supportMessageSubtitle))
                                         .font(.system(size: 12))
                                         .foregroundColor(.white.opacity(0.6))
                                 }
@@ -2563,25 +2917,27 @@ struct SupportView: View {
                 }
             }
         }
-        .navigationTitle("Support")
+        .navigationTitle(languageStore.settingsText(.supportTitle))
         .navigationBarTitleDisplayMode(.inline)
     }
 }
 
-struct SupportRow: View {
-    let title: String
-    let subtitle: String
+private struct SupportRow: View {
+    @EnvironmentObject private var languageStore: LumoLanguageStore
+
+    let titleKey: LumoSettingsL10n.Key
+    let subtitleKey: LumoSettingsL10n.Key
 
     var body: some View {
         Button {
-            print("\(title) tapped")
+            print("\(titleKey.rawValue) tapped")
         } label: {
             HStack {
                 VStack(alignment: .leading, spacing: 2) {
-                    Text(title)
+                    Text(languageStore.settingsText(titleKey))
                         .font(.system(size: 15, weight: .medium))
                         .foregroundColor(.white)
-                    Text(subtitle)
+                    Text(languageStore.settingsText(subtitleKey))
                         .font(.system(size: 12))
                         .foregroundColor(.white.opacity(0.6))
                 }
@@ -2604,31 +2960,31 @@ private enum LegalDocument: CaseIterable, Hashable, Identifiable {
     case communityGuidelines
     case licenses
 
-    var id: String { title }
+    var id: LumoSettingsL10n.Key { titleKey }
 
-    var title: String {
+    var titleKey: LumoSettingsL10n.Key {
         switch self {
         case .termsOfService:
-            return "Terms of Service"
+            return .legalTermsTitle
         case .privacyPolicy:
-            return "Privacy Policy"
+            return .legalPrivacyTitle
         case .communityGuidelines:
-            return "Community Guidelines"
+            return .legalGuidelinesTitle
         case .licenses:
-            return "Licenses"
+            return .legalLicensesTitle
         }
     }
 
-    var subtitle: String {
+    var subtitleKey: LumoSettingsL10n.Key {
         switch self {
         case .termsOfService:
-            return "Your agreement with Lumo"
+            return .legalTermsSubtitle
         case .privacyPolicy:
-            return "How we handle your data"
+            return .legalPrivacySubtitle
         case .communityGuidelines:
-            return "Rules for using Lumo"
+            return .legalGuidelinesSubtitle
         case .licenses:
-            return "Open-source components and licenses"
+            return .legalLicensesSubtitle
         }
     }
 
@@ -2711,6 +3067,8 @@ private enum LegalDocument: CaseIterable, Hashable, Identifiable {
 }
 
 struct LegalView: View {
+    @EnvironmentObject private var languageStore: LumoLanguageStore
+
     var body: some View {
         ZStack {
             Color.black.ignoresSafeArea()
@@ -2718,11 +3076,11 @@ struct LegalView: View {
             VStack(spacing: 24) {
 
                 VStack(alignment: .leading, spacing: 8) {
-                    Text("Legal documents")
+                    Text(languageStore.settingsText(.legalDocumentsTitle))
                         .font(.system(size: 18, weight: .semibold))
                         .foregroundColor(.white)
 
-                    Text("Review the terms that apply to your use of Lumo.")
+                    Text(languageStore.settingsText(.legalDocumentsSubtitle))
                         .font(.system(size: 13))
                         .foregroundColor(.white.opacity(0.6))
                 }
@@ -2735,7 +3093,10 @@ struct LegalView: View {
                         NavigationLink {
                             LegalDocumentDetailView(document: document)
                         } label: {
-                            LegalRow(title: document.title, subtitle: document.subtitle)
+                            LegalRow(
+                                title: languageStore.settingsText(document.titleKey),
+                                subtitle: languageStore.settingsText(document.subtitleKey)
+                            )
                         }
                         .buttonStyle(.plain)
                     }
@@ -2745,7 +3106,7 @@ struct LegalView: View {
                 Spacer()
             }
         }
-        .navigationTitle("Legal")
+        .navigationTitle(languageStore.settingsText(.legalTitle))
         .navigationBarTitleDisplayMode(.inline)
     }
 }
@@ -2776,6 +3137,7 @@ private struct LegalRow: View {
 
 private struct LegalDocumentDetailView: View {
     @Environment(\.dismiss) private var dismiss
+    @EnvironmentObject private var languageStore: LumoLanguageStore
 
     let document: LegalDocument
 
@@ -2790,7 +3152,7 @@ private struct LegalDocumentDetailView: View {
                     HStack(spacing: 8) {
                         Image(systemName: "chevron.left")
                             .font(.system(size: 14, weight: .semibold))
-                        Text("Back")
+                        Text(languageStore.settingsText(.legalBackTitle))
                             .font(.system(size: 15, weight: .semibold))
                     }
                     .foregroundColor(.white)
@@ -2802,7 +3164,7 @@ private struct LegalDocumentDetailView: View {
                 .buttonStyle(.plain)
                 .padding(.top, 16)
 
-                Text(document.title)
+                Text(languageStore.settingsText(document.titleKey))
                     .font(.system(size: 28, weight: .bold))
                     .foregroundColor(.white)
                     .frame(maxWidth: .infinity, alignment: .leading)
