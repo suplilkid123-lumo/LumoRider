@@ -24,7 +24,7 @@ struct RideStatusSnapshot: Equatable {
     let status: String
     let driverId: String?
 
-    private var normalizedStatus: String {
+    var normalizedStatus: String {
         status.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
     }
 
@@ -45,7 +45,7 @@ struct RideStatusSnapshot: Equatable {
     }
 
     var isCancelled: Bool {
-        normalizedStatus == "cancelled" || normalizedStatus == "canceled"
+        SupabaseRideService.terminalStatuses.contains(normalizedStatus)
     }
 }
 
@@ -237,45 +237,6 @@ final class RideMatchingClient {
     }
 
 
-    func markRideCanceledByRider(rideId: UUID, refundId: String?, markRefunded: Bool) async throws {
-        var comps = URLComponents(url: cfg.baseURL, resolvingAgainstBaseURL: false)
-        comps?.path = "/rest/v1/rides"
-        comps?.queryItems = [
-            URLQueryItem(name: "id", value: "eq.\(rideId.uuidString)")
-        ]
-
-        guard let url = comps?.url else { throw URLError(.badURL) }
-
-        var body: [String: Any] = [
-            "status": "cancelled_by_rider"
-        ]
-
-        if markRefunded {
-            body["payment_status"] = "refunded"
-            body["refunded_at"] = ISO8601DateFormatter().string(from: Date())
-
-            if let refundId,
-               !refundId.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
-                body["refund_id"] = refundId
-            }
-        }
-
-        var req = URLRequest(url: url)
-        req.httpMethod = "PATCH"
-        applyHeaders(&req)
-        req.setValue("application/json", forHTTPHeaderField: "Content-Type")
-        req.setValue("application/json", forHTTPHeaderField: "Accept")
-        req.setValue("return=minimal", forHTTPHeaderField: "Prefer")
-        req.httpBody = try JSONSerialization.data(withJSONObject: body, options: [])
-
-        let (data, resp) = try await session.data(for: req)
-        guard let http = resp as? HTTPURLResponse else { throw URLError(.badServerResponse) }
-        guard (200...299).contains(http.statusCode) else {
-            let msg = String(data: data, encoding: .utf8) ?? ""
-            throw PostgRESTHTTPError(statusCode: http.statusCode, body: msg)
-        }
-    }
-
     private func readNullableString(_ raw: Any?) -> String? {
         if let s = raw as? String {
             let trimmed = s.trimmingCharacters(in: .whitespacesAndNewlines)
@@ -289,39 +250,6 @@ final class RideMatchingClient {
         }
 
         return nil
-    }
-
-    /// Cancels the ride request by hard-deleting the ride row.
-    /// Your DB has a CHECK constraint (23514) that rejects status updates, so DELETE is the most reliable instant cancel.
-    func cancelRide(rideId: UUID) async throws {
-        var comps = URLComponents(url: cfg.baseURL, resolvingAgainstBaseURL: false)
-        comps?.path = "/rest/v1/rides"
-        comps?.queryItems = [
-            URLQueryItem(name: "id", value: "eq.\(rideId.uuidString)")
-        ]
-        guard let url = comps?.url else { throw URLError(.badURL) }
-
-        var req = URLRequest(url: url)
-        req.httpMethod = "DELETE"
-        applyHeaders(&req)
-        req.setValue("return=minimal", forHTTPHeaderField: "Prefer")
-
-        let (data, resp) = try await session.data(for: req)
-        guard let http = resp as? HTTPURLResponse else { throw URLError(.badServerResponse) }
-        guard (200...299).contains(http.statusCode) else {
-            let msg = String(data: data, encoding: .utf8) ?? ""
-            throw PostgRESTHTTPError(statusCode: http.statusCode, body: msg)
-        }
-
-        // Best-effort confirm: if the row is gone or not readable, we're done.
-        // If it still exists and is readable, cancellation likely failed at the policy layer.
-        do {
-            _ = try await fetchRideStatus(rideId: rideId)
-            // If fetch succeeds, the row still exists. Treat that as a failure.
-            throw PostgRESTHTTPError(statusCode: 520, body: "Delete returned success but ride still exists.")
-        } catch {
-            // Expected: fetch fails because row is gone or not visible.
-        }
     }
 
     private func applyHeaders(_ req: inout URLRequest) {
@@ -353,13 +281,16 @@ struct SearchingForDriverView: View {
     /// Provide your app’s Supabase URL + anon key here.
     /// You will pass this from CardPaymentView (or your existing config holder).
     let supabase: LumoSupabaseConfig
+    var onRideEnded: (() -> Void)? = nil
 
     // MARK: - UI State
     @Environment(\.dismiss) private var dismiss
     @State private var goToConfirmed = false
     @State private var isCancelling = false
     @State private var errorText: String? = nil
-    @State private var pollCancellable: AnyCancellable?
+    @State private var pollTask: Task<Void, Never>?
+    @State private var startupTask: Task<Void, Never>?
+    @State private var lifecycleGeneration = UUID()
     @State private var lastSnapshot: RideStatusSnapshot? = nil
     @State private var allowTransition = false
 
@@ -398,12 +329,11 @@ struct SearchingForDriverView: View {
                 cancelButton
                     .padding(.bottom, 26)
 
-                // Hidden navigation to confirmed view
+                // The searching view owns the single live tracking destination.
                 NavigationLink(
-                    destination: RideConfirmedView(
-                        rideId: rideId,
-                        pickupAddress: pickupAddress,
-                        dropoffAddress: dropoffAddress
+                    destination: DriverTrackingView(
+                        rideId: rideId.uuidString,
+                        onRideEnded: finishRideNavigation
                     ),
                     isActive: $goToConfirmed
                 ) { EmptyView() }
@@ -413,14 +343,25 @@ struct SearchingForDriverView: View {
         }
         .navigationBarBackButtonHidden(true)
         .onAppear {
+            lifecycleGeneration = UUID()
+            let generation = lifecycleGeneration
             allowTransition = false
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.9) {
+            startupTask?.cancel()
+            startupTask = Task {
+                try? await Task.sleep(nanoseconds: 900_000_000)
+                guard !Task.isCancelled, lifecycleGeneration == generation, !isCancelling else { return }
                 allowTransition = true
-                Task { await checkRideStatusOnce() } // quick check after the minimum display time
-                startPolling()
+                await checkRideStatusOnce(generation: generation)
+                guard lifecycleGeneration == generation, !isCancelling, !goToConfirmed else { return }
+                startPolling(generation: generation)
             }
         }
-        .onDisappear { stopPolling() }
+        .onDisappear {
+            lifecycleGeneration = UUID()
+            startupTask?.cancel()
+            startupTask = nil
+            stopPolling()
+        }
     }
 
     // MARK: - Subviews
@@ -557,37 +498,40 @@ struct SearchingForDriverView: View {
 
     // MARK: - Polling / State transitions (REAL)
 
-    private func startPolling() {
+    private func startPolling(generation: UUID? = nil) {
         stopPolling()
-
-        pollCancellable = Timer
-            .publish(every: 2.0, on: .main, in: .common)
-            .autoconnect()
-            .sink { _ in
-                Task { await checkRideStatusOnce() }
+        let expectedGeneration = generation ?? lifecycleGeneration
+        pollTask = Task {
+            while !Task.isCancelled, lifecycleGeneration == expectedGeneration, !isCancelling {
+                await checkRideStatusOnce(generation: expectedGeneration)
+                guard !Task.isCancelled, lifecycleGeneration == expectedGeneration, !isCancelling, !goToConfirmed else { return }
+                try? await Task.sleep(nanoseconds: 2_000_000_000)
             }
+        }
     }
 
     private func stopPolling() {
-        pollCancellable?.cancel()
-        pollCancellable = nil
+        pollTask?.cancel()
+        pollTask = nil
     }
 
     @MainActor
-    private func checkRideStatusOnce() async {
+    private func checkRideStatusOnce(generation: UUID) async {
         do {
             let snap = try await client.fetchRideStatus(rideId: rideId)
+            guard lifecycleGeneration == generation, !isCancelling, !Task.isCancelled else { return }
             lastSnapshot = snap
 
             if snap.isCancelled {
+                SupabaseRideService.shared.stopObservingRideStatus(terminalStatus: snap.normalizedStatus)
                 stopPolling()
                 errorText = "Cancelled."
-                dismissToHome()
+                finishRideNavigation()
                 return
             }
 
             if snap.isAcceptedOrAssigned {
-                guard allowTransition else { return }
+                guard allowTransition, lifecycleGeneration == generation, !isCancelling else { return }
 
                 stopPolling()
                 successHaptic()
@@ -596,6 +540,7 @@ struct SearchingForDriverView: View {
                 }
             }
         } catch {
+            guard lifecycleGeneration == generation, !isCancelling, !Task.isCancelled else { return }
             if errorText == nil {
                 errorText = "Still searching…"
             }
@@ -606,6 +551,9 @@ struct SearchingForDriverView: View {
         guard !isCancelling else { return }
         isCancelling = true
         errorText = nil
+        lifecycleGeneration = UUID()
+        startupTask?.cancel()
+        startupTask = nil
         stopPolling()
 
         Task {
@@ -625,7 +573,6 @@ struct SearchingForDriverView: View {
                     )
                 }
 
-                var refundId: String? = nil
                 var markRefunded = false
 
                 if cancelSnapshot.hasPaymentToRefund,
@@ -635,15 +582,11 @@ struct SearchingForDriverView: View {
                         rideId: rideId,
                         paymentIntentId: paymentIntentId
                     )
-                    refundId = refund.refundId
+                    _ = refund.refundId
                     markRefunded = true
                 }
 
-                try await client.markRideCanceledByRider(
-                    rideId: rideId,
-                    refundId: refundId,
-                    markRefunded: markRefunded
-                )
+                try await SupabaseRideService.shared.cancelPassengerRideByRider(rideId: rideId.uuidString)
 
                 await MainActor.run {
                     isCancelling = false
@@ -651,7 +594,12 @@ struct SearchingForDriverView: View {
                     allowTransition = false
                     lastSnapshot = RideStatusSnapshot(status: "cancelled_by_rider", driverId: nil)
                     errorText = markRefunded ? "Refunded and cancelled." : "Cancelled."
-                    dismissToHome()
+                    NotificationCenter.default.post(
+                        name: .RideDidCancel,
+                        object: nil,
+                        userInfo: ["rideId": rideId.uuidString]
+                    )
+                    finishRideNavigation()
                 }
             } catch {
                 await MainActor.run {
@@ -663,7 +611,8 @@ struct SearchingForDriverView: View {
                     print("❌ cancelRequest failed userInfo:", nsError.userInfo)
                     let msg = (error as? LocalizedError)?.errorDescription ?? nsError.localizedDescription
                     errorText = "Refund/cancel failed: \(msg)"
-                    startPolling()
+                    lifecycleGeneration = UUID()
+                    startPolling(generation: lifecycleGeneration)
                 }
             }
         }
@@ -672,17 +621,17 @@ struct SearchingForDriverView: View {
     // MARK: - Helpers
 
     @MainActor
-    private func dismissToHome() {
-        // Works for NavigationStack push AND modal presentation
-        dismiss()
+    private func finishRideNavigation() {
+        lifecycleGeneration = UUID()
+        startupTask?.cancel()
+        startupTask = nil
+        stopPolling()
+        goToConfirmed = false
 
-        // Best-effort: if it’s inside a modal stack, dismiss any presented VC too
-        if let scene = UIApplication.shared.connectedScenes
-            .compactMap({ $0 as? UIWindowScene })
-            .first,
-           let root = scene.windows.first?.rootViewController,
-           root.presentedViewController != nil {
-            root.dismiss(animated: true)
+        if let onRideEnded {
+            onRideEnded()
+        } else {
+            dismiss()
         }
     }
 

@@ -8,6 +8,7 @@ import GoogleMaps
 
 struct ConfirmPickupView: View {
     @Environment(\.dismiss) private var dismiss
+    @EnvironmentObject private var languageStore: LumoLanguageStore
 
     let pickupAddress: String
     let pickupCoordinate: CLLocationCoordinate2D
@@ -60,6 +61,7 @@ struct ConfirmPickupView: View {
                     .clipShape(Circle())
             }
             .padding(12)
+            .accessibilityLabel(languageStore.settingsText(.confirmPickupBack))
         }
     }
 }

@@ -218,7 +218,7 @@ struct CardPaymentView: View {
 
     private var normalizedCurrency: String? {
         let trimmed = (currency ?? "").trimmingCharacters(in: .whitespacesAndNewlines).uppercased()
-        return trimmed == "USD" ? "USD" : nil
+        return ["USD", "IQD"].contains(trimmed) ? trimmed : nil
     }
 
     private var paymentAmountCents: Int? {
@@ -294,7 +294,7 @@ struct CardPaymentView: View {
 
         guard shouldInsert else { return }
 
-        guard let riderId = Auth.auth().currentUser?.uid, !riderId.isEmpty else {
+        guard let user = Auth.auth().currentUser, !user.uid.isEmpty else {
             await MainActor.run {
                 rideInsertStarted = false
                 isProcessing = false
@@ -302,9 +302,10 @@ struct CardPaymentView: View {
             }
             return
         }
+        let riderId = user.uid
 
-        let displayName = Auth.auth().currentUser?.displayName
-        let photoURL = Auth.auth().currentUser?.photoURL?.absoluteString
+        let displayName = user.displayName
+        let photoURL = user.photoURL?.absoluteString
 
         let fallbackName = UserDefaults.standard.string(forKey: "lumo_profile_name")
         let fallbackPhoto = UserDefaults.standard.string(forKey: "lumo_profile_photo_url")
@@ -372,6 +373,12 @@ struct CardPaymentView: View {
             "driver_id": NSNull()
         ]
 
+        if let rideTypeLabel, !rideTypeLabel.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+            if rideTypeLabel.trimmingCharacters(in: .whitespacesAndNewlines).caseInsensitiveCompare("Share") == .orderedSame {
+                body["ride_mode"] = "SHARE"
+            }
+        }
+
         if effectiveIsScheduled {
             body["scheduled_for"] = iso8601(Date(timeIntervalSince1970: scheduledForEpoch))
         }
@@ -392,6 +399,7 @@ struct CardPaymentView: View {
         }
 
         do {
+            let accessToken = try await user.getIDToken()
             guard let url = URL(string: "https://rpryqbdodbieioebedjg.supabase.co/rest/v1/rides") else {
                 throw NSError(domain: "CardPaymentView", code: -1, userInfo: [NSLocalizedDescriptionKey: "Invalid Supabase URL"])
             }
@@ -399,7 +407,7 @@ struct CardPaymentView: View {
             var request = URLRequest(url: url)
             request.httpMethod = "POST"
             request.setValue("application/json", forHTTPHeaderField: "Content-Type")
-            request.setValue("Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJwcnlxYmRvZGJpZWlvZWJlZGpnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjUwNjE0MjYsImV4cCI6MjA4MDYzNzQyNn0.8ZTaA1bCyRUKb6U4NNZou6DMfXP3yyE1NeNL8Ljt9as", forHTTPHeaderField: "Authorization")
+            request.setValue("Bearer \(accessToken)", forHTTPHeaderField: "Authorization")
             request.setValue("eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJwcnlxYmRvZGJpZWlvZWJlZGpnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjUwNjE0MjYsImV4cCI6MjA4MDYzNzQyNn0.8ZTaA1bCyRUKb6U4NNZou6DMfXP3yyE1NeNL8Ljt9as", forHTTPHeaderField: "apikey")
             request.setValue("return=representation", forHTTPHeaderField: "Prefer")
             request.httpBody = try JSONSerialization.data(withJSONObject: body, options: [])
@@ -493,7 +501,7 @@ struct CardPaymentView: View {
             var request = URLRequest(url: url)
             request.httpMethod = "PATCH"
             request.setValue("application/json", forHTTPHeaderField: "Content-Type")
-            request.setValue("Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJwcnlxYmRvZGJpZWlvZWJlZGpnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjUwNjE0MjYsImV4cCI6MjA4MDYzNzQyNn0.8ZTaA1bCyRUKb6U4NNZou6DMfXP3yyE1NeNL8Ljt9as", forHTTPHeaderField: "Authorization")
+            request.setValue("Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYXNlIiwicmVmIjoicnByeXFiZG9kYmllaW9lYmVkamciLCJyb2xlIjoiYW5vbiIsImlhdCI6MTc2NTA2MTQyNiwiZXhwIjoyMDgwNjM3NDI2fQ.8ZTaA1bCyRUKb6U4NNZou6DMfXP3yyE1NeNL8Ljt9as", forHTTPHeaderField: "Authorization")
             request.setValue("eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJwcnlxYmRvZGJpZWlvZWJlZGpnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjUwNjE0MjYsImV4cCI6MjA4MDYzNzQyNn0.8ZTaA1bCyRUKb6U4NNZou6DMfXP3yyE1NeNL8Ljt9as", forHTTPHeaderField: "apikey")
             request.setValue("return=representation", forHTTPHeaderField: "Prefer")
             request.httpBody = try JSONSerialization.data(withJSONObject: patchBody, options: [])

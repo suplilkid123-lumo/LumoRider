@@ -6,7 +6,6 @@ import FirebaseAuth
 // MARK: - Data models
 
 struct CreateRideRequest: Codable {
-    let riderId: String
     let pickupLat: Double
     let pickupLng: Double
     let dropoffLat: Double
@@ -27,6 +26,13 @@ struct RideDTO: Codable, Identifiable {
     let pickup_address: String
     let dropoff_address: String
     let created_at: String
+    let payment_method: String?
+    let payment_status: String?
+
+    var isCashPayment: Bool {
+        payment_method?.trimmingCharacters(in: .whitespacesAndNewlines).lowercased() == "cash" ||
+        payment_status?.trimmingCharacters(in: .whitespacesAndNewlines).lowercased() == "cash_due"
+    }
 }
 
 // MARK: - Supabase REST client (PostgREST)
@@ -62,6 +68,15 @@ final class LumoAPI {
     // MARK: - Rider: create ride (status = requested)
 
     func createRide(_ body: CreateRideRequest) async throws -> RideDTO {
+        #if canImport(FirebaseAuth)
+        guard let user = Auth.auth().currentUser, !user.uid.isEmpty else {
+            throw NSError(domain: "LumoAPI.createRide", code: 401)
+        }
+        let accessToken = try await user.getIDToken()
+        #else
+        throw NSError(domain: "LumoAPI.createRide", code: 401)
+        #endif
+
         var req = try makeRequest(
             path: "rides",
             method: "POST",
@@ -69,17 +84,18 @@ final class LumoAPI {
         )
 
         req.setValue("return=representation", forHTTPHeaderField: "Prefer")
+        req.setValue("Bearer \(accessToken)", forHTTPHeaderField: "Authorization")
 
         #if canImport(FirebaseAuth)
-        let displayName = Auth.auth().currentUser?.displayName
-        let photoURL = Auth.auth().currentUser?.photoURL?.absoluteString
+        let displayName = user.displayName
+        let photoURL = user.photoURL?.absoluteString
         #else
         let displayName: String? = nil
         let photoURL: String? = nil
         #endif
 
         let payload: [String: Any] = [
-            "rider_id": body.riderId,
+            "rider_id": user.uid,
             "pickup_lat": body.pickupLat,
             "pickup_lng": body.pickupLng,
             "dropoff_lat": body.dropoffLat,
@@ -113,6 +129,7 @@ final class LumoAPI {
         let req = try makeRequest(
             path: "rides",
             queryItems: [
+                URLQueryItem(name: "select", value: "id,rider_id,driver_id,status,pickup_lat,pickup_lng,dropoff_lat,dropoff_lng,pickup_address,dropoff_address,created_at,payment_method,payment_status"),
                 URLQueryItem(name: "status", value: "eq.requested"),
                 URLQueryItem(name: "driver_id", value: "is.null"),
                 URLQueryItem(name: "order", value: "created_at.desc"),

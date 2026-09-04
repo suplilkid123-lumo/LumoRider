@@ -59,6 +59,9 @@ enum LumoSettingsL10n {
         case rideOptionsSaverName
         case rideOptionsSaverSubtitle
         case rideOptionsSaverEta
+        case rideOptionsShareName
+        case rideOptionsShareSubtitle
+        case rideOptionsShareEta
         case rideOptionsLumoXName
         case rideOptionsLumoXSubtitle
         case rideOptionsLumoXEta
@@ -66,6 +69,33 @@ enum LumoSettingsL10n {
         case rideOptionsLumoXLSubtitle
         case rideOptionsLumoXLEta
         case rideOptionsFasterBadge
+
+        case confirmPickupBack
+
+        case addPaymentTitle
+        case addPaymentApplePayTitle
+        case addPaymentApplePaySubtitle
+        case addPaymentCashTitle
+        case addPaymentCashSubtitle
+        case addPaymentSavedCardSubtitle
+        case addPaymentDifferentCardTitle
+        case addPaymentDifferentCardSubtitle
+        case addPaymentTestPaymentTitle
+        case addPaymentTestPaymentSubtitle
+        case addPaymentScheduleRide
+        case addPaymentConfirmRide
+        case addPaymentChooseMethodError
+        case addPaymentApplePayUnavailableError
+        case addPaymentFareUnavailableError
+        case addPaymentCouldNotPresentApplePayError
+        case addPaymentApplePayConfigError
+        case addPaymentApplePayFailedError
+        case addPaymentApplePayCancelledError
+        case addPaymentServerReachError
+        case addPaymentNoInternetError
+        case addPaymentRequestTimedOutError
+        case addPaymentCouldNotConfirmRideError
+        case addPaymentCouldNotConfirmRidePrefix
 
         case privacyTitle
         case privacyLocationTracking
@@ -203,6 +233,9 @@ enum LumoSettingsL10n {
         .rideOptionsSaverName: "Saver",
         .rideOptionsSaverSubtitle: "More affordable, shared route",
         .rideOptionsSaverEta: "6:15 PM · 8–17 min",
+        .rideOptionsShareName: "Share",
+        .rideOptionsShareSubtitle: "Share your ride and save 30%",
+        .rideOptionsShareEta: "6:15 PM · 8–17 min",
         .rideOptionsLumoXName: "LumoX",
         .rideOptionsLumoXSubtitle: "Standard ride for up to 4",
         .rideOptionsLumoXEta: "6:03 PM · 7 min",
@@ -210,6 +243,33 @@ enum LumoSettingsL10n {
         .rideOptionsLumoXLSubtitle: "Larger car, up to 6",
         .rideOptionsLumoXLEta: "6:05 PM · 8 min",
         .rideOptionsFasterBadge: "Faster",
+
+        .confirmPickupBack: "Back",
+
+        .addPaymentTitle: "Add payment",
+        .addPaymentApplePayTitle: "Apple Pay",
+        .addPaymentApplePaySubtitle: "Pay instantly with Apple Wallet",
+        .addPaymentCashTitle: "Cash",
+        .addPaymentCashSubtitle: "Pay driver directly",
+        .addPaymentSavedCardSubtitle: "Card saved locally — re-enter to pay securely",
+        .addPaymentDifferentCardTitle: "Use a different card",
+        .addPaymentDifferentCardSubtitle: "Add new credit or debit card",
+        .addPaymentTestPaymentTitle: "Test payment",
+        .addPaymentTestPaymentSubtitle: "Skip payment (debug only)",
+        .addPaymentScheduleRide: "Schedule ride",
+        .addPaymentConfirmRide: "Confirm ride",
+        .addPaymentChooseMethodError: "Please choose a payment method.",
+        .addPaymentApplePayUnavailableError: "Apple Pay is not available on this device.",
+        .addPaymentFareUnavailableError: "Trip fare is not available yet. Please go back and select the ride again.",
+        .addPaymentCouldNotPresentApplePayError: "Could not present Apple Pay.",
+        .addPaymentApplePayConfigError: "Apple Pay is not configured correctly.",
+        .addPaymentApplePayFailedError: "Apple Pay failed.",
+        .addPaymentApplePayCancelledError: "Apple Pay cancelled.",
+        .addPaymentServerReachError: "Can’t reach the server. Check your Supabase Project URL and your internet connection.",
+        .addPaymentNoInternetError: "No internet connection. Please try again.",
+        .addPaymentRequestTimedOutError: "Request timed out. Please try again.",
+        .addPaymentCouldNotConfirmRideError: "Couldn’t confirm ride. Please try again.",
+        .addPaymentCouldNotConfirmRidePrefix: "Couldn’t confirm ride.",
 
         .privacyTitle: "Privacy",
         .privacyLocationTracking: "Location & tracking",
@@ -322,6 +382,9 @@ enum LumoSettingsL10n {
         .rideOptionsSaverName: "اقتصادي",
         .rideOptionsSaverSubtitle: "أوفر سعراً، مسار مشترك",
         .rideOptionsSaverEta: "6:15 م · 8–17 دقيقة",
+        .rideOptionsShareName: "مشترك",
+        .rideOptionsShareSubtitle: "شارك الرحلة ووفر 30٪",
+        .rideOptionsShareEta: "6:15 م · 8–17 دقيقة",
         .rideOptionsLumoXName: "LumoX",
         .rideOptionsLumoXSubtitle: "رحلة عادية حتى 4 ركاب",
         .rideOptionsLumoXEta: "6:03 م · 7 دقائق",
@@ -329,6 +392,33 @@ enum LumoSettingsL10n {
         .rideOptionsLumoXLSubtitle: "سيارة أوسع حتى 6 ركاب",
         .rideOptionsLumoXLEta: "6:05 م · 8 دقائق",
         .rideOptionsFasterBadge: "أسرع",
+
+        .confirmPickupBack: "رجوع",
+
+        .addPaymentTitle: "إضافة الدفع",
+        .addPaymentApplePayTitle: "Apple Pay",
+        .addPaymentApplePaySubtitle: "ادفع فوراً باستخدام Apple Wallet",
+        .addPaymentCashTitle: "نقداً",
+        .addPaymentCashSubtitle: "ادفع للسائق مباشرة",
+        .addPaymentSavedCardSubtitle: "البطاقة محفوظة محلياً — أعد إدخالها للدفع بأمان",
+        .addPaymentDifferentCardTitle: "استخدم بطاقة أخرى",
+        .addPaymentDifferentCardSubtitle: "أضف بطاقة ائتمان أو خصم جديدة",
+        .addPaymentTestPaymentTitle: "دفع تجريبي",
+        .addPaymentTestPaymentSubtitle: "تجاوز الدفع (للاختبار فقط)",
+        .addPaymentScheduleRide: "جدولة الرحلة",
+        .addPaymentConfirmRide: "تأكيد الرحلة",
+        .addPaymentChooseMethodError: "يرجى اختيار طريقة دفع.",
+        .addPaymentApplePayUnavailableError: "Apple Pay غير متاح على هذا الجهاز.",
+        .addPaymentFareUnavailableError: "أجرة الرحلة غير متاحة بعد. يرجى الرجوع واختيار الرحلة مرة أخرى.",
+        .addPaymentCouldNotPresentApplePayError: "تعذر عرض Apple Pay.",
+        .addPaymentApplePayConfigError: "لم يتم إعداد Apple Pay بشكل صحيح.",
+        .addPaymentApplePayFailedError: "فشل Apple Pay.",
+        .addPaymentApplePayCancelledError: "تم إلغاء Apple Pay.",
+        .addPaymentServerReachError: "تعذر الوصول إلى الخادم. تحقق من رابط مشروع Supabase واتصال الإنترنت.",
+        .addPaymentNoInternetError: "لا يوجد اتصال بالإنترنت. يرجى المحاولة مرة أخرى.",
+        .addPaymentRequestTimedOutError: "انتهت مهلة الطلب. يرجى المحاولة مرة أخرى.",
+        .addPaymentCouldNotConfirmRideError: "تعذر تأكيد الرحلة. يرجى المحاولة مرة أخرى.",
+        .addPaymentCouldNotConfirmRidePrefix: "تعذر تأكيد الرحلة.",
 
         .privacyTitle: "الخصوصية",
         .privacyLocationTracking: "الموقع والتتبع",
@@ -399,6 +489,14 @@ extension LumoLanguageStore {
     }
 }
 
+private struct HomeContentHeightPreferenceKey: PreferenceKey {
+    static var defaultValue: CGFloat = 0
+
+    static func reduce(value: inout CGFloat, nextValue: () -> CGFloat) {
+        value = max(value, nextValue())
+    }
+}
+
 struct HomeView: View {
     @EnvironmentObject private var languageStore: LumoLanguageStore
     @StateObject private var rideService = SupabaseRideService.shared
@@ -425,7 +523,11 @@ struct HomeView: View {
     @AppStorage("lumo_scheduled_notes") private var scheduledNotes: String = ""
 
     @State private var showScheduledRideFromPill: Bool = false
-    @State private var navigateToActiveTrip: Bool = false
+    @State private var restoredActiveRide: ActiveRideRecord?
+    @State private var restoredAccessToken: String?
+    @State private var showRestoredActiveRide = false
+    @State private var restoredFoodOrderId: String?
+    @State private var showRestoredFoodOrder = false
 
     // MARK: - Scheduled pill display text
     private var scheduledPillTimeText: String {
@@ -458,20 +560,25 @@ struct HomeView: View {
     @State private var isMapFullScreen = false
     @State private var showProfileMenu = false
     @State private var logoutTriggered: Bool = false
+    @State private var homeContentHeight: CGFloat?
+
+    private let homeSectionSpacing: CGFloat = 18
 
 
     var body: some View {
-        ZStack {
+        GeometryReader { availableSpace in
+            ZStack {
 
             Color.black.ignoresSafeArea()
 
-            ScrollView(showsIndicators: false) {
-                VStack(spacing: 28) {
+            VStack(spacing: homeSectionSpacing) {
+                    VStack(spacing: homeSectionSpacing) {
 
                     // MARK: — TOP BAR
-                    HStack {
+                    HStack(spacing: 16) {
                         Text("Lumo")
-                            .font(.system(size: 32, weight: .bold))
+                            .font(.system(size: 31, weight: .bold, design: .rounded))
+                            .tracking(-0.7)
                             .foregroundColor(.white)
 
                         Spacer()
@@ -481,18 +588,20 @@ struct HomeView: View {
                                 showProfileMenu.toggle()
                             }
                         } label: {
-                            Circle()
-                                .fill(Color.white.opacity(0.15))
-                                .frame(width: 38, height: 38)
-                                .overlay(
-                                    Image(systemName: "person.fill")
-                                        .foregroundColor(.white)
-                                        .font(.system(size: 18, weight: .medium))
-                                )
+                            Image(systemName: "person.fill")
+                                .font(.system(size: 16, weight: .semibold))
+                                .foregroundColor(.white)
+                                .frame(width: 44, height: 44)
+                                .background(Color.white.opacity(0.12), in: Circle())
+                                .overlay {
+                                    Circle()
+                                        .stroke(Color.white.opacity(0.14), lineWidth: 1)
+                                }
                         }
+                        .buttonStyle(.plain)
                     }
-                    .padding(.horizontal, 24)
-                    .padding(.top, 12)
+                    .padding(.horizontal, 20)
+                    .padding(.top, 8)
 
                     // MARK: — SCHEDULED RIDE PILL
                     if hasScheduledRide && !scheduledRideId.isEmpty {
@@ -500,26 +609,28 @@ struct HomeView: View {
                             // Jump to the scheduled-ride screen
                             showScheduledRideFromPill = true
                         } label: {
-                            HStack(spacing: 12) {
+                            HStack(spacing: 13) {
                                 Image(systemName: "calendar.badge.clock")
-                                    .font(.system(size: 13, weight: .semibold))
+                                    .font(.system(size: 15, weight: .semibold))
+                                    .frame(width: 36, height: 36)
+                                    .background(Color.white.opacity(0.10), in: Circle())
 
-                                VStack(alignment: .leading, spacing: 2) {
+                                VStack(alignment: .leading, spacing: 3) {
                                     Text(languageStore.settingsText(.homeRideScheduled))
-                                        .font(.system(size: 13, weight: .semibold))
+                                        .font(.system(size: 14, weight: .semibold))
 
                                     Text(scheduledPillTimeText)
-                                        .font(.system(size: 12, weight: .semibold))
+                                        .font(.system(size: 12, weight: .medium))
                                         .foregroundColor(.white.opacity(0.80))
                                         .lineLimit(1)
 
                                     Text("\(languageStore.settingsText(.homeFromLabel)): \(scheduledPillFromText)")
-                                        .font(.system(size: 12, weight: .semibold))
+                                        .font(.system(size: 12, weight: .medium))
                                         .foregroundColor(.white.opacity(0.70))
                                         .lineLimit(1)
 
                                     Text("\(languageStore.settingsText(.homeToLabel)): \(scheduledPillToText)")
-                                        .font(.system(size: 12, weight: .semibold))
+                                        .font(.system(size: 12, weight: .medium))
                                         .foregroundColor(.white.opacity(0.70))
                                         .lineLimit(1)
                                 }
@@ -531,161 +642,215 @@ struct HomeView: View {
                                     .foregroundColor(.white.opacity(0.55))
                             }
                             .foregroundColor(.white)
-                            .padding(.horizontal, 14)
-                            .padding(.vertical, 12)
+                            .padding(14)
                             .frame(maxWidth: .infinity)
-                            .background(Color.white.opacity(0.10))
+                            .background(Color.white.opacity(0.08))
                             .overlay(
-                                RoundedRectangle(cornerRadius: 18, style: .continuous)
-                                    .stroke(Color.white.opacity(0.16), lineWidth: 1)
+                                RoundedRectangle(cornerRadius: 20, style: .continuous)
+                                    .stroke(Color.white.opacity(0.14), lineWidth: 1)
                             )
-                            .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
+                            .clipShape(RoundedRectangle(cornerRadius: 20, style: .continuous))
                         }
                         .buttonStyle(.plain)
-                        .padding(.horizontal, 24)
-                        .padding(.top, -10)
+                        .padding(.horizontal, 20)
                     }
 
                     // MARK: — SEARCH BAR
                     Button { showDestinationSearch = true } label: {
-                        HStack(spacing: 12) {
+                        HStack(spacing: 13) {
                             Image(systemName: "magnifyingglass")
-                                .font(.system(size: 17))
-                                .foregroundColor(.gray.opacity(0.8))
+                                .font(.system(size: 16, weight: .semibold))
+                                .foregroundColor(.black)
 
                             Text(languageStore.settingsText(.homeSearchPrompt))
-                                .foregroundColor(.gray.opacity(0.9))
-                                .font(.system(size: 16))
+                                .foregroundColor(.black.opacity(0.64))
+                                .font(.system(size: 16, weight: .medium))
 
                             Spacer()
+
+                            Image(systemName: "arrow.up.right")
+                                .font(.system(size: 13, weight: .semibold))
+                                .foregroundColor(.black.opacity(0.38))
                         }
-                        .padding(.horizontal, 18)
-                        .frame(height: 54)
+                        .padding(.horizontal, 17)
+                        .frame(height: 56)
                         .background(Color.white)
-                        .cornerRadius(28)
-                        .shadow(color: Color.white.opacity(0.05), radius: 12, x: 0, y: 4)
-                        .padding(.horizontal, 24)
+                        .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
+                        .overlay {
+                            RoundedRectangle(cornerRadius: 18, style: .continuous)
+                                .stroke(Color.black.opacity(0.06), lineWidth: 1)
+                        }
+                        .padding(.horizontal, 20)
                     }
+                    .buttonStyle(.plain)
 
                     // MARK: — NOW / SCHEDULE SWITCH
-                    HStack(spacing: 14) {
+                    HStack(spacing: 4) {
                         Button {
                             isNow = true
                         } label: {
                             Text(languageStore.settingsText(.homeNow))
-                                .font(.system(size: 16, weight: .semibold))
+                                .font(.system(size: 15, weight: .semibold))
                                 .foregroundColor(isNow ? .black : .white)
-                                .padding(.vertical, 10)
-                                .padding(.horizontal, 22)
-                                .background(
-                                    isNow ? Color.white : Color.white.opacity(0.1)
-                                )
-                                .cornerRadius(20)
+                                .frame(maxWidth: .infinity)
+                                .frame(height: 38)
+                                .background(isNow ? Color.white : Color.clear)
+                                .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
                         }
+                        .buttonStyle(.plain)
 
                         NavigationLink {
                             ScheduleRideView()
                         } label: {
                             Text(languageStore.settingsText(.homeSchedule))
-                                .font(.system(size: 16, weight: .semibold))
+                                .font(.system(size: 15, weight: .semibold))
                                 .foregroundColor(!isNow ? .black : .white)
-                                .padding(.vertical, 10)
-                                .padding(.horizontal, 22)
-                                .background(
-                                    !isNow ? Color.white : Color.white.opacity(0.1)
-                                )
-                                .cornerRadius(20)
+                                .frame(maxWidth: .infinity)
+                                .frame(height: 38)
+                                .background(!isNow ? Color.white : Color.clear)
+                                .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
                         }
                         .buttonStyle(.plain)
                         .simultaneousGesture(TapGesture().onEnded {
                             isNow = false
                         })
-
-                        Spacer()
                     }
-                    .padding(.horizontal, 24)
+                    .padding(4)
+                    .background(Color.white.opacity(0.10))
+                    .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
+                    .overlay {
+                        RoundedRectangle(cornerRadius: 18, style: .continuous)
+                            .stroke(Color.white.opacity(0.08), lineWidth: 1)
+                    }
+                    .padding(.horizontal, 20)
 
                     // MARK: — PLAN YOUR RIDE CARD
-                    VStack(alignment: .leading, spacing: 20) {
+                    VStack(alignment: .leading, spacing: 0) {
 
                         Text(languageStore.settingsText(.homePlanRide))
-                            .font(.system(size: 18, weight: .semibold))
+                            .font(.system(size: 19, weight: .bold))
                             .foregroundColor(.black)
+                            .padding(.bottom, 14)
 
                         // PICKUP
                         NavigationLink {
                             DestinationSearchView(locationManager: locationManager)
                         } label: {
-                            HStack(spacing: 14) {
-                                Circle()
-                                    .fill(Color.black)
-                                    .frame(width: 10, height: 10)
+                            HStack(spacing: 13) {
+                                ZStack {
+                                    Circle().fill(Color.black.opacity(0.07))
+                                    Circle()
+                                        .fill(Color.black)
+                                        .frame(width: 8, height: 8)
+                                }
+                                .frame(width: 34, height: 34)
 
-                                VStack(alignment: .leading, spacing: 2) {
+                                VStack(alignment: .leading, spacing: 3) {
                                     Text(languageStore.settingsText(.homePickup))
-                                        .font(.system(size: 13))
-                                        .foregroundColor(.gray)
+                                        .font(.system(size: 12, weight: .semibold))
+                                        .foregroundColor(.black.opacity(0.48))
 
                                     Text(languageStore.settingsText(.homeWhereFrom))
-                                        .font(.system(size: 16, weight: .medium))
+                                        .font(.system(size: 16, weight: .semibold))
                                         .foregroundColor(.black)
                                 }
 
                                 Spacer()
+
+                                Image(systemName: "chevron.right")
+                                    .font(.system(size: 12, weight: .semibold))
+                                    .foregroundColor(.black.opacity(0.28))
                             }
+                            .frame(minHeight: 54)
+                            .contentShape(Rectangle())
                         }
                         .buttonStyle(.plain)
 
-                        Divider().background(Color.black.opacity(0.1))
+                        Divider()
+                            .overlay(Color.black.opacity(0.06))
+                            .padding(.leading, 47)
+                            .padding(.vertical, 4)
 
                         // DROPOFF
                         NavigationLink {
                             DestinationSearchView(locationManager: locationManager)
                         } label: {
-                            HStack(spacing: 14) {
-                                Image(systemName: "plus.circle.fill")
+                            HStack(spacing: 13) {
+                                Image(systemName: "mappin.and.ellipse")
                                     .foregroundColor(.black)
-                                    .font(.system(size: 18))
+                                    .font(.system(size: 15, weight: .semibold))
+                                    .frame(width: 34, height: 34)
+                                    .background(Color.black.opacity(0.07), in: Circle())
 
-                                VStack(alignment: .leading, spacing: 2) {
+                                VStack(alignment: .leading, spacing: 3) {
                                     Text(languageStore.settingsText(.homeDropoff))
-                                        .font(.system(size: 13))
-                                        .foregroundColor(.gray)
+                                        .font(.system(size: 12, weight: .semibold))
+                                        .foregroundColor(.black.opacity(0.48))
 
                                     Text(languageStore.settingsText(.homeWhereTo))
-                                        .font(.system(size: 16, weight: .medium))
+                                        .font(.system(size: 16, weight: .semibold))
                                         .foregroundColor(.black)
                                 }
 
                                 Spacer()
+
+                                Image(systemName: "chevron.right")
+                                    .font(.system(size: 12, weight: .semibold))
+                                    .foregroundColor(.black.opacity(0.28))
                             }
+                            .frame(minHeight: 54)
+                            .contentShape(Rectangle())
                         }
                         .buttonStyle(.plain)
 
                     }
-                    .padding(22)
+                    .padding(20)
                     .background(Color.white)
-                    .cornerRadius(26)
-                    .shadow(color: Color.white.opacity(0.05), radius: 20, x: 0, y: 6)
-                    .padding(.horizontal, 24)
+                    .clipShape(RoundedRectangle(cornerRadius: 22, style: .continuous))
+                    .overlay {
+                        RoundedRectangle(cornerRadius: 22, style: .continuous)
+                            .stroke(Color.black.opacity(0.06), lineWidth: 1)
+                    }
+                    .padding(.horizontal, 20)
+
+                    }
+                    .background {
+                        GeometryReader { contentSpace in
+                            Color.clear.preference(
+                                key: HomeContentHeightPreferenceKey.self,
+                                value: contentSpace.size.height
+                            )
+                        }
+                    }
 
                     // MARK: — MAP SECTION
+                    let remainingMapHeight = max(
+                        availableSpace.size.height
+                            - (homeContentHeight ?? availableSpace.size.height)
+                            - homeSectionSpacing,
+                        0
+                    )
+
                     ZStack(alignment: .topTrailing) {
                         GoogleMapView(centerCoordinate: mapCenter, rideId: activeRideId.isEmpty ? nil : activeRideId)
                             .id(mapRefreshID)
-                            .frame(height: 400)
-                            .clipShape(RoundedRectangle(cornerRadius: 34))
-                            .shadow(color: Color.white.opacity(0.08), radius: 20, x: 0, y: 6)
+                            .frame(maxWidth: .infinity, maxHeight: .infinity)
+                            .clipShape(RoundedRectangle(cornerRadius: 24, style: .continuous))
+                            .overlay {
+                                RoundedRectangle(cornerRadius: 24, style: .continuous)
+                                    .stroke(Color.white.opacity(0.12), lineWidth: 1)
+                            }
 
                         VStack(spacing: 10) {
 
                             Button { recenter() } label: {
                                 Image(systemName: "location.fill")
-                                    .font(.system(size: 18))
+                                    .font(.system(size: 16, weight: .semibold))
                                     .foregroundColor(.black)
-                                    .padding(12)
+                                    .frame(width: 42, height: 42)
                                     .background(Color.white)
                                     .clipShape(Circle())
+                                    .shadow(color: .black.opacity(0.18), radius: 6, y: 2)
                             }
 
                             Button {
@@ -694,22 +859,23 @@ struct HomeView: View {
                                 }
                             } label: {
                                 Image(systemName: "arrow.up.left.and.arrow.down.right")
-                                    .font(.system(size: 18))
+                                    .font(.system(size: 15, weight: .semibold))
                                     .foregroundColor(.black)
-                                    .padding(12)
+                                    .frame(width: 42, height: 42)
                                     .background(Color.white)
                                     .clipShape(Circle())
+                                    .shadow(color: .black.opacity(0.18), radius: 6, y: 2)
                             }
                         }
-                        .padding(.top, 18)
-                        .padding(.trailing, 20)
+                        .padding(14)
                     }
-                    .padding(.horizontal, 24)
-
-                    Spacer(minLength: 40)
-                }
+                    .frame(maxWidth: .infinity)
+                    .frame(height: remainingMapHeight)
+                    .padding(.horizontal, 20)
             }
-            .scrollDisabled(true)
+            .onPreferenceChange(HomeContentHeightPreferenceKey.self) { height in
+                homeContentHeight = height
+            }
 
             // MARK: - SIDE ACCOUNT SHEET
             if showProfileMenu {
@@ -882,21 +1048,15 @@ struct HomeView: View {
                 .zIndex(1)
             }
         }
+        }
         .sheet(isPresented: $showDestinationSearch) {
             DestinationSearchView(locationManager: locationManager)
         }
         .overlay(fullScreenMapOverlay)
         .onAppear {
             reconcileScheduledRideState()
-
-            if !scheduledRideId.isEmpty {
-                rideService.fetchActiveRideStatus(rideId: scheduledRideId)
-            }
-            // Auto-resume if a ride is in progress
-            if rideService.activeRideStatus == "started" {
-                navigateToActiveTrip = true
-            }
         }
+        .task { await restoreActiveWorkIfNeeded() }
         .onChange(of: scheduledForEpoch) { _ in
             reconcileScheduledRideState()
         }
@@ -915,12 +1075,13 @@ struct HomeView: View {
             hasCenteredOnce = true
         }
         .onReceive(rideService.$activeRideStatus.compactMap { $0 }) { status in
-            if status == "started" {
-                navigateToActiveTrip = true
-            }
-
-            if status == "completed" {
-                navigateToActiveTrip = false
+            let normalizedStatus = status.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
+            if SupabaseRideService.terminalStatuses.contains(normalizedStatus) {
+                showRestoredActiveRide = false
+                restoredActiveRide = nil
+                restoredAccessToken = nil
+                activeRideId = ""
+                rideService.stopObservingRideStatus()
                 hasScheduledRide = false
                 scheduledRideId = ""
                 scheduledPickupAddress = ""
@@ -933,6 +1094,16 @@ struct HomeView: View {
                 scheduledRideType = ""
                 scheduledNotes = ""
             }
+        }
+        .onReceive(rideService.$activeRideID) { rideID in
+            guard rideID == nil else { return }
+            showRestoredActiveRide = false
+            restoredActiveRide = nil
+            restoredAccessToken = nil
+            activeRideId = ""
+        }
+        .onReceive(NotificationCenter.default.publisher(for: .RideDidCancel)) { _ in
+            clearActiveRideNavigation()
         }
         .navigationBarBackButtonHidden(true)
         .toolbar(.hidden, for: .navigationBar)
@@ -954,16 +1125,109 @@ struct HomeView: View {
                 scheduledNotes: $scheduledNotes
             )
         }
-        .navigationDestination(isPresented: $navigateToActiveTrip) {
-            if rideService.activeRideStatus == "started" {
-                DriverTrackingView(rideId: scheduledRideId)
-            } else {
-                // Defensive: if something toggled this early, close it immediately.
-                Color.clear.onAppear {
-                    navigateToActiveTrip = false
+        .navigationDestination(isPresented: $showRestoredActiveRide) {
+            if let ride = restoredActiveRide, let rideUUID = UUID(uuidString: ride.id) {
+                if ride.normalizedStatus == "searching" || ride.normalizedStatus == "requested" {
+                    SearchingForDriverView(
+                        rideId: rideUUID,
+                        pickupAddress: ride.pickupAddress ?? "",
+                        dropoffAddress: ride.dropoffAddress ?? "",
+                        rideTypeLabel: ride.displayRideType,
+                        priceText: restoredFareText(ride),
+                        supabase: LumoSupabaseConfig(
+                            baseURL: URL(string: "https://rpryqbdodbieioebedjg.supabase.co")!,
+                            anonKey: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJwcnlxYmRvZGJpZWlvZWJlZGpnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjUwNjE0MjYsImV4cCI6MjA4MDYzNzQyNn0.8ZTaA1bCyRUKb6U4NNZou6DMfXP3yyE1NeNL8Ljt9as",
+                            accessToken: restoredAccessToken
+                        ),
+                        onRideEnded: clearActiveRideNavigation
+                    )
+                } else {
+                    DriverTrackingView(
+                        rideId: ride.id,
+                        driver: restoredDriverProfile(ride),
+                        onRideEnded: clearActiveRideNavigation
+                    )
                 }
+            } else {
+                Color.clear.onAppear { showRestoredActiveRide = false }
             }
         }
+        .navigationDestination(isPresented: $showRestoredFoodOrder) {
+            if let restoredFoodOrderId {
+                FoodOrderTrackingView(orderId: restoredFoodOrderId)
+            } else {
+                Color.clear.onAppear { showRestoredFoodOrder = false }
+            }
+        }
+    }
+
+    @MainActor
+    private func clearActiveRideNavigation() {
+        showDestinationSearch = false
+        showRestoredActiveRide = false
+        restoredActiveRide = nil
+        restoredAccessToken = nil
+        activeRideId = ""
+        rideService.stopObservingRideStatus()
+    }
+
+    @MainActor
+    private func restoreActiveWorkIfNeeded() async {
+        await restoreActiveRideIfNeeded()
+        guard !showRestoredActiveRide, activeRideId.isEmpty else { return }
+        do {
+            restoredFoodOrderId = try await FoodDeliveryService.shared.activeOrder()?.id
+            showRestoredFoodOrder = restoredFoodOrderId != nil
+        } catch {
+            restoredFoodOrderId = nil
+            showRestoredFoodOrder = false
+        }
+    }
+
+    @MainActor
+    private func restoreActiveRideIfNeeded() async {
+        guard !showRestoredActiveRide else { return }
+        let sessionToken = rideService.activeRideSessionToken()
+        do {
+            let restored = try await rideService.fetchNewestActiveRide()
+            guard rideService.isActiveRideSessionCurrent(sessionToken) else { return }
+            guard let ride = restored.ride, UUID(uuidString: ride.id) != nil else {
+                restoredActiveRide = nil
+                restoredAccessToken = nil
+                activeRideId = ""
+                rideService.stopObservingRideStatus()
+                return
+            }
+            restoredActiveRide = ride
+            restoredAccessToken = restored.accessToken
+            activeRideId = ride.id
+            rideService.beginObservingRideStatus(rideId: ride.id)
+            showRestoredActiveRide = true
+        } catch {
+            guard rideService.isActiveRideSessionCurrent(sessionToken) else { return }
+            restoredActiveRide = nil
+            restoredAccessToken = nil
+            activeRideId = ""
+        }
+    }
+
+    private func restoredFareText(_ ride: ActiveRideRecord) -> String? {
+        guard let fare = ride.fare else { return nil }
+        let value = fare.formatted(.number.precision(.fractionLength(0...2)))
+        return "\(value) \((ride.currency ?? "").uppercased())".trimmingCharacters(in: .whitespaces)
+    }
+
+    private func restoredDriverProfile(_ ride: ActiveRideRecord) -> DriverTrackingView.DriverProfile {
+        DriverTrackingView.DriverProfile(
+            name: ride.driverName ?? "Your driver",
+            rating: ride.driverRating ?? 4.92,
+            vehicleMakeModel: ride.driverVehicle ?? "Sedan",
+            serviceLevel: ride.driverServiceLevel ?? ride.displayRideType ?? "Comfort",
+            plate: ride.driverPlate ?? "—",
+            colorName: ride.driverColor ?? "Black",
+            phoneE164: ride.driverPhone,
+            photoURL: ride.driverPhotoURL
+        )
     }
 
     // MARK: — FULL SCREEN MAP OVERLAY
@@ -2638,49 +2902,33 @@ struct PrivacyView: View {
 
 // MARK: - Ride History (polished)
 
-struct RideHistoryItem: Identifiable {
-    let id = UUID()
-    let date: String
-    let time: String
-    let pickup: String
-    let dropoff: String
-    let price: String
-    let rideType: String
-}
-
 struct RideHistoryView: View {
-    private let history: [RideHistoryItem] = [
-        RideHistoryItem(
-            date: "Nov 28, 2025",
-            time: "5:42 PM",
-            pickup: "Downtown Chicago",
-            dropoff: "O'Hare International Airport",
-            price: "$32.40",
-            rideType: "LumoX"
-        ),
-        RideHistoryItem(
-            date: "Nov 26, 2025",
-            time: "8:12 PM",
-            pickup: "West Loop",
-            dropoff: "UIC Campus",
-            price: "$14.90",
-            rideType: "Saver"
-        ),
-        RideHistoryItem(
-            date: "Nov 20, 2025",
-            time: "3:05 PM",
-            pickup: "Lincoln Park",
-            dropoff: "Downtown Chicago",
-            price: "$18.60",
-            rideType: "LumoXL"
-        )
-    ]
+    @State private var history: [RideHistoryRecord] = []
+    @State private var isLoading = true
+    @State private var errorMessage: String?
 
     var body: some View {
         ZStack {
             Color.black.ignoresSafeArea()
 
-            if history.isEmpty {
+            if isLoading {
+                ProgressView("Loading ride history…")
+                    .tint(.white)
+                    .foregroundColor(.white)
+            } else if let errorMessage {
+                VStack(spacing: 12) {
+                    Text(errorMessage)
+                        .font(.system(size: 15))
+                        .foregroundColor(.white.opacity(0.8))
+                        .multilineTextAlignment(.center)
+                    Button("Try again") {
+                        Task { await loadHistory() }
+                    }
+                    .font(.system(size: 15, weight: .semibold))
+                    .foregroundColor(.white)
+                }
+                .padding(.horizontal, 32)
+            } else if history.isEmpty {
                 VStack(spacing: 8) {
                     Text("No rides yet")
                         .font(.system(size: 20, weight: .semibold))
@@ -2693,34 +2941,43 @@ struct RideHistoryView: View {
                 ScrollView(showsIndicators: false) {
                     VStack(spacing: 16) {
                         ForEach(history) { ride in
-                            VStack(alignment: .leading, spacing: 10) {
+                            NavigationLink {
+                                RideHistoryDetailsView(ride: ride)
+                            } label: {
+                                VStack(alignment: .leading, spacing: 10) {
                                 HStack {
-                                    Text(ride.rideType)
+                                    Text(ride.displayRideType)
                                         .font(.system(size: 14, weight: .semibold))
                                         .foregroundColor(.white)
                                     Spacer()
-                                    Text(ride.price)
+                                    Text(historyFare(ride))
                                         .font(.system(size: 16, weight: .semibold))
                                         .foregroundColor(.white)
                                 }
 
                                 VStack(alignment: .leading, spacing: 4) {
-                                    Text("\(ride.date) • \(ride.time)")
+                                    Text(historyDate(ride))
                                         .font(.system(size: 12))
                                         .foregroundColor(.white.opacity(0.6))
 
-                                    Text("From: \(ride.pickup)")
+                                    Text("From: \(ride.pickupAddress ?? "—")")
                                         .font(.system(size: 13))
                                         .foregroundColor(.white.opacity(0.85))
 
-                                    Text("To: \(ride.dropoff)")
+                                    Text("To: \(ride.dropoffAddress ?? "—")")
                                         .font(.system(size: 13))
                                         .foregroundColor(.white.opacity(0.85))
+
+                                    Text(historyStatus(ride.status))
+                                        .font(.system(size: 12, weight: .semibold))
+                                        .foregroundColor(ride.status == "completed" ? .green : .orange)
                                 }
                             }
                             .padding(14)
                             .background(Color.white.opacity(0.06))
                             .clipShape(RoundedRectangle(cornerRadius: 18))
+                            }
+                            .buttonStyle(.plain)
                         }
                     }
                     .padding(.horizontal, 20)
@@ -2731,7 +2988,72 @@ struct RideHistoryView: View {
         }
         .navigationTitle("Ride history")
         .navigationBarTitleDisplayMode(.inline)
+        .onAppear {
+            Task { await loadHistory() }
+        }
     }
+
+    @MainActor
+    private func loadHistory() async {
+        isLoading = true
+        errorMessage = nil
+        do {
+            history = try await SupabaseRideService.shared.fetchRideHistory()
+        } catch {
+            history = []
+            errorMessage = error.localizedDescription
+        }
+        isLoading = false
+    }
+}
+
+private struct RideHistoryDetailsView: View {
+    let ride: RideHistoryRecord
+
+    var body: some View {
+        ZStack {
+            Color.black.ignoresSafeArea()
+            ScrollView {
+                VStack(alignment: .leading, spacing: 18) {
+                    historyDetailRow("Status", historyStatus(ride.status))
+                    historyDetailRow("Ride type", ride.displayRideType)
+                    historyDetailRow("Date and time", historyDate(ride))
+                    historyDetailRow("Pickup", ride.pickupAddress ?? "—")
+                    historyDetailRow("Destination", ride.dropoffAddress ?? "—")
+                    historyDetailRow("Fare", historyFare(ride))
+                }
+                .padding(20)
+            }
+        }
+        .navigationTitle("Ride details")
+        .navigationBarTitleDisplayMode(.inline)
+    }
+
+    private func historyDetailRow(_ title: String, _ value: String) -> some View {
+        VStack(alignment: .leading, spacing: 5) {
+            Text(title).font(.system(size: 12)).foregroundColor(.white.opacity(0.55))
+            Text(value).font(.system(size: 16, weight: .medium)).foregroundColor(.white)
+        }
+    }
+}
+
+private func historyDate(_ ride: RideHistoryRecord) -> String {
+    guard let value = ride.finalDateString else { return "—" }
+    let formatter = ISO8601DateFormatter()
+    formatter.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
+    let date = formatter.date(from: value) ?? ISO8601DateFormatter().date(from: value)
+    guard let date else { return value }
+    return date.formatted(date: .abbreviated, time: .shortened)
+}
+
+private func historyFare(_ ride: RideHistoryRecord) -> String {
+    guard let fare = ride.fare else { return "—" }
+    return "\(fare.formatted(.number.precision(.fractionLength(0...2)))) \((ride.currency ?? "").uppercased())"
+        .trimmingCharacters(in: .whitespaces)
+}
+
+private func historyStatus(_ status: String) -> String {
+    status.replacingOccurrences(of: "_", with: " ").capitalized
 }
 
 // MARK: - Notifications (polished)
@@ -3228,1313 +3550,7 @@ private struct LegalDocumentDetailView: View {
     }
 }
 
-// MARK: - Delivery (Uber Eats-inspired MVP)
-
-private struct DeliveryCategoryChip: View {
-    let title: String
-    let isSelected: Bool
-    let tapped: () -> Void
-
-    var body: some View {
-        Button(action: tapped) {
-            Text(title)
-                .font(.system(size: 13, weight: .semibold))
-                .foregroundColor(isSelected ? .black : .white)
-                .padding(.horizontal, 14)
-                .padding(.vertical, 8)
-                .background(isSelected ? Color.white : Color.white.opacity(0.10))
-                .clipShape(Capsule())
-        }
-        .buttonStyle(.plain)
-    }
-}
-
-private struct DeliveryRestaurantCard: View {
-    let name: String
-    let cuisine: String
-    let eta: String
-    let fee: String
-    let isOpen: Bool
-
-    var body: some View {
-        VStack(alignment: .leading, spacing: 10) {
-            HStack {
-                VStack(alignment: .leading, spacing: 4) {
-                    Text(name)
-                        .font(.system(size: 18, weight: .bold))
-                        .foregroundColor(.white)
-
-                    Text(cuisine)
-                        .font(.system(size: 13, weight: .medium))
-                        .foregroundColor(.white.opacity(0.65))
-                }
-
-                Spacer()
-
-                Text(isOpen ? "Open" : "Closed")
-                    .font(.system(size: 12, weight: .semibold))
-                    .foregroundColor(isOpen ? .green : .white.opacity(0.5))
-                    .padding(.horizontal, 10)
-                    .padding(.vertical, 6)
-                    .background(Color.white.opacity(0.08))
-                    .clipShape(Capsule())
-            }
-
-            HStack(spacing: 10) {
-                Label(eta, systemImage: "clock")
-                Text("•")
-                    .foregroundColor(.white.opacity(0.35))
-                Label(fee, systemImage: "bicycle")
-            }
-            .font(.system(size: 12, weight: .semibold))
-            .foregroundColor(.white.opacity(0.75))
-        }
-        .padding(16)
-        .background(Color.white.opacity(0.06))
-        .overlay(
-            RoundedRectangle(cornerRadius: 18)
-                .stroke(Color.white.opacity(0.08), lineWidth: 1)
-        )
-        .clipShape(RoundedRectangle(cornerRadius: 18))
-    }
-}
-
-private struct DeliveryMenuRow: View {
-    let title: String
-    let desc: String
-    let price: String
-    let addTapped: () -> Void
-
-    var body: some View {
-        HStack(alignment: .top, spacing: 14) {
-            VStack(alignment: .leading, spacing: 6) {
-                Text(title)
-                    .font(.system(size: 16, weight: .bold))
-                    .foregroundColor(.white)
-
-                Text(desc)
-                    .font(.system(size: 12, weight: .medium))
-                    .foregroundColor(.white.opacity(0.6))
-                    .lineLimit(2)
-
-                Text(price)
-                    .font(.system(size: 13, weight: .bold))
-                    .foregroundColor(.white.opacity(0.9))
-            }
-
-            Spacer()
-
-            Button(action: addTapped) {
-                Image(systemName: "plus")
-                    .font(.system(size: 14, weight: .bold))
-                    .foregroundColor(.black)
-                    .frame(width: 34, height: 34)
-                    .background(Color.white)
-                    .clipShape(Circle())
-            }
-            .buttonStyle(.plain)
-        }
-        .padding(14)
-        .background(Color.white.opacity(0.05))
-        .clipShape(RoundedRectangle(cornerRadius: 16))
-    }
-}
-
-// MARK: - Delivery Models
-
-struct LumoMerchant: Identifiable, Hashable {
-    let id: String
-    let name: String
-    let cuisine: String
-    let etaMins: Int
-    let deliveryFee: Double
-    let isOpen: Bool
-    let categories: [String]
-    let menuSections: [LumoMenuSection]
-}
-
-struct LumoMenuSection: Identifiable, Hashable {
-    let id: String
-    let title: String
-    let items: [LumoMenuItem]
-}
-
-struct LumoMenuItem: Identifiable, Hashable {
-    let id: String
-    let title: String
-    let description: String
-    let price: Double
-}
-
-struct LumoCartItem: Identifiable, Hashable {
-    let id: String
-    let title: String
-    let price: Double
-    var qty: Int
-}
-
-// MARK: - Delivery Store
-
-@MainActor
-final class DeliveryStore: ObservableObject {
-    @Published var selectedMode: DeliveryMode = .food
-    @Published var searchText: String = ""
-    @Published var selectedCategory: String = "All"
-
-    @Published var selectedMerchant: LumoMerchant? = nil
-    @Published var cart: [LumoCartItem] = []
-
-    // Checkout
-    @Published var dropoffAddress: String = ""
-    @Published var notes: String = ""
-    @Published var tipCents: Int = 0
-
-    // Package
-    @Published var pickupAddress: String = ""
-    @Published var packageSize: String = "Small"
-
-    // Order tracking
-    @Published var activeOrderId: String? = nil
-    @Published var activeOrderStatus: String = ""
-    @Published var trackingURL: URL? = nil
-
-    enum DeliveryMode { case food, package }
-
-    @Published private(set) var merchants: [LumoMerchant] = []
-
-    private let db = Firestore.firestore()
-    private var merchantsListener: ListenerRegistration? = nil
-    private var activeOrderListener: ListenerRegistration? = nil
-
-    func startFirestore() {
-        if merchantsListener != nil { return }
-
-        merchantsListener = db.collection("merchants")
-            .addSnapshotListener { [weak self] snap, err in
-                guard let self else { return }
-                guard err == nil, let docs = snap?.documents else {
-                    // fallback so UI still runs
-                    if self.merchants.isEmpty { self.merchants = self.mockMerchants() }
-                    return
-                }
-
-                let mapped: [LumoMerchant] = docs.map { d in
-                    let data = d.data()
-                    let name = data["name"] as? String ?? "Restaurant"
-                    let cuisine = data["cuisine"] as? String ?? ""
-                    let etaMins = data["etaMins"] as? Int ?? 30
-                    let deliveryFee = data["deliveryFee"] as? Double ?? 2.49
-                    let isOpen = data["isOpen"] as? Bool ?? true
-                    let categories = data["categories"] as? [String] ?? []
-
-                    return LumoMerchant(
-                        id: d.documentID,
-                        name: name,
-                        cuisine: cuisine,
-                        etaMins: etaMins,
-                        deliveryFee: deliveryFee,
-                        isOpen: isOpen,
-                        categories: categories,
-                        menuSections: [] // load on demand
-                    )
-                }
-
-                self.merchants = mapped.isEmpty ? self.mockMerchants() : mapped
-            }
-    }
-
-    func stopFirestore() {
-        merchantsListener?.remove()
-        merchantsListener = nil
-        activeOrderListener?.remove()
-        activeOrderListener = nil
-    }
-
-    // fallback data (your existing mock data moved into a function)
-    private func mockMerchants() -> [LumoMerchant] {
-        let burgers = LumoMerchant(
-            id: "m_burgers",
-            name: "Smash & Co.",
-            cuisine: "Burgers • Fries",
-            etaMins: 25,
-            deliveryFee: 1.49,
-            isOpen: true,
-            categories: ["Burgers", "American"],
-            menuSections: [
-                LumoMenuSection(
-                    id: "s_popular",
-                    title: "Popular",
-                    items: [
-                        LumoMenuItem(id: "i_smash", title: "Classic Smash Burger", description: "Two patties, cheese, pickles, house sauce.", price: 8.99),
-                        LumoMenuItem(id: "i_fries", title: "Crispy Fries", description: "Sea salt, optional spicy seasoning.", price: 3.49)
-                    ]
-                )
-            ]
-        )
-
-        let pizza = LumoMerchant(
-            id: "m_pizza",
-            name: "Night Oven Pizza",
-            cuisine: "Pizza • Italian",
-            etaMins: 35,
-            deliveryFee: 2.99,
-            isOpen: true,
-            categories: ["Pizza", "Italian"],
-            menuSections: [
-                LumoMenuSection(
-                    id: "s_pies",
-                    title: "Pizzas",
-                    items: [
-                        LumoMenuItem(id: "i_margherita", title: "Margherita", description: "Tomato, mozzarella, basil.", price: 12.99),
-                        LumoMenuItem(id: "i_pepperoni", title: "Pepperoni", description: "Pepperoni, mozzarella, oregano.", price: 14.49)
-                    ]
-                ),
-                LumoMenuSection(
-                    id: "s_sides",
-                    title: "Sides",
-                    items: [
-                        LumoMenuItem(id: "i_garlic", title: "Garlic Knots", description: "Butter-garlic glaze.", price: 5.49)
-                    ]
-                )
-            ]
-        )
-
-        let sushi = LumoMerchant(
-            id: "m_sushi",
-            name: "Kuro Sushi",
-            cuisine: "Sushi • Japanese",
-            etaMins: 30,
-            deliveryFee: 2.49,
-            isOpen: false,
-            categories: ["Sushi", "Japanese"],
-            menuSections: [
-                LumoMenuSection(
-                    id: "s_rolls",
-                    title: "Rolls",
-                    items: [
-                        LumoMenuItem(id: "i_california", title: "California Roll", description: "Crab, avocado, cucumber.", price: 7.99),
-                        LumoMenuItem(id: "i_spicytuna", title: "Spicy Tuna Roll", description: "Tuna, spicy mayo, scallions.", price: 9.49)
-                    ]
-                )
-            ]
-        )
-
-        return [burgers, pizza, sushi]
-    }
-
-    var allCategories: [String] {
-        let cats = Set(merchants.flatMap { $0.categories })
-        return ["All"] + cats.sorted()
-    }
-
-    var filteredMerchants: [LumoMerchant] {
-        let s = searchText.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
-        return merchants.filter { m in
-            let matchesSearch = s.isEmpty || m.name.lowercased().contains(s) || m.cuisine.lowercased().contains(s)
-            let matchesCat = (selectedCategory == "All") || m.categories.contains(selectedCategory)
-            return matchesSearch && matchesCat
-        }
-    }
-
-    var cartCount: Int { cart.reduce(0) { $0 + $1.qty } }
-
-    var subtotal: Double { cart.reduce(0) { $0 + ($1.price * Double($1.qty)) } }
-
-    var deliveryFee: Double { selectedMerchant?.deliveryFee ?? 2.49 }
-
-    var serviceFee: Double { min(4.99, subtotal * 0.10) }
-
-    var total: Double { subtotal + deliveryFee + serviceFee + (Double(tipCents) / 100.0) }
-
-    func add(item: LumoMenuItem) {
-        if let i = cart.firstIndex(where: { $0.id == item.id }) {
-            cart[i].qty += 1
-        } else {
-            cart.append(LumoCartItem(id: item.id, title: item.title, price: item.price, qty: 1))
-        }
-    }
-
-    func remove(itemId: String) {
-        guard let i = cart.firstIndex(where: { $0.id == itemId }) else { return }
-        if cart[i].qty > 1 { cart[i].qty -= 1 } else { cart.remove(at: i) }
-    }
-
-    func resetAfterOrder() {
-        cart.removeAll()
-        notes = ""
-        tipCents = 0
-        selectedMerchant = nil
-    }
-
-    func placeFoodOrder() {
-        guard let merchant = selectedMerchant else { return }
-        let address = dropoffAddress.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard !address.isEmpty else { return }
-        guard !cart.isEmpty else { return }
-
-        let uid = Auth.auth().currentUser?.uid ?? "anonymous"
-
-        let items: [[String: Any]] = cart.map {
-            ["id": $0.id, "title": $0.title, "price": $0.price, "qty": $0.qty]
-        }
-
-        activeOrderStatus = "Placing order…"
-
-        let ref = db.collection("orders").document()
-        ref.setData([
-            "type": "food",
-            "userId": uid,
-            "merchantId": merchant.id,
-            "merchantName": merchant.name,
-            "status": "placed",
-            "dropoffAddress": address,
-            "notes": notes,
-            "tipCents": tipCents,
-            "subtotal": subtotal,
-            "deliveryFee": deliveryFee,
-            "serviceFee": serviceFee,
-            "total": total,
-            "items": items,
-            "createdAt": FieldValue.serverTimestamp()
-        ]) { [weak self] err in
-            guard let self else { return }
-            if let err = err {
-                self.activeOrderStatus = "Order failed: \(err.localizedDescription)"
-                return
-            }
-            self.activeOrderId = ref.documentID
-            self.activeOrderStatus = "placed"
-            self.listenToActiveOrder(orderId: ref.documentID)
-        }
-    }
-
-    func placePackageOrder() {
-        let pickup = pickupAddress.trimmingCharacters(in: .whitespacesAndNewlines)
-        let dropoff = dropoffAddress.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard !pickup.isEmpty, !dropoff.isEmpty else { return }
-
-        let uid = Auth.auth().currentUser?.uid ?? "anonymous"
-
-        activeOrderStatus = "Requesting courier…"
-
-        let ref = db.collection("orders").document()
-        ref.setData([
-            "type": "package",
-            "userId": uid,
-            "status": "placed",
-            "pickupAddress": pickup,
-            "dropoffAddress": dropoff,
-            "packageSize": packageSize,
-            "notes": notes,
-            "createdAt": FieldValue.serverTimestamp()
-        ]) { [weak self] err in
-            guard let self else { return }
-            if let err = err {
-                self.activeOrderStatus = "Request failed: \(err.localizedDescription)"
-                return
-            }
-            self.activeOrderId = ref.documentID
-            self.activeOrderStatus = "placed"
-            self.listenToActiveOrder(orderId: ref.documentID)
-        }
-    }
-
-    func loadMenuIfNeeded(for merchant: LumoMerchant) {
-        if !merchant.menuSections.isEmpty { return }
-
-        db.collection("merchants")
-            .document(merchant.id)
-            .collection("menuItems")
-            .whereField("isAvailable", isEqualTo: true)
-            .getDocuments { [weak self] snap, err in
-                guard let self else { return }
-                guard err == nil, let docs = snap?.documents else { return }
-
-                let pairs: [(String, LumoMenuItem)] = docs.compactMap { d in
-                    let data = d.data()
-                    let sectionRaw = (data["section"] as? String)?.trimmingCharacters(in: .whitespacesAndNewlines)
-                    let section = (sectionRaw?.isEmpty == false) ? sectionRaw! : "Popular"
-
-                    let title = (data["title"] as? String) ?? "Item"
-                    let desc = (data["description"] as? String) ?? ""
-                    let price = (data["price"] as? Double) ?? 0
-
-                    return (section, LumoMenuItem(id: d.documentID, title: title, description: desc, price: price))
-                }
-
-                let grouped = Dictionary(grouping: pairs, by: { $0.0 })
-                let sections: [LumoMenuSection] = grouped.keys.sorted().map { key in
-                    LumoMenuSection(
-                        id: "sec_\(key)",
-                        title: key,
-                        items: (grouped[key] ?? []).map { $0.1 }
-                    )
-                }
-
-                if let idx = self.merchants.firstIndex(where: { $0.id == merchant.id }) {
-                    let old = self.merchants[idx]
-                    let updated = LumoMerchant(
-                        id: old.id,
-                        name: old.name,
-                        cuisine: old.cuisine,
-                        etaMins: old.etaMins,
-                        deliveryFee: old.deliveryFee,
-                        isOpen: old.isOpen,
-                        categories: old.categories,
-                        menuSections: sections
-                    )
-                    self.merchants[idx] = updated
-
-                    if self.selectedMerchant?.id == updated.id {
-                        self.selectedMerchant = updated
-                    }
-                }
-            }
-    }
-
-    private func listenToActiveOrder(orderId: String) {
-        activeOrderListener?.remove()
-
-        activeOrderListener = db.collection("orders")
-            .document(orderId)
-            .addSnapshotListener { [weak self] snap, err in
-                guard let self else { return }
-                guard err == nil, let data = snap?.data() else { return }
-
-                if let status = data["status"] as? String, !status.isEmpty {
-                    self.activeOrderStatus = status
-                }
-
-                if let tracking = data["trackingURL"] as? String, let url = URL(string: tracking) {
-                    self.trackingURL = url
-                }
-            }
-    }
-}
-
-
-// MARK: - Entry point
-
-struct DeliveryRootView: View {
-    @StateObject private var store = DeliveryStore()
-
-    var body: some View {
-        DeliveryHubView()
-            .environmentObject(store)
-            .onAppear { store.startFirestore() }
-            .onDisappear { store.stopFirestore() }
-    }
-}
-
-
-// MARK: - Hub
-
-struct DeliveryHubView: View {
-    @EnvironmentObject private var store: DeliveryStore
-
-    var body: some View {
-        ZStack {
-            Color.black.ignoresSafeArea()
-
-            VStack(alignment: .leading, spacing: 18) {
-                VStack(alignment: .leading, spacing: 8) {
-                    Text("Delivery")
-                        .font(.system(size: 42, weight: .heavy))
-                        .foregroundColor(.white)
-
-                    Text("Food and packages — all in Lumo.")
-                        .font(.system(size: 13, weight: .medium))
-                        .foregroundColor(.white.opacity(0.6))
-                }
-                .padding(.horizontal, 20)
-                .padding(.top, 10)
-
-                NavigationLink {
-                    FoodDeliveryHomeView()
-                        .environmentObject(store)
-                        .onAppear {
-                            store.selectedMode = .food
-                        }
-                } label: {
-                    hubCard(
-                        title: "Food",
-                        subtitle: "Browse restaurants and order to your door",
-                        icon: "fork.knife"
-                    )
-                }
-                .buttonStyle(.plain)
-                .padding(.horizontal, 20)
-
-                NavigationLink {
-                    PackageDeliveryFormView()
-                        .environmentObject(store)
-                        .onAppear {
-                            store.selectedMode = .package
-                        }
-                } label: {
-                    hubCard(
-                        title: "Packages",
-                        subtitle: "Send anything — quick pickup and drop-off",
-                        icon: "shippingbox"
-                    )
-                }
-                .buttonStyle(.plain)
-                .padding(.horizontal, 20)
-
-                Spacer()
-            }
-        }
-        .navigationTitle("")
-        .navigationBarTitleDisplayMode(.inline)
-    }
-
-    private func hubCard(title: String, subtitle: String, icon: String) -> some View {
-        HStack(spacing: 14) {
-            Image(systemName: icon)
-                .font(.system(size: 18, weight: .bold))
-                .foregroundColor(.black)
-                .frame(width: 44, height: 44)
-                .background(Color.white)
-                .clipShape(RoundedRectangle(cornerRadius: 14))
-
-            VStack(alignment: .leading, spacing: 4) {
-                Text(title)
-                    .font(.system(size: 18, weight: .bold))
-                    .foregroundColor(.white)
-
-                Text(subtitle)
-                    .font(.system(size: 12, weight: .medium))
-                    .foregroundColor(.white.opacity(0.65))
-                    .lineLimit(2)
-            }
-
-            Spacer()
-
-            Image(systemName: "chevron.right")
-                .foregroundColor(.white.opacity(0.35))
-        }
-        .padding(16)
-        .background(Color.white.opacity(0.06))
-        .overlay(
-            RoundedRectangle(cornerRadius: 22)
-                .stroke(Color.white.opacity(0.10), lineWidth: 1)
-        )
-        .clipShape(RoundedRectangle(cornerRadius: 22))
-    }
-}
-
-// MARK: - Food Home
-
-struct FoodDeliveryHomeView: View {
-    @EnvironmentObject private var store: DeliveryStore
-
-    var body: some View {
-        ZStack {
-            Color.black.ignoresSafeArea()
-
-            VStack(spacing: 0) {
-                header
-
-                ScrollView(showsIndicators: false) {
-                    VStack(alignment: .leading, spacing: 14) {
-                        categoryRow
-
-                        VStack(spacing: 12) {
-                            ForEach(store.filteredMerchants) { m in
-                                NavigationLink {
-                                    RestaurantDetailView(merchant: m)
-                                        .environmentObject(store)
-                                } label: {
-                                    DeliveryRestaurantCard(
-                                        name: m.name,
-                                        cuisine: m.cuisine,
-                                        eta: "\(m.etaMins)–\(m.etaMins + 10) min",
-                                        fee: String(format: "$%.2f delivery", m.deliveryFee),
-                                        isOpen: m.isOpen
-                                    )
-                                }
-                                .buttonStyle(.plain)
-                                .simultaneousGesture(TapGesture().onEnded {
-                                    store.loadMenuIfNeeded(for: m)
-                                })
-                                .disabled(!m.isOpen)
-                                .opacity(m.isOpen ? 1 : 0.55)
-                            }
-                        }
-
-                        Spacer(minLength: 26)
-                    }
-                    .padding(.horizontal, 20)
-                    .padding(.top, 14)
-                    .padding(.bottom, 120)
-                }
-
-                if store.cartCount > 0 {
-                    cartBar
-                        .transition(.move(edge: .bottom).combined(with: .opacity))
-                }
-            }
-        }
-        .navigationTitle("")
-        .navigationBarTitleDisplayMode(.inline)
-        .animation(.spring(response: 0.35, dampingFraction: 0.85), value: store.cartCount)
-    }
-
-    private var header: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            Text("Food")
-                .font(.system(size: 38, weight: .heavy))
-                .foregroundColor(.white)
-
-            HStack(spacing: 10) {
-                Image(systemName: "magnifyingglass")
-                    .foregroundColor(.white.opacity(0.5))
-
-                TextField("Search restaurants or cuisines", text: $store.searchText)
-                    .font(.system(size: 15, weight: .semibold))
-                    .foregroundColor(.white)
-                    .textInputAutocapitalization(.never)
-                    .autocorrectionDisabled()
-
-                if !store.searchText.isEmpty {
-                    Button { store.searchText = "" } label: {
-                        Image(systemName: "xmark.circle.fill")
-                            .foregroundColor(.white.opacity(0.45))
-                    }
-                    .buttonStyle(.plain)
-                }
-            }
-            .padding(12)
-            .background(Color.white.opacity(0.08))
-            .clipShape(RoundedRectangle(cornerRadius: 18))
-        }
-        .padding(.horizontal, 20)
-        .padding(.top, 10)
-        .padding(.bottom, 12)
-    }
-
-    private var categoryRow: some View {
-        ScrollView(.horizontal, showsIndicators: false) {
-            HStack(spacing: 10) {
-                ForEach(store.allCategories, id: \.self) { cat in
-                    DeliveryCategoryChip(title: cat, isSelected: store.selectedCategory == cat) {
-                        store.selectedCategory = cat
-                    }
-                }
-            }
-            .padding(.vertical, 4)
-        }
-    }
-
-    private var cartBar: some View {
-        NavigationLink {
-            DeliveryCartView()
-                .environmentObject(store)
-        } label: {
-            HStack(spacing: 12) {
-                Text("\(store.cartCount)")
-                    .font(.system(size: 13, weight: .heavy))
-                    .foregroundColor(.black)
-                    .frame(width: 26, height: 26)
-                    .background(Color.white)
-                    .clipShape(Circle())
-
-                Text("View cart")
-                    .font(.system(size: 16, weight: .bold))
-                    .foregroundColor(.black)
-
-                Spacer()
-
-                Text(String(format: "$%.2f", store.total))
-                    .font(.system(size: 16, weight: .heavy))
-                    .foregroundColor(.black)
-            }
-            .padding(.horizontal, 18)
-            .padding(.vertical, 14)
-            .background(Color.white)
-            .clipShape(RoundedRectangle(cornerRadius: 18))
-            .padding(.horizontal, 20)
-            .padding(.bottom, 18)
-        }
-        .buttonStyle(.plain)
-    }
-}
-
-// MARK: - Restaurant Detail
-
-struct RestaurantDetailView: View {
-    @EnvironmentObject private var store: DeliveryStore
-    let merchant: LumoMerchant
-
-    var body: some View {
-        ZStack {
-            Color.black.ignoresSafeArea()
-
-            VStack(spacing: 0) {
-                ScrollView(showsIndicators: false) {
-                    VStack(alignment: .leading, spacing: 14) {
-                        header
-
-                        ForEach((store.selectedMerchant?.id == merchant.id ? (store.selectedMerchant?.menuSections ?? merchant.menuSections) : merchant.menuSections)) { section in
-                            VStack(alignment: .leading, spacing: 10) {
-                                Text(section.title)
-                                    .font(.system(size: 18, weight: .bold))
-                                    .foregroundColor(.white)
-
-                                VStack(spacing: 10) {
-                                    ForEach(section.items) { item in
-                                        DeliveryMenuRow(
-                                            title: item.title,
-                                            desc: item.description,
-                                            price: String(format: "$%.2f", item.price)
-                                        ) {
-                                            store.add(item: item)
-                                        }
-                                    }
-                                }
-                            }
-                            .padding(.top, 6)
-                        }
-
-                        Spacer(minLength: 26)
-                    }
-                    .padding(.horizontal, 20)
-                    .padding(.top, 10)
-                    .padding(.bottom, 130)
-                }
-
-                if store.cartCount > 0 {
-                    NavigationLink {
-                        DeliveryCartView()
-                            .environmentObject(store)
-                    } label: {
-                        HStack(spacing: 12) {
-                            Text("\(store.cartCount)")
-                                .font(.system(size: 13, weight: .heavy))
-                                .foregroundColor(.black)
-                                .frame(width: 26, height: 26)
-                                .background(Color.white)
-                                .clipShape(Circle())
-
-                            Text("View cart")
-                                .font(.system(size: 16, weight: .bold))
-                                .foregroundColor(.black)
-
-                            Spacer()
-
-                            Text(String(format: "$%.2f", store.total))
-                                .font(.system(size: 16, weight: .heavy))
-                                .foregroundColor(.black)
-                        }
-                        .padding(.horizontal, 18)
-                        .padding(.vertical, 14)
-                        .background(Color.white)
-                        .clipShape(RoundedRectangle(cornerRadius: 18))
-                        .padding(.horizontal, 20)
-                        .padding(.bottom, 18)
-                    }
-                    .buttonStyle(.plain)
-                }
-            }
-        }
-        .onAppear { store.selectedMerchant = merchant }
-        .navigationTitle(merchant.name)
-        .navigationBarTitleDisplayMode(.inline)
-    }
-
-    private var header: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            Text(merchant.name)
-                .font(.system(size: 28, weight: .heavy))
-                .foregroundColor(.white)
-
-            Text(merchant.cuisine)
-                .font(.system(size: 13, weight: .semibold))
-                .foregroundColor(.white.opacity(0.65))
-
-            HStack(spacing: 10) {
-                Label("\(merchant.etaMins)–\(merchant.etaMins + 10) min", systemImage: "clock")
-                Text("•").foregroundColor(.white.opacity(0.35))
-                Label(String(format: "$%.2f", merchant.deliveryFee), systemImage: "bicycle")
-                Text("•").foregroundColor(.white.opacity(0.35))
-                Label("Top rated", systemImage: "star.fill")
-            }
-            .font(.system(size: 12, weight: .semibold))
-            .foregroundColor(.white.opacity(0.75))
-            .padding(.top, 2)
-        }
-        .padding(.bottom, 8)
-    }
-}
-
-// MARK: - Cart
-
-struct DeliveryCartView: View {
-    @EnvironmentObject private var store: DeliveryStore
-
-    var body: some View {
-        ZStack {
-            Color.black.ignoresSafeArea()
-
-            VStack(alignment: .leading, spacing: 14) {
-                Text("Cart")
-                    .font(.system(size: 34, weight: .heavy))
-                    .foregroundColor(.white)
-                    .padding(.top, 10)
-                    .padding(.horizontal, 20)
-
-                if store.cart.isEmpty {
-                    VStack(spacing: 8) {
-                        Text("Your cart is empty")
-                            .font(.system(size: 18, weight: .semibold))
-                            .foregroundColor(.white)
-                        Text("Add items to checkout.")
-                            .font(.system(size: 13, weight: .medium))
-                            .foregroundColor(.white.opacity(0.6))
-                    }
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
-                    .padding(.horizontal, 20)
-                } else {
-                    ScrollView(showsIndicators: false) {
-                        VStack(spacing: 10) {
-                            ForEach(store.cart) { item in
-                                HStack {
-                                    VStack(alignment: .leading, spacing: 4) {
-                                        Text(item.title)
-                                            .font(.system(size: 15, weight: .bold))
-                                            .foregroundColor(.white)
-
-                                        Text(String(format: "$%.2f", item.price))
-                                            .font(.system(size: 12, weight: .semibold))
-                                            .foregroundColor(.white.opacity(0.65))
-                                    }
-
-                                    Spacer()
-
-                                    HStack(spacing: 10) {
-                                        Button { store.remove(itemId: item.id) } label: {
-                                            Image(systemName: "minus")
-                                                .font(.system(size: 12, weight: .bold))
-                                                .foregroundColor(.black)
-                                                .frame(width: 30, height: 30)
-                                                .background(Color.white)
-                                                .clipShape(Circle())
-                                        }
-                                        .buttonStyle(.plain)
-
-                                        Text("\(item.qty)")
-                                            .font(.system(size: 14, weight: .heavy))
-                                            .foregroundColor(.white)
-                                            .frame(minWidth: 22)
-
-                                        Button {
-                                            if let i = store.cart.firstIndex(where: { $0.id == item.id }) {
-                                                store.cart[i].qty += 1
-                                            }
-                                        } label: {
-                                            Image(systemName: "plus")
-                                                .font(.system(size: 12, weight: .bold))
-                                                .foregroundColor(.black)
-                                                .frame(width: 30, height: 30)
-                                                .background(Color.white)
-                                                .clipShape(Circle())
-                                        }
-                                        .buttonStyle(.plain)
-                                    }
-                                }
-                                .padding(14)
-                                .background(Color.white.opacity(0.06))
-                                .clipShape(RoundedRectangle(cornerRadius: 18))
-                            }
-
-                            feeBreakdown
-
-                            NavigationLink {
-                                FoodCheckoutView()
-                                    .environmentObject(store)
-                            } label: {
-                                Text("Continue to checkout")
-                                    .font(.system(size: 16, weight: .bold))
-                                    .foregroundColor(.black)
-                                    .frame(maxWidth: .infinity)
-                                    .padding(.vertical, 14)
-                                    .background(Color.white)
-                                    .clipShape(RoundedRectangle(cornerRadius: 18))
-                            }
-                            .buttonStyle(.plain)
-                            .padding(.top, 6)
-
-                            Spacer(minLength: 26)
-                        }
-                        .padding(.horizontal, 20)
-                        .padding(.bottom, 22)
-                    }
-                }
-            }
-        }
-        .navigationTitle("")
-        .navigationBarTitleDisplayMode(.inline)
-    }
-
-    private var feeBreakdown: some View {
-        VStack(spacing: 10) {
-            row("Subtotal", String(format: "$%.2f", store.subtotal))
-            row("Delivery fee", String(format: "$%.2f", store.deliveryFee))
-            row("Service fee", String(format: "$%.2f", store.serviceFee))
-            if store.tipCents > 0 {
-                row("Tip", String(format: "$%.2f", Double(store.tipCents) / 100.0))
-            }
-            Divider().background(Color.white.opacity(0.12))
-            row("Total", String(format: "$%.2f", store.total), bold: true)
-        }
-        .padding(14)
-        .background(Color.white.opacity(0.05))
-        .clipShape(RoundedRectangle(cornerRadius: 18))
-    }
-
-    private func row(_ left: String, _ right: String, bold: Bool = false) -> some View {
-        HStack {
-            Text(left)
-                .font(.system(size: 13, weight: bold ? .bold : .semibold))
-                .foregroundColor(.white.opacity(bold ? 0.95 : 0.65))
-            Spacer()
-            Text(right)
-                .font(.system(size: 13, weight: bold ? .bold : .semibold))
-                .foregroundColor(.white.opacity(0.95))
-        }
-    }
-}
-
-// MARK: - Food Checkout
-
-struct FoodCheckoutView: View {
-    @EnvironmentObject private var store: DeliveryStore
-    @State private var showTracking: Bool = false
-
-    var body: some View {
-        ZStack {
-            Color.black.ignoresSafeArea()
-
-            ScrollView(showsIndicators: false) {
-                VStack(alignment: .leading, spacing: 14) {
-                    Text("Checkout")
-                        .font(.system(size: 34, weight: .heavy))
-                        .foregroundColor(.white)
-                        .padding(.top, 10)
-
-                    VStack(alignment: .leading, spacing: 10) {
-                        Text("Drop-off")
-                            .font(.system(size: 13, weight: .semibold))
-                            .foregroundColor(.white.opacity(0.6))
-
-                        TextField("Enter your address", text: $store.dropoffAddress)
-                            .font(.system(size: 15, weight: .semibold))
-                            .foregroundColor(.white)
-                            .padding(14)
-                            .background(Color.white.opacity(0.08))
-                            .clipShape(RoundedRectangle(cornerRadius: 18))
-
-                        TextField("Delivery notes (optional)", text: $store.notes)
-                            .font(.system(size: 15, weight: .semibold))
-                            .foregroundColor(.white)
-                            .padding(14)
-                            .background(Color.white.opacity(0.08))
-                            .clipShape(RoundedRectangle(cornerRadius: 18))
-                    }
-                    .padding(14)
-                    .background(Color.white.opacity(0.05))
-                    .clipShape(RoundedRectangle(cornerRadius: 22))
-
-                    VStack(alignment: .leading, spacing: 10) {
-                        Text("Tip")
-                            .font(.system(size: 13, weight: .semibold))
-                            .foregroundColor(.white.opacity(0.6))
-
-                        HStack(spacing: 10) {
-                            tipButton("$0", cents: 0)
-                            tipButton("$2", cents: 200)
-                            tipButton("$4", cents: 400)
-                            tipButton("$6", cents: 600)
-                        }
-                    }
-                    .padding(14)
-                    .background(Color.white.opacity(0.05))
-                    .clipShape(RoundedRectangle(cornerRadius: 22))
-
-                    VStack(alignment: .leading, spacing: 10) {
-                        Text("Total")
-                            .font(.system(size: 13, weight: .semibold))
-                            .foregroundColor(.white.opacity(0.6))
-
-                        Text(String(format: "$%.2f", store.total))
-                            .font(.system(size: 26, weight: .heavy, design: .monospaced))
-                            .foregroundColor(.white)
-                    }
-                    .padding(14)
-                    .background(Color.white.opacity(0.05))
-                    .clipShape(RoundedRectangle(cornerRadius: 22))
-
-                    Button {
-                        store.placeFoodOrder()
-                        showTracking = true
-                    } label: {
-                        Text("Place order")
-                            .font(.system(size: 16, weight: .bold))
-                            .foregroundColor(.black)
-                            .frame(maxWidth: .infinity)
-                            .padding(.vertical, 14)
-                            .background(store.dropoffAddress.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ? Color.white.opacity(0.35) : Color.white)
-                            .clipShape(RoundedRectangle(cornerRadius: 18))
-                    }
-                    .disabled(store.dropoffAddress.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
-
-                    NavigationLink(isActive: $showTracking) {
-                        DeliveryTrackingView(jobTypeTitle: "Food delivery")
-                            .environmentObject(store)
-                    } label: { EmptyView() }
-
-                    Spacer(minLength: 26)
-                }
-                .padding(.horizontal, 20)
-                .padding(.bottom, 22)
-            }
-        }
-        .navigationTitle("")
-        .navigationBarTitleDisplayMode(.inline)
-    }
-
-    private func tipButton(_ title: String, cents: Int) -> some View {
-        Button { store.tipCents = cents } label: {
-            Text(title)
-                .font(.system(size: 14, weight: .bold))
-                .foregroundColor(store.tipCents == cents ? .black : .white)
-                .frame(maxWidth: .infinity)
-                .padding(.vertical, 10)
-                .background(store.tipCents == cents ? Color.white : Color.white.opacity(0.10))
-                .clipShape(RoundedRectangle(cornerRadius: 14))
-        }
-        .buttonStyle(.plain)
-    }
-}
-
-// MARK: - Package Form
-
-struct PackageDeliveryFormView: View {
-    @EnvironmentObject private var store: DeliveryStore
-    @State private var showTracking: Bool = false
-
-    var body: some View {
-        ZStack {
-            Color.black.ignoresSafeArea()
-
-            ScrollView(showsIndicators: false) {
-                VStack(alignment: .leading, spacing: 14) {
-                    Text("Package")
-                        .font(.system(size: 34, weight: .heavy))
-                        .foregroundColor(.white)
-                        .padding(.top, 10)
-
-                    VStack(alignment: .leading, spacing: 10) {
-                        Text("Pickup")
-                            .font(.system(size: 13, weight: .semibold))
-                            .foregroundColor(.white.opacity(0.6))
-
-                        TextField("Pickup address", text: $store.pickupAddress)
-                            .font(.system(size: 15, weight: .semibold))
-                            .foregroundColor(.white)
-                            .padding(14)
-                            .background(Color.white.opacity(0.08))
-                            .clipShape(RoundedRectangle(cornerRadius: 18))
-
-                        Text("Drop-off")
-                            .font(.system(size: 13, weight: .semibold))
-                            .foregroundColor(.white.opacity(0.6))
-
-                        TextField("Drop-off address", text: $store.dropoffAddress)
-                            .font(.system(size: 15, weight: .semibold))
-                            .foregroundColor(.white)
-                            .padding(14)
-                            .background(Color.white.opacity(0.08))
-                            .clipShape(RoundedRectangle(cornerRadius: 18))
-
-                        Text("Package size")
-                            .font(.system(size: 13, weight: .semibold))
-                            .foregroundColor(.white.opacity(0.6))
-
-                        Picker("Size", selection: $store.packageSize) {
-                            Text("Small").tag("Small")
-                            Text("Medium").tag("Medium")
-                            Text("Large").tag("Large")
-                        }
-                        .pickerStyle(.segmented)
-
-                        TextField("Notes (optional)", text: $store.notes)
-                            .font(.system(size: 15, weight: .semibold))
-                            .foregroundColor(.white)
-                            .padding(14)
-                            .background(Color.white.opacity(0.08))
-                            .clipShape(RoundedRectangle(cornerRadius: 18))
-                    }
-                    .padding(14)
-                    .background(Color.white.opacity(0.05))
-                    .clipShape(RoundedRectangle(cornerRadius: 22))
-
-                    VStack(alignment: .leading, spacing: 10) {
-                        Text("Estimated")
-                            .font(.system(size: 13, weight: .semibold))
-                            .foregroundColor(.white.opacity(0.6))
-
-                        Text("$8.99")
-                            .font(.system(size: 26, weight: .heavy, design: .monospaced))
-                            .foregroundColor(.white)
-
-                        Text("Pricing will be distance-based once we connect routing.")
-                            .font(.system(size: 12, weight: .medium))
-                            .foregroundColor(.white.opacity(0.6))
-                    }
-                    .padding(14)
-                    .background(Color.white.opacity(0.05))
-                    .clipShape(RoundedRectangle(cornerRadius: 22))
-
-                    Button {
-                        store.placePackageOrder()
-                        showTracking = true
-                    } label: {
-                        Text("Request courier")
-                            .font(.system(size: 16, weight: .bold))
-                            .foregroundColor(.black)
-                            .frame(maxWidth: .infinity)
-                            .padding(.vertical, 14)
-                            .background(canRequest ? Color.white : Color.white.opacity(0.35))
-                            .clipShape(RoundedRectangle(cornerRadius: 18))
-                    }
-                    .disabled(!canRequest)
-
-                    NavigationLink(isActive: $showTracking) {
-                        DeliveryTrackingView(jobTypeTitle: "Package delivery")
-                            .environmentObject(store)
-                    } label: { EmptyView() }
-
-                    Spacer(minLength: 26)
-                }
-                .padding(.horizontal, 20)
-                .padding(.bottom, 22)
-            }
-        }
-        .navigationTitle("")
-        .navigationBarTitleDisplayMode(.inline)
-    }
-
-    private var canRequest: Bool {
-        !store.pickupAddress.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty &&
-        !store.dropoffAddress.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
-    }
-}
-
-// MARK: - Tracking
-
-struct DeliveryTrackingView: View {
-    @Environment(\.dismiss) private var dismiss
-    @EnvironmentObject private var store: DeliveryStore
-    let jobTypeTitle: String
-
-    @State private var showSafari: Bool = false
-
-    var body: some View {
-        ZStack {
-            Color.black.ignoresSafeArea()
-
-            VStack(alignment: .leading, spacing: 14) {
-                Text(jobTypeTitle)
-                    .font(.system(size: 20, weight: .bold))
-                    .foregroundColor(.white)
-                    .padding(.top, 12)
-                    .padding(.horizontal, 20)
-
-                VStack(alignment: .leading, spacing: 10) {
-                    Text(store.activeOrderId ?? "—")
-                        .font(.system(size: 13, weight: .semibold, design: .monospaced))
-                        .foregroundColor(.white.opacity(0.75))
-
-                    Text(store.activeOrderStatus.isEmpty ? "Creating delivery…" : store.activeOrderStatus)
-                        .font(.system(size: 26, weight: .heavy))
-                        .foregroundColor(.white)
-                        .minimumScaleFactor(0.85)
-                        .lineLimit(2)
-
-                    Text("This screen will update live from Onfleet webhooks once we connect your backend.")
-                        .font(.system(size: 12, weight: .medium))
-                        .foregroundColor(.white.opacity(0.6))
-                }
-                .padding(16)
-                .background(Color.white.opacity(0.06))
-                .clipShape(RoundedRectangle(cornerRadius: 22))
-                .padding(.horizontal, 20)
-
-                if store.trackingURL != nil {
-                    Button { showSafari = true } label: {
-                        HStack {
-                            Text("Open live tracking")
-                                .font(.system(size: 16, weight: .bold))
-                            Spacer()
-                            Image(systemName: "arrow.up.right")
-                                .font(.system(size: 14, weight: .bold))
-                        }
-                        .foregroundColor(.black)
-                        .padding(.horizontal, 18)
-                        .padding(.vertical, 14)
-                        .background(Color.white)
-                        .clipShape(RoundedRectangle(cornerRadius: 18))
-                        .padding(.horizontal, 20)
-                    }
-                    .buttonStyle(.plain)
-                }
-
-                Spacer()
-
-                Button { store.resetAfterOrder() } label: {
-                    Text("Done")
-                        .font(.system(size: 15, weight: .semibold))
-                        .foregroundColor(.white.opacity(0.8))
-                        .frame(maxWidth: .infinity)
-                        .padding(.vertical, 12)
-                        .background(Color.white.opacity(0.08))
-                        .clipShape(RoundedRectangle(cornerRadius: 18))
-                        .padding(.horizontal, 20)
-                        .padding(.bottom, 18)
-                }
-                .buttonStyle(.plain)
-            }
-        }
-        .onReceive(store.$activeOrderStatus) { status in
-            if status == "completed" || status == "delivered" {
-                dismiss()
-            }
-        }
-        .navigationTitle("Tracking")
-        .navigationBarTitleDisplayMode(.inline)
-        .sheet(isPresented: $showSafari) {
-            if let url = store.trackingURL {
-                SafariView(url: url).ignoresSafeArea()
-            }
-        }
-    }
-}
-
-// MARK: - Safari wrapper
-
-struct SafariView: UIViewControllerRepresentable {
-    let url: URL
-
-    func makeUIViewController(context: Context) -> SFSafariViewController {
-        let vc = SFSafariViewController(url: url)
-        vc.preferredControlTintColor = .white
-        return vc
-    }
-
-    func updateUIViewController(_ uiViewController: SFSafariViewController, context: Context) {}
-}
-
+// MARK: - Delivery is implemented in FoodDeliveryModels.swift, FoodDeliveryService.swift, and DeliveryRequestView.swift.
 
 // MARK: - Scheduled Ride (Local Storage + Formatting)
 

@@ -391,9 +391,11 @@ struct RideOptionsView: View {
         let saverIQD = baseIQD
         let lumoxIQD = Int(Double(baseIQD) * 1.20)
         let lumoxlIQD = Int(Double(baseIQD) * 1.45)
+        let shareIQD = Int((Double(baseIQD) * 0.70).rounded())
         let saverUSD = baseUSD
         let lumoxUSD = isMinimumSamePlaceFareActive ? baseUSD : baseUSD * 1.20
         let lumoxlUSD = isMinimumSamePlaceFareActive ? baseUSD : baseUSD * 1.45
+        let shareUSD = baseUSD * 0.70
 
         // Show placeholder until fare is ready
         let saverText = isUS
@@ -405,6 +407,9 @@ struct RideOptionsView: View {
         let lumoxlText = isUS
             ? (baseUSD > 0 ? String(format: "$%.2f", lumoxlUSD) : "…")
             : (baseIQD > 0 ? "\(lumoxlIQD) IQD" : "…")
+        let shareText = isUS
+            ? (baseUSD > 0 ? String(format: "$%.2f", shareUSD) : "…")
+            : (baseIQD > 0 ? "\(shareIQD) IQD" : "…")
 
         // Optional crossed-out price for Saver (show higher "original" price)
         let saverOriginalText: String? = isUS
@@ -421,6 +426,16 @@ struct RideOptionsView: View {
                 price: saverText,
                 crossedOutPrice: saverOriginalText,
                 isRecommended: true
+            ),
+            RideOption(
+                id: "share",
+                name: "Share",
+                nameKey: .rideOptionsShareName,
+                subtitleKey: .rideOptionsShareSubtitle,
+                etaKey: .rideOptionsShareEta,
+                price: shareText,
+                crossedOutPrice: saverText,
+                isRecommended: false
             ),
             RideOption(
                 id: "lumox",
@@ -452,10 +467,13 @@ struct RideOptionsView: View {
 
     private var selectedFareUSD: Double {
         let base = calculatedFareUSD
+        let optionID = selectedOptionID ?? options.first?.id ?? "saver"
+        if optionID == "share" {
+            return (base * 0.70 * 100).rounded() / 100
+        }
         if isMinimumSamePlaceFareActive {
             return 0.50
         }
-        let optionID = selectedOptionID ?? options.first?.id ?? "saver"
 
         switch optionID {
         case "lumox":
@@ -472,6 +490,8 @@ struct RideOptionsView: View {
         let optionID = selectedOptionID ?? options.first?.id ?? "saver"
 
         switch optionID {
+        case "share":
+            return Int((Double(base) * 0.70).rounded())
         case "lumox":
             return Int(Double(base) * 1.20)
         case "lumoxl":

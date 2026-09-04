@@ -354,21 +354,39 @@ struct LumoApp: App {
     @StateObject private var navigationCoordinator = NavigationCoordinator()
     @StateObject private var locationManager = LumoLocationManager()
     @StateObject private var languageStore = LumoLanguageStore()
+    @State private var showLaunchAnimation = true
 
     init() {
         StripeAPI.defaultPublishableKey = "pk_test_51SYcoMLxOAYYnBGn6DlClEfr2WdraGlgyntgNM2T9qnogzLbHHxHt1rJTxOhmGOigrN61Cp3ZetxG1pK92UCNe7X00IfuokhdW"
+
+        guard let agoraAppID = Bundle.main.object(
+            forInfoDictionaryKey: "AgoraAppID"
+        ) as? String,
+        !agoraAppID.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {
+            assertionFailure("AgoraAppID is missing from Info settings.")
+            return
+        }
+
+        AgoraCallManager.shared.configure(appId: agoraAppID)
     }
 
     var body: some Scene {
         WindowGroup {
-            NavigationStack(path: $navigationCoordinator.path) {
-                SplashScreen()
+            ZStack {
+                NavigationStack(path: $navigationCoordinator.path) {
+                    SplashScreen()
+                }
+                .environmentObject(navigationCoordinator)
+                .environmentObject(locationManager)
+                .environmentObject(languageStore)
+                .environment(\.locale, languageStore.locale)
+                .environment(\.layoutDirection, languageStore.layoutDirection)
+
+                if showLaunchAnimation {
+                    LumoLaunchView(isPresented: $showLaunchAnimation)
+                        .zIndex(1)
+                }
             }
-            .environmentObject(navigationCoordinator)
-            .environmentObject(locationManager)
-            .environmentObject(languageStore)
-            .environment(\.locale, languageStore.locale)
-            .environment(\.layoutDirection, languageStore.layoutDirection)
         }
     }
 }

@@ -47,10 +47,12 @@ public struct DriverTrackingView: View {
     private let supabaseAnonKey: String
     private let driver: DriverProfile
     private let onChat: (() -> Void)?
+    private let onRideEnded: (() -> Void)?
     private let localSenderRole: String
 
     @Environment(\.dismiss) private var dismiss
     @StateObject private var vm: VM
+    @ObservedObject private var riderCallManager = RiderCallManager.shared
     @State private var isChatPresented: Bool = false
     @State private var showCancelConfirm: Bool = false
     @State private var riderRecenterToken: UUID = UUID()
@@ -72,12 +74,14 @@ public struct DriverTrackingView: View {
         supabaseURL: URL? = nil,
         supabaseAnonKey: String? = nil,
         onChat: (() -> Void)? = nil,
+        onRideEnded: (() -> Void)? = nil,
         localSenderRole: String = "rider"
     ) {
         let normalizedRideId = rideId.trimmingCharacters(in: .whitespacesAndNewlines)
         self.rideId = normalizedRideId
         self.driver = driver
         self.onChat = onChat
+        self.onRideEnded = onRideEnded
         self.localSenderRole = localSenderRole
 
         let url = supabaseURL
@@ -131,12 +135,14 @@ public struct DriverTrackingView: View {
         }
         .onAppear {
             vm.start()
+            riderCallManager.monitor(rideId: UUID(uuidString: rideId))
         }
         .onDisappear {
             vm.stop()
+            riderCallManager.monitor(rideId: nil)
         }
         .onChange(of: vm.shouldExit) { _, shouldExit in
-            if shouldExit { dismissToHome() }
+            if shouldExit { exitTrackingFlow() }
         }
         .preferredColorScheme(.dark)
         .statusBarHidden(false)
@@ -145,12 +151,69 @@ public struct DriverTrackingView: View {
         } message: {
             Text(vm.cancelAlertMessage)
         }
+        .alert(
+            "Unable to cancel ride",
+            isPresented: Binding(
+                get: { vm.errorText != nil },
+                set: { if !$0 { vm.errorText = nil } }
+            )
+        ) {
+            Button("OK", role: .cancel) { vm.errorText = nil }
+        } message: {
+            Text(vm.errorText ?? "Cancellation failed.")
+        }
         .fullScreenCover(isPresented: $isChatPresented) {
             RideChatView(
                 rideId: self.rideId,
                 supabaseURL: supabaseURL,
                 supabaseAnonKey: supabaseAnonKey,
                 localSender: localSenderRole
+            )
+        }
+        .fullScreenCover(
+            isPresented: Binding(
+                get: { riderCallManager.currentCall != nil },
+                set: { isPresented in
+                    if !isPresented, riderCallManager.currentCall != nil {
+                        Task {
+                            await riderCallManager.endCurrentCall()
+                        }
+                    }
+                }
+            )
+        ) {
+            OutgoingCallView(
+                driverName: (vm.driverProfile ?? driver).name
+            )
+        }
+        .sheet(
+            isPresented: Binding(
+                get: { riderCallManager.incomingCall != nil },
+                set: { _ in }
+            )
+        ) {
+            if let incomingCall = riderCallManager.incomingCall {
+                IncomingCallView(call: incomingCall)
+            }
+        }
+        .alert(
+            "Call Error",
+            isPresented: Binding(
+                get: { riderCallManager.errorMessage != nil },
+                set: { isPresented in
+                    if !isPresented {
+                        riderCallManager.clearError()
+                    }
+                }
+            )
+        ) {
+            Button("OK", role: .cancel) {
+                riderCallManager.clearError()
+            }
+        } message: {
+            Text(
+                riderCallManager.errorMessage ??
+                "Unable to start the call."
             )
         }
         .onChange(of: isChatPresented) { _, presented in
@@ -238,39 +301,102 @@ public struct DriverTrackingView: View {
                 )
             }
 
-            Button {
-                if let onChat {
-                    onChat()
-                } else {
-                    isChatPresented = true
-                    Task { await vm.markMessagesRead() }
-                }
-            } label: {
-                ZStack(alignment: .topTrailing) {
+            HStack(spacing: 10) {
+                Button {
+                    guard let rideUUID = UUID(uuidString: rideId),
+                          let driverId = vm.assignedDriverId,
+                          !driverId.isEmpty else {
+                        return
+                    }
+
+                    Task {
+                        await riderCallManager.startCall(
+                            rideId: rideUUID,
+                            driverId: driverId
+                        )
+                    }
+                } label: {
                     HStack(spacing: 10) {
-                        Image(systemName: "message.fill")
-                            .font(.system(size: 14, weight: .semibold))
-                        Text("Chat")
-                            .font(.system(size: 15, weight: .semibold))
+                        if riderCallManager.isStartingCall {
+                            ProgressView()
+                                .tint(.black)
+                        } else {
+                            Image(systemName: "phone.fill")
+                                .font(.system(size: 14, weight: .semibold))
+                        }
+
+                        Text(
+                            riderCallManager.isStartingCall
+                                ? "Calling…"
+                                : "Call"
+                        )
+                        .font(.system(size: 15, weight: .semibold))
                     }
                     .foregroundColor(.black)
                     .frame(maxWidth: .infinity)
                     .padding(.vertical, 12)
                     .background(Color.white)
-                    .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
-                    .overlay(
-                        RoundedRectangle(cornerRadius: 16, style: .continuous)
-                            .stroke(Color.white.opacity(0.0), lineWidth: 1)
+                    .clipShape(
+                        RoundedRectangle(
+                            cornerRadius: 16,
+                            style: .continuous
+                        )
                     )
+                }
+                .buttonStyle(.plain)
+                .disabled(
+                    vm.assignedDriverId == nil ||
+                    UUID(uuidString: rideId) == nil ||
+                    riderCallManager.isStartingCall ||
+                    riderCallManager.currentCall != nil
+                )
+                .opacity(
+                    vm.assignedDriverId == nil ||
+                    UUID(uuidString: rideId) == nil
+                        ? 0.5
+                        : 1.0
+                )
 
-                    if vm.unreadCount > 0 {
-                        Circle()
-                            .fill(Color.green)
-                            .frame(width: 12, height: 12)
-                            .offset(x: -10, y: 8)
-                            .transition(.scale)
+                Button {
+                    if let onChat {
+                        onChat()
+                    } else {
+                        isChatPresented = true
+
+                        Task {
+                            await vm.markMessagesRead()
+                        }
+                    }
+                } label: {
+                    ZStack(alignment: .topTrailing) {
+                        HStack(spacing: 10) {
+                            Image(systemName: "message.fill")
+                                .font(.system(size: 14, weight: .semibold))
+
+                            Text("Chat")
+                                .font(.system(size: 15, weight: .semibold))
+                        }
+                        .foregroundColor(.black)
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 12)
+                        .background(Color.white)
+                        .clipShape(
+                            RoundedRectangle(
+                                cornerRadius: 16,
+                                style: .continuous
+                            )
+                        )
+
+                        if vm.unreadCount > 0 {
+                            Circle()
+                                .fill(Color.green)
+                                .frame(width: 12, height: 12)
+                                .offset(x: -10, y: 8)
+                                .transition(.scale)
+                        }
                     }
                 }
+                .buttonStyle(.plain)
             }
 
             Button {
@@ -308,14 +434,11 @@ public struct DriverTrackingView: View {
         .padding(.bottom, 14)
     }
     @MainActor
-    private func dismissToHome() {
-        dismiss()
-        if let scene = UIApplication.shared.connectedScenes
-            .compactMap({ $0 as? UIWindowScene })
-            .first,
-           let root = scene.windows.first?.rootViewController,
-           root.presentedViewController != nil {
-            root.dismiss(animated: true)
+    private func exitTrackingFlow() {
+        if let onRideEnded {
+            onRideEnded()
+        } else {
+            dismiss()
         }
     }
 }
@@ -352,12 +475,15 @@ private final class VM: ObservableObject {
     @Published var cancelAlertMessage: String = ""
     @Published var errorText: String? = nil
     private var statusPollTask: Task<Void, Never>?
+    private var lifecycleGeneration = UUID()
+    private var isRunning = false
     @Published var driverState: DriverState = .init()
     @Published var riderState: RiderState = .init()
     @Published var routeState: RouteState = .init()
     @Published var followMode: FollowMode = .follow
     @Published var sheetExpanded: Bool = false
     @Published var driverProfile: DriverTrackingView.DriverProfile? = nil
+    @Published var assignedDriverId: String? = nil
     @Published var shouldExit: Bool = false
     @Published var isChatPresented: Bool = false
 
@@ -404,9 +530,13 @@ private final class VM: ObservableObject {
     }
 
     func start() {
+        lifecycleGeneration = UUID()
+        let generation = lifecycleGeneration
+        isRunning = true
         riderLocation.onUpdate = { [weak self] coord in
             guard let self else { return }
             Task { @MainActor in
+                guard self.isRunning, self.lifecycleGeneration == generation else { return }
                 self.riderState.coord = coord
                 self.riderState.updatedAt = Date()
                 self.scheduleRouteUpdate()
@@ -426,6 +556,7 @@ private final class VM: ObservableObject {
             realtime?.onDriverUpdate = { [weak self] update in
                 guard let self else { return }
                 Task { @MainActor in
+                    guard self.isRunning, self.lifecycleGeneration == generation else { return }
                     let now = Date()
                     self.driverState.coord = update.coord
                     self.driverState.headingDeg = update.headingDeg
@@ -448,6 +579,7 @@ private final class VM: ObservableObject {
             realtime?.onConnectionState = { [weak self] state in
                 guard let self else { return }
                 Task { @MainActor in
+                    guard self.isRunning, self.lifecycleGeneration == generation else { return }
                     self._connectionState = state
                 }
             }
@@ -458,15 +590,19 @@ private final class VM: ObservableObject {
         // Prefill driver marker immediately (so it shows even before first realtime event)
         prefillDriverFromRESTIfNeeded()
         startDriverRefreshLoop()
-        startStatusMonitoring()
+        startStatusMonitoring(generation: generation)
         startMessagePolling()
         registerLifecycle()
     }
 
     func stop() {
+        isRunning = false
+        lifecycleGeneration = UUID()
         unregisterLifecycle()
         riderLocation.stop()
         realtime?.stop()
+        statusPollTask?.cancel()
+        statusPollTask = nil
         routeTask?.cancel()
         routeTask = nil
         driverRefreshTask?.cancel()
@@ -475,30 +611,30 @@ private final class VM: ObservableObject {
         messagePollTask = nil
     }
 
-    func cancelTripAndExit() async {
-        await cancelRideInSupabase()
-        stop()
-        await MainActor.run {
-            self.shouldExit = true
-        }
-    }
-
     func riderCancelAndExit() async {
-        await riderCancelRide()
-        stop()
-        await MainActor.run {
-            cancelAlertMessage = "Trip cancelled"
-            showCancelAlert = true
-            shouldExit = true
+        await postCancelSystemMessageBestEffort()
+        do {
+            try await SupabaseRideService.shared.cancelPassengerRideByRider(rideId: rideId)
+            await MainActor.run {
+                stop()
+                cancelAlertMessage = "Trip cancelled"
+                showCancelAlert = true
+                shouldExit = true
+            }
+        } catch {
+            await MainActor.run {
+                errorText = error.localizedDescription
+            }
         }
     }
     
-    private func startStatusMonitoring() {
+    private func startStatusMonitoring(generation: UUID) {
         statusPollTask?.cancel()
         statusPollTask = Task { [weak self] in
             guard let self else { return }
-            while !Task.isCancelled {
-                await self.checkRideStatus()
+            while !Task.isCancelled, self.isRunning, self.lifecycleGeneration == generation {
+                await self.checkRideStatus(generation: generation)
+                guard !Task.isCancelled, self.isRunning, self.lifecycleGeneration == generation else { return }
                 try? await Task.sleep(nanoseconds: 1_500_000_000)
             }
         }
@@ -510,7 +646,7 @@ private final class VM: ObservableObject {
     }
 
 
-private func checkRideStatus() async {
+private func checkRideStatus(generation: UUID) async {
     guard let url = rideRowURL() else { return }
 
     var req = URLRequest(url: url)
@@ -521,11 +657,14 @@ private func checkRideStatus() async {
 
     do {
         let (data, _) = try await URLSession.shared.data(for: req)
+        guard !Task.isCancelled, isRunning, lifecycleGeneration == generation else { return }
         guard let arr = try JSONSerialization.jsonObject(with: data) as? [[String: Any]] else { return }
 
         // If the ride row is gone (deleted), treat it as cancelled and exit.
         guard let row = arr.first else {
             await MainActor.run {
+                guard self.isRunning, self.lifecycleGeneration == generation else { return }
+                SupabaseRideService.shared.stopObservingRideStatus()
                 cancelAlertMessage = "Trip cancelled"
                 showCancelAlert = true
                 cleanupAndExit()
@@ -535,48 +674,12 @@ private func checkRideStatus() async {
 
         let status = row["status"] as? String
         if let status {
-            handleRideStatusChange(status)
+            handleRideStatusChange(status, generation: generation)
         }
     } catch {
         // ignore network errors
     }
 }
-
-    private func cancelRideInSupabase() async {
-        var comps = URLComponents(url: supabaseURL.appendingPathComponent("rest/v1/rides"), resolvingAgainstBaseURL: false)
-        comps?.queryItems = [
-            URLQueryItem(name: "id", value: "eq.\(rideId)")
-        ]
-        guard let url = comps?.url else { return }
-
-        var req = URLRequest(url: url)
-        req.httpMethod = "PATCH"
-        req.setValue(supabaseAnonKey, forHTTPHeaderField: "apikey")
-        req.setValue("Bearer \(supabaseAnonKey)", forHTTPHeaderField: "Authorization")
-        req.setValue("application/json", forHTTPHeaderField: "Content-Type")
-        req.setValue("application/json", forHTTPHeaderField: "Accept")
-        req.setValue("return=representation", forHTTPHeaderField: "Prefer")
-        req.timeoutInterval = 12
-
-        let payload: [String: Any] = [
-            "status": "cancelled_by_rider",
-            "cancelled_by": "rider",
-            "cancelled_at": ISO8601DateFormatter().string(from: Date())
-        ]
-
-        do {
-            req.httpBody = try JSONSerialization.data(withJSONObject: payload)
-            let (data, resp) = try await URLSession.shared.data(for: req)
-            guard let http = resp as? HTTPURLResponse, (200...299).contains(http.statusCode) else {
-                if let http = resp as? HTTPURLResponse {
-                    print("[DriverTrackingView] cancelTrip PATCH failed status=\(http.statusCode) body=\(String(data: data, encoding: .utf8) ?? "")")
-                }
-                return
-            }
-        } catch {
-            print("[DriverTrackingView] cancelTrip error: \(error)")
-        }
-    }
 
     private func registerLifecycle() {
         NotificationCenter.default.addObserver(self, selector: #selector(appDidBecomeActive), name: UIApplication.didBecomeActiveNotification, object: nil)
@@ -588,6 +691,7 @@ private func checkRideStatus() async {
     }
 
     @objc private func appDidBecomeActive() {
+        guard isRunning else { return }
         realtime?.resume()
         // Re-prefill after background/foreground in case marker was cleared or no realtime events yet
         prefillDriverFromRESTIfNeeded(force: true)
@@ -776,6 +880,10 @@ private func checkRideStatus() async {
 
             let driverId = row.stringAny("driver_id", "driverId").trimmingCharacters(in: .whitespacesAndNewlines)
             guard !driverId.isEmpty else { return }
+
+            await MainActor.run {
+                self.assignedDriverId = driverId
+            }
 
             // Try a few common tables + column keys. This supports either UUID ids or phone/uid-based ids.
             let tablesToTry = ["drivers", "driver_profiles", "profiles", "users"]
@@ -974,27 +1082,6 @@ private func checkRideStatus() async {
         return comps?.url
     }
 
-    // MARK: - Rider cancel (notify driver + cancel ride)
-    func riderCancelRide() async {
-        // 1) Best-effort: send a system note to the driver (shows in driver chat if they are polling messages)
-        await postCancelSystemMessageBestEffort()
-
-        // 2) Cancel the ride request. We use DELETE because your rides.status CHECK constraint (23514)
-        // has been rejecting status updates.
-        do {
-            try await deleteRideRow()
-        } catch {
-            // If DELETE fails (e.g., FK or policy), surface a readable error.
-            await MainActor.run {
-                // If this VM already has an error string, prefer that; otherwise set a generic one.
-                // Many UIs in this file show errors via a published `errorText` / `toastText` / etc.
-                if self.errorText == nil {
-                    self.errorText = "Cancel failed: \(error.localizedDescription)"
-                }
-            }
-        }
-    }
-
     private func postCancelSystemMessageBestEffort() async {
         guard let url = messagesPOSTURLForCancel() else { return }
 
@@ -1029,30 +1116,6 @@ private func checkRideStatus() async {
             _ = resp
         } catch {
             // ignore
-        }
-    }
-
-    private func deleteRideRow() async throws {
-        var comps = URLComponents(url: supabaseURL.appendingPathComponent("rest/v1/rides"), resolvingAgainstBaseURL: false)
-        comps?.queryItems = [
-            URLQueryItem(name: "id", value: "eq.\(rideId)"),
-            URLQueryItem(name: "select", value: "id")
-        ]
-        guard let url = comps?.url else { throw URLError(.badURL) }
-
-        var req = URLRequest(url: url)
-        req.httpMethod = "DELETE"
-        req.setValue(supabaseAnonKey, forHTTPHeaderField: "apikey")
-        req.setValue("Bearer \(supabaseAnonKey)", forHTTPHeaderField: "Authorization")
-        req.setValue("application/json", forHTTPHeaderField: "Accept")
-        req.setValue("return=minimal", forHTTPHeaderField: "Prefer")
-        req.timeoutInterval = 12
-
-        let (data, resp) = try await URLSession.shared.data(for: req)
-        guard let http = resp as? HTTPURLResponse else { throw URLError(.badServerResponse) }
-        guard (200...299).contains(http.statusCode) else {
-            let body = String(data: data, encoding: .utf8) ?? ""
-            throw PostgRESTHTTPError(statusCode: http.statusCode, body: body)
         }
     }
 
@@ -1115,13 +1178,22 @@ private func checkRideStatus() async {
         }
     }
 
-    private func handleRideStatusChange(_ status: String) {
-        guard status == "cancelled_by_driver" || status == "cancelled_by_rider" || status == "cancelled" else { return }
+    private func handleRideStatusChange(_ status: String, generation: UUID) {
+        let normalizedStatus = status.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
+        guard isRunning,
+              lifecycleGeneration == generation,
+              SupabaseRideService.terminalStatuses.contains(normalizedStatus)
+        else { return }
 
         Task { @MainActor in
-            if status == "cancelled_by_driver" {
+            guard self.isRunning, self.lifecycleGeneration == generation else { return }
+            SupabaseRideService.shared.stopObservingRideStatus()
+            if normalizedStatus == "completed" {
+                cleanupAndExit()
+                return
+            } else if normalizedStatus == "cancelled_by_driver" || normalizedStatus == "driver_cancelled" {
                 cancelAlertMessage = "Driver cancelled the trip."
-            } else if status == "cancelled_by_rider" {
+            } else if normalizedStatus == "cancelled_by_rider" || normalizedStatus == "rider_cancelled" {
                 cancelAlertMessage = "Rider cancelled the trip."
             } else {
                 cancelAlertMessage = "Trip cancelled."
@@ -2205,6 +2277,7 @@ private final class SupabaseRealtimeLite {
     private var heartbeatTimer: Timer?
     private var reconnectTimer: Timer?
     private var isPaused: Bool = false
+    private var isStopped: Bool = true
 
     private var refCounter: Int = 1
     private var joinRef: String?
@@ -2219,11 +2292,14 @@ private final class SupabaseRealtimeLite {
     }
 
     func start(rideId: String) {
+        isStopped = false
+        isPaused = false
         self.rideId = rideId
         connect()
     }
 
     func stop() {
+        isStopped = true
         rideId = nil
         heartbeatTimer?.invalidate()
         heartbeatTimer = nil
@@ -2244,14 +2320,14 @@ private final class SupabaseRealtimeLite {
     }
 
     func resume() {
-        guard isPaused else { return }
+        guard isPaused, !isStopped else { return }
         isPaused = false
         guard let rideId else { return }
         start(rideId: rideId)
     }
 
     private func connect() {
-        guard !isPaused, let rideId else { return }
+        guard !isPaused, !isStopped, let rideId else { return }
         onConnectionState?(.connecting)
 
         let host = supabaseURL.host ?? ""
@@ -2290,7 +2366,7 @@ private final class SupabaseRealtimeLite {
     }
 
     private func scheduleReconnect() {
-        guard reconnectTimer == nil, !isPaused else { return }
+        guard reconnectTimer == nil, !isPaused, !isStopped else { return }
         onConnectionState?(.reconnecting)
         reconnectTimer = Timer.scheduledTimer(withTimeInterval: 1.2, repeats: false) { [weak self] _ in
             self?.reconnectTimer = nil
@@ -2330,6 +2406,7 @@ private final class SupabaseRealtimeLite {
     private func listen() {
         socket?.receive { [weak self] result in
             guard let self else { return }
+            guard !self.isStopped else { return }
             switch result {
             case .failure:
                 self.onConnectionState?(.offline)
@@ -3399,4 +3476,3 @@ private struct RideChatView: View {
         }
     }
 }
-

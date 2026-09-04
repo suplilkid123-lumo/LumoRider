@@ -51,7 +51,6 @@ struct RiderBackendTestView: View {
 
             // Dummy coordinates (Chicago)
             let request = CreateRideRequest(
-                riderId: "test-rider-1",
                 pickupLat: 41.8781,
                 pickupLng: -87.6298,
                 dropoffLat: 41.8810,

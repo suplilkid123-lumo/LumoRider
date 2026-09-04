@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		B7D0A15231A5000100C0DE01 /* IncomingCallView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B7D0A15131A5000100C0DE01 /* IncomingCallView.swift */; };
+		B7F2A10031A4000100C0DE01 /* LumoLaunchView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B7F2A10031A4000100C0DE02 /* LumoLaunchView.swift */; };
 		C112358F2F134FE8008CCCC0 /* Message.swift in Sources */ = {isa = PBXBuildFile; fileRef = C112358E2F134FE8008CCCC0 /* Message.swift */; };
 		C11235912F135018008CCCC0 /* ChatService.swift in Sources */ = {isa = PBXBuildFile; fileRef = C11235902F135018008CCCC0 /* ChatService.swift */; };
 		C11235932F135034008CCCC0 /* ChatView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C11235922F135034008CCCC0 /* ChatView.swift */; };
@@ -32,6 +34,13 @@
 		C17FBF962ED6CBE300E6CA1D /* FirebaseCore in Frameworks */ = {isa = PBXBuildFile; productRef = C17FBF952ED6CBE300E6CA1D /* FirebaseCore */; };
 		C1876E462ED69DCB00FD8CAC /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = C1876E452ED69DCB00FD8CAC /* Assets.xcassets */; };
 		C18AFCBF2FF2E29700E5850F /* FirebaseFunctions in Frameworks */ = {isa = PBXBuildFile; productRef = C18AFCBE2FF2E29700E5850F /* FirebaseFunctions */; };
+		C196AE803003E2CA00049005 /* RtcBasic in Frameworks */ = {isa = PBXBuildFile; productRef = C196AE7F3003E2CA00049005 /* RtcBasic */; };
+		C196AE823003E3BA00049005 /* AgoraCallManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = C196AE813003E3BA00049005 /* AgoraCallManager.swift */; };
+		C196AE843003FB6D00049005 /* CallSession.swift in Sources */ = {isa = PBXBuildFile; fileRef = C196AE833003FB6D00049005 /* CallSession.swift */; };
+		C196AE863003FBCA00049005 /* CallSessionService.swift in Sources */ = {isa = PBXBuildFile; fileRef = C196AE853003FBCA00049005 /* CallSessionService.swift */; };
+		C196AE883003FE4A00049005 /* AgoraTokenService.swift in Sources */ = {isa = PBXBuildFile; fileRef = C196AE873003FE4A00049005 /* AgoraTokenService.swift */; };
+		C196AE8A3003FEB500049005 /* RiderCallManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = C196AE893003FEB500049005 /* RiderCallManager.swift */; };
+		C196AE8C3003FF1400049005 /* OutgoingCallView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C196AE8B3003FF1400049005 /* OutgoingCallView.swift */; };
 		C1A9BFCA2F14774B007AEE88 /* IraqAutoFareCalculator.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1A9BFC92F14774B007AEE88 /* IraqAutoFareCalculator.swift */; };
 		C1B92D2A2F245F5C008F42E6 /* FirebaseMessaging in Frameworks */ = {isa = PBXBuildFile; productRef = C1B92D292F245F5C008F42E6 /* FirebaseMessaging */; };
 		C1C6243A2EDBCCAF00889D32 /* NavigationCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1C624392EDBCCAF00889D32 /* NavigationCoordinator.swift */; };
@@ -52,6 +61,8 @@
 		C1E8D8F72EDB65E200B866B3 /* GoogleSignIn in Frameworks */ = {isa = PBXBuildFile; productRef = C1E8D8F62EDB65E200B866B3 /* GoogleSignIn */; };
 		C1E8D8F92EDB860500B866B3 /* RouteService.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1E8D8F82EDB860500B866B3 /* RouteService.swift */; };
 		C1E8D8FB2EDB8D7900B866B3 /* DriverTrackingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1E8D8FA2EDB8D7900B866B3 /* DriverTrackingView.swift */; };
+		C1F00D012F50000100F00D01 /* FoodDeliveryModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1F00D112F50000100F00D01 /* FoodDeliveryModels.swift */; };
+		C1F00D022F50000100F00D01 /* FoodDeliveryService.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1F00D122F50000100F00D01 /* FoodDeliveryService.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -72,6 +83,8 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		B7D0A15131A5000100C0DE01 /* IncomingCallView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IncomingCallView.swift; sourceTree = "<group>"; };
+		B7F2A10031A4000100C0DE02 /* LumoLaunchView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LumoLaunchView.swift; sourceTree = "<group>"; };
 		C112358E2F134FE8008CCCC0 /* Message.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Message.swift; sourceTree = "<group>"; };
 		C11235902F135018008CCCC0 /* ChatService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatService.swift; sourceTree = "<group>"; };
 		C11235922F135034008CCCC0 /* ChatView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatView.swift; sourceTree = "<group>"; };
@@ -94,6 +107,12 @@
 		C1876E422ED69B0500FD8CAC /* RealLumoTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = RealLumoTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		C1876E432ED69B0500FD8CAC /* RealLumoUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = RealLumoUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		C1876E452ED69DCB00FD8CAC /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		C196AE813003E3BA00049005 /* AgoraCallManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AgoraCallManager.swift; sourceTree = "<group>"; };
+		C196AE833003FB6D00049005 /* CallSession.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CallSession.swift; sourceTree = "<group>"; };
+		C196AE853003FBCA00049005 /* CallSessionService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CallSessionService.swift; sourceTree = "<group>"; };
+		C196AE873003FE4A00049005 /* AgoraTokenService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AgoraTokenService.swift; sourceTree = "<group>"; };
+		C196AE893003FEB500049005 /* RiderCallManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RiderCallManager.swift; sourceTree = "<group>"; };
+		C196AE8B3003FF1400049005 /* OutgoingCallView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OutgoingCallView.swift; sourceTree = "<group>"; };
 		C1A9BFC92F14774B007AEE88 /* IraqAutoFareCalculator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IraqAutoFareCalculator.swift; sourceTree = "<group>"; };
 		C1C624392EDBCCAF00889D32 /* NavigationCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NavigationCoordinator.swift; sourceTree = "<group>"; };
 		C1CFC0FA2ED8FE3300CCA712 /* LocationManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationManager.swift; sourceTree = "<group>"; };
@@ -109,6 +128,8 @@
 		C1E8D8F32EDB56DB00B866B3 /* GMSMapView+LumoStyle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "GMSMapView+LumoStyle.swift"; sourceTree = "<group>"; };
 		C1E8D8F82EDB860500B866B3 /* RouteService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RouteService.swift; sourceTree = "<group>"; };
 		C1E8D8FA2EDB8D7900B866B3 /* DriverTrackingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DriverTrackingView.swift; sourceTree = "<group>"; };
+		C1F00D112F50000100F00D01 /* FoodDeliveryModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FoodDeliveryModels.swift; sourceTree = "<group>"; };
+		C1F00D122F50000100F00D01 /* FoodDeliveryService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FoodDeliveryService.swift; sourceTree = "<group>"; };
 		C1F77E922ED6DD6400C14D4F /* RealLumo-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "RealLumo-Info.plist"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -128,6 +149,7 @@
 				C17FBF942ED6CBE300E6CA1D /* FirebaseAuth in Frameworks */,
 				C1595C2D2EDA83960098FD1D /* Stripe in Frameworks */,
 				C1B92D2A2F245F5C008F42E6 /* FirebaseMessaging in Frameworks */,
+				C196AE803003E2CA00049005 /* RtcBasic in Frameworks */,
 				C1D634D02EE3969B006CA37E /* FirebaseFirestore in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -159,6 +181,14 @@
 		C1B44A612ED567210095C550 = {
 			isa = PBXGroup;
 			children = (
+				B7F2A10031A4000100C0DE02 /* LumoLaunchView.swift */,
+				B7D0A15131A5000100C0DE01 /* IncomingCallView.swift */,
+				C196AE8B3003FF1400049005 /* OutgoingCallView.swift */,
+				C196AE893003FEB500049005 /* RiderCallManager.swift */,
+				C196AE873003FE4A00049005 /* AgoraTokenService.swift */,
+				C196AE853003FBCA00049005 /* CallSessionService.swift */,
+				C196AE833003FB6D00049005 /* CallSession.swift */,
+				C196AE813003E3BA00049005 /* AgoraCallManager.swift */,
 				C11EACCA2F23FBEB00E84333 /* AppleSignInService.swift */,
 				C11EACC92F23FBA600E84333 /* RealLumo.entitlements */,
 				C14C472D2F1DA4800076F2DD /* RideScheduledView.swift */,
@@ -191,6 +221,8 @@
 				C1511F242EE53B01005203B8 /* LumoAPI.swift */,
 				C1511F262EE53C4B005203B8 /* RiderBackendTestView.swift */,
 				C17486012EE9189A00570D95 /* DeliveryRequestView.swift */,
+				C1F00D112F50000100F00D01 /* FoodDeliveryModels.swift */,
+				C1F00D122F50000100F00D01 /* FoodDeliveryService.swift */,
 				C136FEF52F2584F2009CEAFC /* GoogleService-Info.plist */,
 				C1F77E922ED6DD6400C14D4F /* RealLumo-Info.plist */,
 				C1D548AF2ED6942400A387ED /* RealLumo.app */,
@@ -230,6 +262,7 @@
 				C11235942F135324008CCCC0 /* Supabase */,
 				C1B92D292F245F5C008F42E6 /* FirebaseMessaging */,
 				C18AFCBE2FF2E29700E5850F /* FirebaseFunctions */,
+				C196AE7F3003E2CA00049005 /* RtcBasic */,
 			);
 			productName = RealLumo;
 			productReference = C1D548AF2ED6942400A387ED /* RealLumo.app */;
@@ -314,6 +347,7 @@
 				C1595C362EDA9BD50098FD1D /* XCRemoteSwiftPackageReference "ios-maps-sdk" */,
 				C1E8D8F52EDB65E200B866B3 /* XCRemoteSwiftPackageReference "GoogleSignIn-iOS" */,
 				C1E24F232F0B6EF500CA14F9 /* XCRemoteSwiftPackageReference "supabase-swift" */,
+				C196AE7E3003E2CA00049005 /* XCRemoteSwiftPackageReference "AgoraRtcEngine_iOS" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = C1B44A612ED567210095C550;
@@ -358,6 +392,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				B7F2A10031A4000100C0DE01 /* LumoLaunchView.swift in Sources */,
 				C1595C312EDA88820098FD1D /* CardPaymentView.swift in Sources */,
 				C1A9BFCA2F14774B007AEE88 /* IraqAutoFareCalculator.swift in Sources */,
 				C1D548AC2ED6927800A387ED /* HomeView.swift in Sources */,
@@ -367,6 +402,7 @@
 				C1DC3FFE2ED8093700E98BD5 /* VerificationView .swift in Sources */,
 				C1E8D8F92EDB860500B866B3 /* RouteService.swift in Sources */,
 				C1595C3E2EDAA8530098FD1D /* LumoMapStyle.json in Sources */,
+				C196AE883003FE4A00049005 /* AgoraTokenService.swift in Sources */,
 				C112358F2F134FE8008CCCC0 /* Message.swift in Sources */,
 				C1511F252EE53B01005203B8 /* LumoAPI.swift in Sources */,
 				C176D8F12F16E43C00C56989 /* SeachingForDriverView.swift in Sources */,
@@ -376,19 +412,27 @@
 				C1E8D8F42EDB56DB00B866B3 /* GMSMapView+LumoStyle.swift in Sources */,
 				C1E8D8FB2EDB8D7900B866B3 /* DriverTrackingView.swift in Sources */,
 				C1E24F222F0B6DC900CA14F9 /* SupabaseRideService.swift in Sources */,
+				C196AE823003E3BA00049005 /* AgoraCallManager.swift in Sources */,
 				C14C472E2F1DA4800076F2DD /* RideScheduledView.swift in Sources */,
 				C1595C332EDA8B600098FD1D /* RideConfirmedView.swift in Sources */,
+				C196AE843003FB6D00049005 /* CallSession.swift in Sources */,
 				C1CFC0FB2ED8FE3300CCA712 /* LocationManager.swift in Sources */,
 				C11235912F135018008CCCC0 /* ChatService.swift in Sources */,
 				C11EACCB2F23FBEB00E84333 /* AppleSignInService.swift in Sources */,
 				C1595C2A2EDA6F8C0098FD1D /* AddPaymentView.swift in Sources */,
 				C1D548A82ED6925600A387ED /* LumoApp.swift in Sources */,
 				C122E43A2ED8E57C00EEE5DA /* ScheduleRideView.swift in Sources */,
+				C196AE863003FBCA00049005 /* CallSessionService.swift in Sources */,
 				C13C1F342ED8C59900F9CCBE /* DestinationSearchView.swift in Sources */,
 				C1595C2F2EDA83D60098FD1D /* StripeConfig.swift in Sources */,
 				C1C6243A2EDBCCAF00889D32 /* NavigationCoordinator.swift in Sources */,
 				C1CFC0FD2ED90FAC00CCA712 /* RideOptionsView.swift in Sources */,
+				C196AE8A3003FEB500049005 /* RiderCallManager.swift in Sources */,
 				C17486022EE9189A00570D95 /* DeliveryRequestView.swift in Sources */,
+				C1F00D012F50000100F00D01 /* FoodDeliveryModels.swift in Sources */,
+				C1F00D022F50000100F00D01 /* FoodDeliveryService.swift in Sources */,
+				C196AE8C3003FF1400049005 /* OutgoingCallView.swift in Sources */,
+				B7D0A15231A5000100C0DE01 /* IncomingCallView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -549,17 +593,18 @@
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = RealLumo.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 2;
+				CURRENT_PROJECT_VERSION = 5;
 				DEVELOPMENT_TEAM = 865S59PB5Y;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = "RealLumo-Info.plist";
 				INFOPLIST_KEY_CFBundleDisplayName = "";
 				INFOPLIST_KEY_LSApplicationCategoryType = "";
+				INFOPLIST_KEY_NSCameraUsageDescription = "";
 				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "Lumo uses your location to show nearby rides.\n";
+				INFOPLIST_KEY_NSMicrophoneUsageDescription = "Lumo uses your microphone for voice calls between riders and drivers.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
-				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
@@ -567,7 +612,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.01;
+				MARKETING_VERSION = 1.03;
 				PRODUCT_BUNDLE_IDENTIFIER = com.alyaa.RealLumo;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
@@ -590,17 +635,18 @@
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = RealLumo.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 2;
+				CURRENT_PROJECT_VERSION = 5;
 				DEVELOPMENT_TEAM = 865S59PB5Y;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = "RealLumo-Info.plist";
 				INFOPLIST_KEY_CFBundleDisplayName = "";
 				INFOPLIST_KEY_LSApplicationCategoryType = "";
+				INFOPLIST_KEY_NSCameraUsageDescription = "";
 				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "Lumo uses your location to show nearby rides.\n";
+				INFOPLIST_KEY_NSMicrophoneUsageDescription = "Lumo uses your microphone for voice calls between riders and drivers.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
-				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
@@ -608,7 +654,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.01;
+				MARKETING_VERSION = 1.03;
 				PRODUCT_BUNDLE_IDENTIFIER = com.alyaa.RealLumo;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
@@ -768,6 +814,14 @@
 				minimumVersion = 12.6.0;
 			};
 		};
+		C196AE7E3003E2CA00049005 /* XCRemoteSwiftPackageReference "AgoraRtcEngine_iOS" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/AgoraIO/AgoraRtcEngine_iOS";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 4.6.2;
+			};
+		};
 		C1E24F232F0B6EF500CA14F9 /* XCRemoteSwiftPackageReference "supabase-swift" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/supabase/supabase-swift";
@@ -815,6 +869,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = C17FBF922ED6CBE300E6CA1D /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
 			productName = FirebaseFunctions;
+		};
+		C196AE7F3003E2CA00049005 /* RtcBasic */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = C196AE7E3003E2CA00049005 /* XCRemoteSwiftPackageReference "AgoraRtcEngine_iOS" */;
+			productName = RtcBasic;
 		};
 		C1B92D292F245F5C008F42E6 /* FirebaseMessaging */ = {
 			isa = XCSwiftPackageProductDependency;

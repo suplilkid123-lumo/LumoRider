@@ -27,6 +27,7 @@ private struct SupabaseRideRow: Decodable {
 }
 
 struct AddPaymentView: View {
+    @EnvironmentObject private var languageStore: LumoLanguageStore
     @State private var createdRideId: UUID? = nil
 
     // 🔹 Scheduled ride time (seconds since 1970). Prefer the passed value, but we can silently fall back to UserDefaults.
@@ -68,12 +69,13 @@ struct AddPaymentView: View {
 
     // MARK: - Supabase config
     private let supabaseProjectURL = "https://rpryqbdodbieioebedjg.supabase.co"
-    private let supabaseAnonKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJIUzI1NiIsInJlZiI6InJwcnlxYmRvZGJpZWlvZWJlZGpnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjUwNjE0MjYsImV4cCI6MjA4MDYzNzQyNn0.8ZTaA1bCyRUKb6U4NNZou6DMfXP3yyE1NeNL8Ljt9as"
+    private let supabaseAnonKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJwcnlxYmRvZGJpZWlvZWJlZGpnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjUwNjE0MjYsImV4cCI6MjA4MDYzNzQyNn0.8ZTaA1bCyRUKb6U4NNZou6DMfXP3yyE1NeNL8Ljt9as"
     private let ridesTableName = "rides"
 
     enum PaymentChoice {
         case none
         case applePay
+        case cash
         case savedCard
         case newCard
         case test
@@ -119,7 +121,7 @@ struct AddPaymentView: View {
     }
 
     private var confirmButtonTitle: String {
-        isScheduledFlow ? "Schedule ride" : "Confirm ride"
+        languageStore.settingsText(isScheduledFlow ? .addPaymentScheduleRide : .addPaymentConfirmRide)
     }
 
     private func iso8601(_ date: Date) -> String {
@@ -149,7 +151,7 @@ struct AddPaymentView: View {
                 .padding(.horizontal, 20)
                 .padding(.top, 10)
 
-                Text("Add payment")
+                Text(languageStore.settingsText(.addPaymentTitle))
                     .font(.system(size: 22, weight: .semibold))
                     .foregroundColor(.white)
                     .frame(maxWidth: .infinity, alignment: .leading)
@@ -159,8 +161,8 @@ struct AddPaymentView: View {
 
                     paymentOptionRow(
                         icon: "applelogo",
-                        title: "Apple Pay",
-                        subtitle: "Pay instantly with Apple Wallet",
+                        title: languageStore.settingsText(.addPaymentApplePayTitle),
+                        subtitle: languageStore.settingsText(.addPaymentApplePaySubtitle),
                         isSelected: selectedPayment == .applePay,
                         action: {
                             selectedPayment = .applePay
@@ -168,11 +170,21 @@ struct AddPaymentView: View {
                         }
                     )
 
+                    paymentOptionRow(
+                        icon: "banknote",
+                        title: languageStore.settingsText(.addPaymentCashTitle),
+                        subtitle: languageStore.settingsText(.addPaymentCashSubtitle),
+                        isSelected: selectedPayment == .cash,
+                        action: {
+                            startCashRideFlow()
+                        }
+                    )
+
                     if let savedCard {
                         paymentOptionRow(
                             icon: "creditcard",
                             title: "\(savedCard.brand) •••• \(savedCard.last4)",
-                            subtitle: "Card saved locally — re-enter to pay securely",
+                            subtitle: languageStore.settingsText(.addPaymentSavedCardSubtitle),
                             isSelected: selectedPayment == .savedCard,
                             action: {
                                 selectedPayment = .savedCard
@@ -183,8 +195,8 @@ struct AddPaymentView: View {
 
                         paymentOptionRow(
                             icon: "plus.circle",
-                            title: "Use a different card",
-                            subtitle: "Add new credit or debit card",
+                            title: languageStore.settingsText(.addPaymentDifferentCardTitle),
+                            subtitle: languageStore.settingsText(.addPaymentDifferentCardSubtitle),
                             isSelected: selectedPayment == .newCard,
                             action: {
                                 selectedPayment = .newCard
@@ -196,8 +208,8 @@ struct AddPaymentView: View {
                         #if DEBUG
                         paymentOptionRow(
                             icon: "wrench.and.screwdriver",
-                            title: "Test payment",
-                            subtitle: "Skip payment (debug only)",
+                            title: languageStore.settingsText(.addPaymentTestPaymentTitle),
+                            subtitle: languageStore.settingsText(.addPaymentTestPaymentSubtitle),
                             isSelected: selectedPayment == .test,
                             action: {
                                 selectedPayment = .test
@@ -208,8 +220,8 @@ struct AddPaymentView: View {
                     } else {
                         paymentOptionRow(
                             icon: "plus.circle",
-                            title: "Use a different card",
-                            subtitle: "Add new credit or debit card",
+                            title: languageStore.settingsText(.addPaymentDifferentCardTitle),
+                            subtitle: languageStore.settingsText(.addPaymentDifferentCardSubtitle),
                             isSelected: selectedPayment == .newCard,
                             action: {
                                 selectedPayment = .newCard
@@ -221,8 +233,8 @@ struct AddPaymentView: View {
                         #if DEBUG
                         paymentOptionRow(
                             icon: "wrench.and.screwdriver",
-                            title: "Test payment",
-                            subtitle: "Skip payment (debug only)",
+                            title: languageStore.settingsText(.addPaymentTestPaymentTitle),
+                            subtitle: languageStore.settingsText(.addPaymentTestPaymentSubtitle),
                             isSelected: selectedPayment == .test,
                             action: {
                                 selectedPayment = .test
@@ -346,6 +358,8 @@ struct AddPaymentView: View {
             return false
         case .applePay:
             return true
+        case .cash:
+            return true
         case .savedCard:
             return savedCard != nil
         case .newCard:
@@ -417,16 +431,26 @@ struct AddPaymentView: View {
         case .savedCard, .newCard:
             showCardSheet = true
 
+        case .cash:
+            await confirmRide()
+
         case .test:
             #if DEBUG
             await confirmRide()
             #else
-            confirmRideError = "Please choose a payment method."
+            confirmRideError = languageStore.settingsText(.addPaymentChooseMethodError)
             #endif
 
         case .none:
-            confirmRideError = "Please choose a payment method."
+            confirmRideError = languageStore.settingsText(.addPaymentChooseMethodError)
         }
+    }
+
+    @MainActor
+    private func startCashRideFlow() {
+        guard !isConfirming, !rideInsertStarted, createdRideId == nil else { return }
+        selectedPayment = .cash
+        confirmRideError = nil
     }
 
     @MainActor
@@ -435,13 +459,13 @@ struct AddPaymentView: View {
         isConfirming = true
 
         guard PKPaymentAuthorizationViewController.canMakePayments() else {
-            confirmRideError = "Apple Pay is not available on this device."
+            confirmRideError = languageStore.settingsText(.addPaymentApplePayUnavailableError)
             isConfirming = false
             return
         }
 
         guard let amountCents = applePayAmountCents else {
-            confirmRideError = "Trip fare is not available yet. Please go back and select the ride again."
+            confirmRideError = languageStore.settingsText(.addPaymentFareUnavailableError)
             isConfirming = false
             return
         }
@@ -460,13 +484,15 @@ struct AddPaymentView: View {
         ]
 
         guard let presentingVC = topMostViewController() else {
-            confirmRideError = "Could not present Apple Pay."
+            confirmRideError = languageStore.settingsText(.addPaymentCouldNotPresentApplePayError)
             isConfirming = false
             return
         }
 
         let coordinator = ApplePayCoordinator(
             amountCents: amountCents,
+            failedMessage: languageStore.settingsText(.addPaymentApplePayFailedError),
+            cancelledMessage: languageStore.settingsText(.addPaymentApplePayCancelledError),
             onSuccess: {
                 Task { @MainActor in
                     self.isConfirming = false
@@ -482,7 +508,7 @@ struct AddPaymentView: View {
         )
 
         guard let context = STPApplePayContext(paymentRequest: paymentRequest, delegate: coordinator) else {
-            confirmRideError = "Apple Pay is not configured correctly."
+            confirmRideError = languageStore.settingsText(.addPaymentApplePayConfigError)
             isConfirming = false
             return
         }
@@ -507,11 +533,21 @@ struct AddPaymentView: View {
 
     final class ApplePayCoordinator: NSObject, STPApplePayContextDelegate {
         private let amountCents: Int
+        private let failedMessage: String
+        private let cancelledMessage: String
         private let onSuccess: () -> Void
         private let onError: (String) -> Void
 
-        init(amountCents: Int, onSuccess: @escaping () -> Void, onError: @escaping (String) -> Void) {
+        init(
+            amountCents: Int,
+            failedMessage: String,
+            cancelledMessage: String,
+            onSuccess: @escaping () -> Void,
+            onError: @escaping (String) -> Void
+        ) {
             self.amountCents = amountCents
+            self.failedMessage = failedMessage
+            self.cancelledMessage = cancelledMessage
             self.onSuccess = onSuccess
             self.onError = onError
         }
@@ -557,18 +593,18 @@ struct AddPaymentView: View {
             case .success:
                 onSuccess()
             case .error:
-                onError(error?.localizedDescription ?? "Apple Pay failed.")
+                onError(error?.localizedDescription ?? failedMessage)
             case .userCancellation:
-                onError("Apple Pay cancelled.")
+                onError(cancelledMessage)
             @unknown default:
-                onError("Apple Pay failed.")
+                onError(failedMessage)
             }
         }
 
         private func createPaymentIntentClientSecret(paymentMethodId: String, amountCents: Int, currency: String) async throws -> String {
             guard StripeConfig.createPaymentIntentURLString != "REPLACE_ME",
                   let url = URL(string: StripeConfig.createPaymentIntentURLString) else {
-                throw NSError(domain: "ApplePay", code: 0, userInfo: [NSLocalizedDescriptionKey: "Missing createPaymentIntent URL in StripeConfig.swift"])
+                throw NSError(domain: "ApplePay", code: 0, userInfo: [NSLocalizedDescriptionKey: failedMessage])
             }
 
             var request = URLRequest(url: url)
@@ -585,13 +621,13 @@ struct AddPaymentView: View {
 
             let (data, response) = try await URLSession.shared.data(for: request)
             guard let http = response as? HTTPURLResponse, (200..<300).contains(http.statusCode) else {
-                let text = String(data: data, encoding: .utf8) ?? "Unknown error"
+                let text = String(data: data, encoding: .utf8) ?? failedMessage
                 throw NSError(domain: "ApplePay", code: 0, userInfo: [NSLocalizedDescriptionKey: text])
             }
 
             let json = try JSONSerialization.jsonObject(with: data) as? [String: Any]
             guard let clientSecret = json?["clientSecret"] as? String else {
-                throw NSError(domain: "ApplePay", code: 0, userInfo: [NSLocalizedDescriptionKey: "Backend did not return clientSecret"])
+                throw NSError(domain: "ApplePay", code: 0, userInfo: [NSLocalizedDescriptionKey: failedMessage])
             }
             return clientSecret
         }
@@ -630,7 +666,7 @@ struct AddPaymentView: View {
         do {
             let ride = try await supabaseInsertRide(isScheduled: effectiveIsScheduled, scheduledISO: scheduledISO)
             guard let parsedRideId = UUID(uuidString: ride.id ?? "") else {
-                throw NSError(domain: "AddPaymentView", code: 2, userInfo: [NSLocalizedDescriptionKey: "Supabase did not return a valid ride id."])
+                throw NSError(domain: "AddPaymentView", code: 2, userInfo: [NSLocalizedDescriptionKey: languageStore.settingsText(.addPaymentCouldNotConfirmRideError)])
             }
 
             createdRideId = parsedRideId
@@ -658,14 +694,15 @@ struct AddPaymentView: View {
             url = built
         }
 
-        guard let uid = Auth.auth().currentUser?.uid, !uid.isEmpty else {
-            throw NSError(domain: "AddPaymentView", code: 401, userInfo: [NSLocalizedDescriptionKey: "Please sign in before confirming a ride."])
+        guard let user = Auth.auth().currentUser, !user.uid.isEmpty else {
+            throw NSError(domain: "AddPaymentView", code: 401, userInfo: [NSLocalizedDescriptionKey: languageStore.settingsText(.addPaymentCouldNotConfirmRideError)])
         }
+        let uid = user.uid
 
         let estimatedFare = estimatedFareAmount
 
         if !isScheduled, estimatedFare == nil {
-            throw NSError(domain: "AddPaymentView", code: 422, userInfo: [NSLocalizedDescriptionKey: "Trip fare is not available yet. Please go back and select the ride again."])
+            throw NSError(domain: "AddPaymentView", code: 422, userInfo: [NSLocalizedDescriptionKey: languageStore.settingsText(.addPaymentFareUnavailableError)])
         }
 
         var payload: [String: Any] = [
@@ -679,6 +716,12 @@ struct AddPaymentView: View {
             "dropoff_lat": dropoffLat,
             "dropoff_lng": dropoffLng
         ]
+
+        if let rideTypeLabel, !rideTypeLabel.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+            if rideTypeLabel.trimmingCharacters(in: .whitespacesAndNewlines).caseInsensitiveCompare("Share") == .orderedSame {
+                payload["ride_mode"] = "SHARE"
+            }
+        }
 
         if isScheduled, let scheduledISO {
             payload["scheduled_for"] = scheduledISO
@@ -696,21 +739,50 @@ struct AddPaymentView: View {
             payload["paid_amount"] = estimatedFare
         }
 
-        var req = URLRequest(url: url)
-        req.httpMethod = "POST"
-        req.setValue("application/json", forHTTPHeaderField: "Content-Type")
-        req.setValue("application/json", forHTTPHeaderField: "Accept")
-        req.setValue(supabaseAnonKey, forHTTPHeaderField: "apikey")
-        req.setValue("Bearer \(supabaseAnonKey)", forHTTPHeaderField: "Authorization")
-        req.setValue("return=representation", forHTTPHeaderField: "Prefer")
-        req.httpBody = try JSONSerialization.data(withJSONObject: payload, options: [])
+        if selectedPayment == .cash {
+            payload["payment_method"] = "cash"
+            payload["payment_status"] = "cash_due"
+        }
 
-        let (data, response) = try await URLSession.shared.data(for: req)
-        let code = (response as? HTTPURLResponse)?.statusCode ?? -1
+        let body = try JSONSerialization.data(withJSONObject: payload, options: [])
+
+        func perform(accessToken: String) async throws -> (Data, HTTPURLResponse) {
+            var req = URLRequest(url: url)
+            req.httpMethod = "POST"
+            req.setValue("application/json", forHTTPHeaderField: "Content-Type")
+            req.setValue("application/json", forHTTPHeaderField: "Accept")
+            req.setValue(supabaseAnonKey, forHTTPHeaderField: "apikey")
+            req.setValue("Bearer \(accessToken)", forHTTPHeaderField: "Authorization")
+            req.setValue("return=representation", forHTTPHeaderField: "Prefer")
+            req.httpBody = body
+
+            let (data, response) = try await URLSession.shared.data(for: req)
+            guard let http = response as? HTTPURLResponse else {
+                throw URLError(.badServerResponse)
+            }
+            return (data, http)
+        }
+
+        func firebaseIDToken(forcingRefresh: Bool = false) async throws -> String {
+            let token = try await user.getIDToken(forcingRefresh: forcingRefresh)
+                .trimmingCharacters(in: .whitespacesAndNewlines)
+            guard !token.isEmpty else {
+                throw NSError(domain: "AddPaymentView", code: 401, userInfo: [NSLocalizedDescriptionKey: languageStore.settingsText(.addPaymentCouldNotConfirmRideError)])
+            }
+            return token
+        }
+
+        var result = try await perform(accessToken: firebaseIDToken())
+        if result.1.statusCode == 401 {
+            result = try await perform(accessToken: firebaseIDToken(forcingRefresh: true))
+        }
+
+        let data = result.0
+        let code = result.1.statusCode
 
         guard (200...299).contains(code) else {
             let body = String(data: data, encoding: .utf8) ?? ""
-            throw NSError(domain: "Supabase", code: code, userInfo: [NSLocalizedDescriptionKey: body.isEmpty ? "Request failed." : body])
+            throw NSError(domain: "Supabase", code: code, userInfo: [NSLocalizedDescriptionKey: body.isEmpty ? languageStore.settingsText(.addPaymentCouldNotConfirmRideError) : body])
         }
 
         let rows = try JSONDecoder().decode([SupabaseRideRow].self, from: data)
@@ -719,7 +791,7 @@ struct AddPaymentView: View {
 
     private var normalizedCurrency: String? {
         let trimmed = (currency ?? "").trimmingCharacters(in: .whitespacesAndNewlines).uppercased()
-        return trimmed == "USD" ? "USD" : nil
+        return ["USD", "IQD"].contains(trimmed) ? trimmed : nil
     }
 
     private var estimatedFareAmount: Double? {
@@ -786,21 +858,21 @@ struct AddPaymentView: View {
             let code = URLError.Code(rawValue: ns.code)
             switch code {
             case .cannotFindHost, .cannotConnectToHost:
-                return "Can’t reach the server. Check your Supabase Project URL and your internet connection."
+                return languageStore.settingsText(.addPaymentServerReachError)
             case .notConnectedToInternet:
-                return "No internet connection. Please try again."
+                return languageStore.settingsText(.addPaymentNoInternetError)
             case .timedOut:
-                return "Request timed out. Please try again."
+                return languageStore.settingsText(.addPaymentRequestTimedOutError)
             default:
-                return "Couldn’t confirm ride. Please try again."
+                return languageStore.settingsText(.addPaymentCouldNotConfirmRideError)
             }
         }
 
         let msg = ns.localizedDescription
         if !msg.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
-            return "Couldn’t confirm ride. \(msg)"
+            return "\(languageStore.settingsText(.addPaymentCouldNotConfirmRidePrefix)) \(msg)"
         }
 
-        return "Couldn’t confirm ride. Please try again."
+        return languageStore.settingsText(.addPaymentCouldNotConfirmRideError)
     }
 }
