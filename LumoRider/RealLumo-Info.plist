@@ -61,6 +61,8 @@
 			</array>
 		</dict>
 	</array>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>Jiylo uses your location to set pickup points, show nearby drivers, and track active rides.</string>
 	<key>UIBackgroundModes</key>
 	<array>
 		<string>remote-notification</string>
