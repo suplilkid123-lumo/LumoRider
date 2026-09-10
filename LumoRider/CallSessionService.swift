@@ -5,6 +5,7 @@ final class CallSessionService {
     static let shared = CallSessionService()
     private let supabaseURL = URL(string: "https://rpryqbdodbieioebedjg.supabase.co")!
     private let supabaseAnonKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJwcnlxYmRvZGJpZWlvZWJlZGpnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjUwNjE0MjYsImV4cCI6MjA4MDYzNzQyNn0.8ZTaA1bCyRUKb6U4NNZou6DMfXP3yyE1NeNL8Ljt9as"
+    private var provisionedUserID: String?
     private init() {}
 
     func createRiderCall(rideId: UUID, requestId: UUID) async throws -> CallSession {
@@ -35,21 +36,50 @@ final class CallSessionService {
     }
     private func rpcData(_ name: String, body: [String: Any]) async throws -> Data {
         guard let user = Auth.auth().currentUser else { throw CallSessionServiceError.notLoggedIn }
-        let token = try await user.getIDToken()
         var request = URLRequest(url: supabaseURL.appendingPathComponent("rest/v1/rpc/\(name)"))
         request.httpMethod = "POST"; request.timeoutInterval = 20
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
         request.setValue(supabaseAnonKey, forHTTPHeaderField: "apikey")
-        request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
         request.httpBody = try JSONSerialization.data(withJSONObject: body)
-        let (data,response) = try await URLSession.shared.data(for: request)
+        let token = try await freshAuthenticatedToken(for: user)
+        request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
+        var (data,response) = try await URLSession.shared.data(for: request)
+        if (response as? HTTPURLResponse)?.statusCode == 401 {
+            let refreshedToken = try await user.getIDToken(forcingRefresh: true)
+            request.setValue("Bearer \(refreshedToken)", forHTTPHeaderField: "Authorization")
+            (data,response) = try await URLSession.shared.data(for: request)
+        }
+        guard Auth.auth().currentUser?.uid == user.uid else { throw URLError(.cancelled) }
         guard let http = response as? HTTPURLResponse else { throw CallSessionServiceError.invalidResponse }
         guard (200...299).contains(http.statusCode) else {
             let payload = try? JSONSerialization.jsonObject(with: data) as? [String:Any]
             throw CallSessionServiceError.serverError(statusCode: http.statusCode,
-                message: payload?["message"] as? String ?? "Lumo could not authorize this ride call.")
+                message: payload?["message"] as? String ?? payload?["error"] as? String ?? "Jiylo could not authorize this ride call.")
         }
         return data
+    }
+
+    func freshAuthenticatedToken(for user: User) async throws -> String {
+        if provisionedUserID != user.uid {
+            let initialToken = try await user.getIDToken(forcingRefresh: true)
+            var request = URLRequest(url: supabaseURL.appendingPathComponent("functions/v1/provision-rider-role"))
+            request.httpMethod = "POST"
+            request.timeoutInterval = 20
+            request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+            request.setValue(supabaseAnonKey, forHTTPHeaderField: "apikey")
+            request.setValue("Bearer \(initialToken)", forHTTPHeaderField: "Authorization")
+            let (data, response) = try await URLSession.shared.data(for: request)
+            guard let http = response as? HTTPURLResponse, (200...299).contains(http.statusCode) else {
+                let payload = try? JSONSerialization.jsonObject(with: data) as? [String: Any]
+                throw CallSessionServiceError.serverError(
+                    statusCode: (response as? HTTPURLResponse)?.statusCode ?? -1,
+                    message: payload?["error"] as? String ?? "Rider call authorization could not be established."
+                )
+            }
+            guard Auth.auth().currentUser?.uid == user.uid else { throw URLError(.cancelled) }
+            provisionedUserID = user.uid
+        }
+        return try await user.getIDToken(forcingRefresh: true)
     }
     private func decode<T: Decodable>(_ data: Data) throws -> T {
         do { return try makeDecoder().decode(T.self, from: data) }
@@ -73,7 +103,7 @@ enum CallSessionServiceError: LocalizedError {
     case serverError(statusCode:Int,message:String)
     var errorDescription:String? { switch self {
     case .notLoggedIn: "Sign in again before calling your Driver."
-    case .invalidResponse: "Lumo returned an invalid call response."
-    case .serverError(_,let message): message
+    case .invalidResponse: "Jiylo returned an invalid call response."
+    case .serverError(let statusCode,let message): "Call request failed (HTTP \(statusCode)): \(message)"
     } }
 }

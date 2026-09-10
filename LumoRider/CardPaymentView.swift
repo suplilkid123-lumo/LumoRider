@@ -187,6 +187,9 @@ struct CardPaymentView: View {
                         )
                     )
                 }
+                .onAppear {
+                    print("[Ride navigation] Passing Supabase ride ID to SearchingForDriverView: \(rideId.uuidString)")
+                }
             }
         }
         .onAppear {
@@ -293,6 +296,7 @@ struct CardPaymentView: View {
         }
 
         guard shouldInsert else { return }
+        print("[Ride creation] Local ride ID before Supabase insert: \(createdRideId?.uuidString ?? "none")")
 
         guard let user = Auth.auth().currentUser, !user.uid.isEmpty else {
             await MainActor.run {
@@ -432,14 +436,21 @@ struct CardPaymentView: View {
             print("🔎 riderPhotoToSend:", riderPhotoToSend)
 
             let idString = json?.first?["id"] as? String
+            print("[Ride creation] Supabase INSERT returned database ride ID: \(idString ?? "nil")")
 
             await MainActor.run {
                 isProcessing = false
 
                 if let idString, let parsed = UUID(uuidString: idString) {
                     createdRideId = parsed
+                    print("[Ride creation] Using database ride ID: \(parsed.uuidString)")
+                    SupabaseRideService.shared.beginObservingRideStatus(rideId: parsed.uuidString)
                     createdWasScheduled = effectiveIsScheduled
                     createdScheduledForEpoch = effectiveIsScheduled ? scheduledForEpoch : 0
+                    if effectiveIsScheduled {
+                        UserDefaults.standard.set(parsed.uuidString, forKey: "lumo_scheduled_ride_id")
+                        UserDefaults.standard.set(true, forKey: "lumo_scheduled_ride_id_is_database")
+                    }
                     UserDefaults.standard.set(0, forKey: "lumo_scheduled_for_epoch")
                     errorMessage = nil
                     debugStep = "Done: ride created"

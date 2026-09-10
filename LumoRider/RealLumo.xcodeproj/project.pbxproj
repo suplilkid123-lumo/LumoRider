@@ -22,6 +22,9 @@
 		C1595C3E2EDAA8530098FD1D /* LumoMapStyle.json in Sources */ = {isa = PBXBuildFile; fileRef = C1595C3D2EDAA84C0098FD1D /* LumoMapStyle.json */; };
 		C17FBF942ED6CBE300E6CA1D /* FirebaseAuth in Frameworks */ = {isa = PBXBuildFile; productRef = C17FBF932ED6CBE300E6CA1D /* FirebaseAuth */; };
 		C17FBF962ED6CBE300E6CA1D /* FirebaseCore in Frameworks */ = {isa = PBXBuildFile; productRef = C17FBF952ED6CBE300E6CA1D /* FirebaseCore */; };
+		C1F1A0013000000000000001 /* FirebaseFirestore in Frameworks */ = {isa = PBXBuildFile; productRef = C1F1A0023000000000000001 /* FirebaseFirestore */; };
+		C1F1A0033000000000000001 /* FirebaseFunctions in Frameworks */ = {isa = PBXBuildFile; productRef = C1F1A0043000000000000001 /* FirebaseFunctions */; };
+		C1F1A0053000000000000001 /* FirebaseMessaging in Frameworks */ = {isa = PBXBuildFile; productRef = C1F1A0063000000000000001 /* FirebaseMessaging */; };
 		C1876E462ED69DCB00FD8CAC /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = C1876E452ED69DCB00FD8CAC /* Assets.xcassets */; };
 		C1C6243A2EDBCCAF00889D32 /* NavigationCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1C624392EDBCCAF00889D32 /* NavigationCoordinator.swift */; };
 		C1CFC0FB2ED8FE3300CCA712 /* LocationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1CFC0FA2ED8FE3300CCA712 /* LocationManager.swift */; };
@@ -103,6 +106,9 @@
 				C1595C382EDA9BD50098FD1D /* GoogleMaps in Frameworks */,
 				C17FBF962ED6CBE300E6CA1D /* FirebaseCore in Frameworks */,
 				C17FBF942ED6CBE300E6CA1D /* FirebaseAuth in Frameworks */,
+				C1F1A0013000000000000001 /* FirebaseFirestore in Frameworks */,
+				C1F1A0033000000000000001 /* FirebaseFunctions in Frameworks */,
+				C1F1A0053000000000000001 /* FirebaseMessaging in Frameworks */,
 				C1595C2D2EDA83960098FD1D /* Stripe in Frameworks */,
 				75E0DD4F26FD6A2076AB4921 /* Pods_RealLumo.framework in Frameworks */,
 			);
@@ -206,6 +212,9 @@
 			packageProductDependencies = (
 				C17FBF932ED6CBE300E6CA1D /* FirebaseAuth */,
 				C17FBF952ED6CBE300E6CA1D /* FirebaseCore */,
+				C1F1A0023000000000000001 /* FirebaseFirestore */,
+				C1F1A0043000000000000001 /* FirebaseFunctions */,
+				C1F1A0063000000000000001 /* FirebaseMessaging */,
 				C1595C2C2EDA83960098FD1D /* Stripe */,
 				C1595C372EDA9BD50098FD1D /* GoogleMaps */,
 				C1E8D8F62EDB65E200B866B3 /* GoogleSignIn */,
@@ -622,9 +631,10 @@
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = "RealLumo-Info.plist";
-				INFOPLIST_KEY_CFBundleDisplayName = "";
+				INFOPLIST_KEY_CFBundleDisplayName = Jiylo;
+				INFOPLIST_KEY_CFBundleName = Jiylo;
 				INFOPLIST_KEY_LSApplicationCategoryType = "";
-				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "Lumo uses your location to show nearby rides.\n";
+				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "Jiylo uses your location to show nearby rides.\n";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -662,9 +672,10 @@
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = "RealLumo-Info.plist";
-				INFOPLIST_KEY_CFBundleDisplayName = "";
+				INFOPLIST_KEY_CFBundleDisplayName = Jiylo;
+				INFOPLIST_KEY_CFBundleName = Jiylo;
 				INFOPLIST_KEY_LSApplicationCategoryType = "";
-				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "Lumo uses your location to show nearby rides.\n";
+				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "Jiylo uses your location to show nearby rides.\n";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -868,6 +879,21 @@
 			isa = XCSwiftPackageProductDependency;
 			package = C17FBF922ED6CBE300E6CA1D /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
 			productName = FirebaseCore;
+		};
+		C1F1A0023000000000000001 /* FirebaseFirestore */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = C17FBF922ED6CBE300E6CA1D /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseFirestore;
+		};
+		C1F1A0043000000000000001 /* FirebaseFunctions */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = C17FBF922ED6CBE300E6CA1D /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseFunctions;
+		};
+		C1F1A0063000000000000001 /* FirebaseMessaging */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = C17FBF922ED6CBE300E6CA1D /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseMessaging;
 		};
 		C1E8D8F62EDB65E200B866B3 /* GoogleSignIn */ = {
 			isa = XCSwiftPackageProductDependency;

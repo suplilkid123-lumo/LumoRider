@@ -85,7 +85,7 @@ struct LumoLaunchView: View {
         }
         .opacity(screenOpacity)
         .accessibilityElement(children: .ignore)
-        .accessibilityLabel("Lumo")
+        .accessibilityLabel("Jiylo")
         .accessibilityAddTraits(.isImage)
         .accessibilityHidden(phase == .exit)
         .task {
@@ -95,7 +95,7 @@ struct LumoLaunchView: View {
 
     private var logo: some View {
         VStack(spacing: 14) {
-            Text("Lumo")
+            Text("Jiylo")
                 .font(.system(size: 60, weight: .regular, design: .serif))
                 .foregroundStyle(.white)
 
@@ -117,9 +117,10 @@ struct LumoLaunchView: View {
             return
         }
 
-        // 0.00–0.45: build the atmosphere and first orbital strokes.
+        // Keep launch branding brief: the mounted app remains unavailable while
+        // this overlay is visible, so the animation must not dominate launch.
         phase = .build
-        withAnimation(.easeInOut(duration: 0.45)) {
+        withAnimation(.easeInOut(duration: 0.24)) {
             orbitTrim = 0.52
             orbitOpacity = 0.64
             orbitScale = 0.86
@@ -129,11 +130,10 @@ struct LumoLaunchView: View {
             innerRotation = -48
         }
 
-        guard await pause(for: 0.30) else { return }
+        guard await pause(for: 0.12) else { return }
 
-        // 0.30–1.35: accelerate the two orbital layers at different speeds.
         phase = .orbitalMotion
-        withAnimation(.easeInOut(duration: 1.05)) {
+        withAnimation(.easeInOut(duration: 0.42)) {
             orbitTrim = 0.94
             orbitOpacity = 0.94
             orbitScale = 1
@@ -142,22 +142,20 @@ struct LumoLaunchView: View {
             innerRotation = -315
         }
 
-        guard await pause(for: 0.60) else { return }
+        guard await pause(for: 0.20) else { return }
 
-        // 0.90–1.70: reveal the mark while the orbital motion continues.
         phase = .logoReveal
-        withAnimation(.spring(duration: 0.76, bounce: 0.16)) {
+        withAnimation(.spring(duration: 0.38, bounce: 0.16)) {
             logoOpacity = 1
             logoScale = 1
             logoOffset = 0
             logoGlow = 0.5
         }
 
-        guard await pause(for: 0.80) else { return }
+        guard await pause(for: 0.26) else { return }
 
-        // 1.70–2.15: tighten the orbit and strike one crisp cinematic pulse.
         phase = .impact
-        withAnimation(.easeInOut(duration: 0.25)) {
+        withAnimation(.easeInOut(duration: 0.16)) {
             logoScale = 1.018
             logoGlow = 1
             orbitTrim = 1
@@ -171,20 +169,19 @@ struct LumoLaunchView: View {
             pulseScale = 1.08
         }
 
-        guard await pause(for: 0.18) else { return }
+        guard await pause(for: 0.10) else { return }
 
-        withAnimation(.easeOut(duration: 0.27)) {
+        withAnimation(.easeOut(duration: 0.16)) {
             logoScale = 1
             pulseOpacity = 0
             pulseScale = 1.48
             atmosphereOpacity = 0.7
         }
 
-        guard await pause(for: 0.22) else { return }
+        guard await pause(for: 0.12) else { return }
 
-        // 2.10–2.55: release the orbital strokes outward as fading trails.
         phase = .release
-        withAnimation(.easeInOut(duration: 0.45)) {
+        withAnimation(.easeInOut(duration: 0.24)) {
             orbitOpacity = 0
             orbitScale = 1.58
             orbitBrightness = 0.58
@@ -194,25 +191,24 @@ struct LumoLaunchView: View {
             logoGlow = 0.36
         }
 
-        guard await pause(for: 0.40) else { return }
+        guard await pause(for: 0.18) else { return }
 
-        // 2.50–3.00: hold the completed branding, then reveal the mounted app.
         phase = .finish
-        withAnimation(.easeOut(duration: 0.08)) {
+        withAnimation(.easeOut(duration: 0.05)) {
             atmosphereOpacity = 0.16
             logoGlow = 0.22
         }
 
-        guard await pause(for: 0.08) else { return }
+        guard await pause(for: 0.04) else { return }
 
         phase = .exit
-        withAnimation(.easeInOut(duration: 0.42)) {
+        withAnimation(.easeInOut(duration: 0.20)) {
             screenOpacity = 0
             logoScale = 0.99
             logoGlow = 0
         }
 
-        guard await pause(for: 0.42) else { return }
+        guard await pause(for: 0.20) else { return }
         isPresented = false
     }
 

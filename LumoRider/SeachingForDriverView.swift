@@ -23,6 +23,15 @@ struct LumoSupabaseConfig {
 struct RideStatusSnapshot: Equatable {
     let status: String
     let driverId: String?
+    let completedAt: String?
+    let cancelledAt: String?
+
+    init(status: String, driverId: String?, completedAt: String? = nil, cancelledAt: String? = nil) {
+        self.status = status
+        self.driverId = driverId
+        self.completedAt = completedAt
+        self.cancelledAt = cancelledAt
+    }
 
     var normalizedStatus: String {
         status.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
@@ -45,7 +54,7 @@ struct RideStatusSnapshot: Equatable {
     }
 
     var isCancelled: Bool {
-        SupabaseRideService.terminalStatuses.contains(normalizedStatus)
+        SupabaseRideService.isTerminal(status: status, completedAt: completedAt, cancelledAt: cancelledAt)
     }
 }
 
@@ -93,6 +102,12 @@ struct PostgRESTHTTPError: LocalizedError {
     }
 }
 
+/// An empty successful response means this UUID cannot be cancelled by this
+/// screen. Retrying it would only repeat the same request.
+struct RideNotFoundForCancellationError: LocalizedError {
+    var errorDescription: String? { "Ride not found." }
+}
+
 /// Real Supabase REST client used by the searching screen.
 /// This is intentionally self-contained so you can keep the UX “real” without hacks.
 final class RideMatchingClient {
@@ -110,24 +125,34 @@ final class RideMatchingClient {
         var comps = URLComponents(url: cfg.baseURL, resolvingAgainstBaseURL: false)
         comps?.path = "/rest/v1/rides"
         comps?.queryItems = [
-            URLQueryItem(name: "select", value: "status,driver_id"),
+            URLQueryItem(name: "select", value: "status,driver_id,completed_at,cancelled_at"),
             URLQueryItem(name: "id", value: "eq.\(rideId.uuidString)")
         ]
 
         guard let url = comps?.url else { throw URLError(.badURL) }
 
+        print("[Ride status] Exact Supabase lookup for passed ride ID: \(rideId.uuidString)")
         var req = URLRequest(url: url)
         req.httpMethod = "GET"
-        applyHeaders(&req)
+        try await applyAuthenticatedHeaders(&req)
 
         let (data, resp) = try await session.data(for: req)
-        guard let http = resp as? HTTPURLResponse, (200...299).contains(http.statusCode) else {
+        guard let http = resp as? HTTPURLResponse else {
             throw URLError(.badServerResponse)
+        }
+        let bodyString = String(data: data, encoding: .utf8) ?? "<non-UTF8 body>"
+        print("[Ride status] Exact lookup HTTP \(http.statusCode) for \(rideId.uuidString): \(bodyString)")
+        guard (200...299).contains(http.statusCode) else {
+            throw PostgRESTHTTPError(statusCode: http.statusCode, body: bodyString)
         }
 
         // PostgREST returns an array
         let rows = try JSONSerialization.jsonObject(with: data) as? [[String: Any]] ?? []
-        guard let first = rows.first else { throw URLError(.cannotParseResponse) }
+        guard let first = rows.first else {
+            print("[Ride status] Exact lookup confirmed no visible row for \(rideId.uuidString).")
+            throw RideNotFoundForCancellationError()
+        }
+        print("[Ride status] Exact lookup found ride ID: \(rideId.uuidString)")
 
         let status = ((first["status"] as? String) ?? "")
 
@@ -142,7 +167,12 @@ final class RideMatchingClient {
             return nil
         }()
 
-        return RideStatusSnapshot(status: status, driverId: driverId)
+        return RideStatusSnapshot(
+            status: status,
+            driverId: driverId,
+            completedAt: first["completed_at"] as? String,
+            cancelledAt: first["cancelled_at"] as? String
+        )
     }
 
     func fetchRideForCancel(rideId: UUID) async throws -> RideCancelSnapshot {
@@ -159,7 +189,7 @@ final class RideMatchingClient {
 
         var req = URLRequest(url: url)
         req.httpMethod = "GET"
-        applyHeaders(&req)
+        try await applyAuthenticatedHeaders(&req)
 
         let (data, resp) = try await session.data(for: req)
         let bodyString = String(data: data, encoding: .utf8) ?? "<non-UTF8 body>"
@@ -175,7 +205,7 @@ final class RideMatchingClient {
 
         let rows = try JSONSerialization.jsonObject(with: data) as? [[String: Any]] ?? []
         guard let first = rows.first else {
-            throw PostgRESTHTTPError(statusCode: 404, body: "Ride not found when fetching cancel snapshot.")
+            throw RideNotFoundForCancellationError()
         }
 
         return RideCancelSnapshot(
@@ -252,20 +282,30 @@ final class RideMatchingClient {
         return nil
     }
 
-    private func applyHeaders(_ req: inout URLRequest) {
-        // Force the known-good Supabase anon key for this project.
-        // Some callers are passing a malformed/stale anon key that still starts with eyJ, causing HTTP 401.
+    private func applyAuthenticatedHeaders(_ req: inout URLRequest) async throws {
+        // The API key identifies the Supabase project. The Authorization token must
+        // be the rider's Firebase token so RLS can read the row that rider inserted.
         let anonKeyToUse = fallbackSupabaseAnonKey
-
         req.setValue(anonKeyToUse, forHTTPHeaderField: "apikey")
 
         if let token = cfg.accessToken?.trimmingCharacters(in: .whitespacesAndNewlines),
            !token.isEmpty,
            token.hasPrefix("eyJ") {
             req.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
-        } else {
-            req.setValue("Bearer \(anonKeyToUse)", forHTTPHeaderField: "Authorization")
+            print("[Ride status] Using the restored authenticated rider token.")
+            return
         }
+
+        guard let user = Auth.auth().currentUser, !user.uid.isEmpty else {
+            throw NSError(
+                domain: "RideMatchingClient",
+                code: 401,
+                userInfo: [NSLocalizedDescriptionKey: "Please sign in before loading this ride."]
+            )
+        }
+        let firebaseToken = try await user.getIDToken()
+        req.setValue("Bearer \(firebaseToken)", forHTTPHeaderField: "Authorization")
+        print("[Ride status] Using the current Firebase rider token for uid: \(user.uid)")
     }
 }
 
@@ -285,6 +325,7 @@ struct SearchingForDriverView: View {
 
     // MARK: - UI State
     @Environment(\.dismiss) private var dismiss
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @State private var goToConfirmed = false
     @State private var isCancelling = false
     @State private var errorText: String? = nil
@@ -293,6 +334,8 @@ struct SearchingForDriverView: View {
     @State private var lifecycleGeneration = UUID()
     @State private var lastSnapshot: RideStatusSnapshot? = nil
     @State private var allowTransition = false
+    @State private var cancellationUnavailable = false
+    @State private var showCancelConfirmation = false
 
     private var client: RideMatchingClient { RideMatchingClient(cfg: supabase) }
 
@@ -300,49 +343,64 @@ struct SearchingForDriverView: View {
         ZStack {
             Color.black.ignoresSafeArea()
 
-            VStack(spacing: 18) {
+            ScrollView {
+                VStack(spacing: 16) {
+                    header
 
-                Spacer(minLength: 16)
+                    heroAnimation
 
-                header
+                    if let err = errorText, !err.isEmpty {
+                        Text(err)
+                            .font(.system(size: 13, weight: .medium))
+                            .foregroundColor(.white.opacity(0.75))
+                            .multilineTextAlignment(.center)
+                            .padding(.horizontal, 28)
+                            .padding(.top, 4)
+                            .transition(.opacity)
+                    }
 
-                Spacer(minLength: 10)
+                    tripDetailsCard
 
-                heroAnimation
-
-                if let err = errorText, !err.isEmpty {
-                    Text(err)
-                        .font(.system(size: 13, weight: .medium))
-                        .foregroundColor(.white.opacity(0.75))
-                        .multilineTextAlignment(.center)
-                        .padding(.horizontal, 28)
-                        .padding(.top, 4)
-                        .transition(.opacity)
+                    // The searching view owns the single live tracking destination.
+                    NavigationLink(
+                        destination: DriverTrackingView(
+                            rideId: rideId.uuidString,
+                            onRideEnded: finishRideNavigation
+                        ),
+                        isActive: $goToConfirmed
+                    ) { EmptyView() }
+                    .hidden()
                 }
-
-                Spacer(minLength: 10)
-
-                tripDetailsCard
-
-                Spacer(minLength: 10)
-
-                cancelButton
-                    .padding(.bottom, 26)
-
-                // The searching view owns the single live tracking destination.
-                NavigationLink(
-                    destination: DriverTrackingView(
-                        rideId: rideId.uuidString,
-                        onRideEnded: finishRideNavigation
-                    ),
-                    isActive: $goToConfirmed
-                ) { EmptyView() }
-                .hidden()
+                .padding(.top, 10)
+                .padding(.bottom, 8)
             }
-            .padding(.horizontal, 0)
+            .scrollIndicators(.hidden)
+        }
+        .safeAreaInset(edge: .bottom, spacing: 0) {
+            cancelButton
+                .padding(.vertical, 12)
+                .background(Color.black.opacity(0.96))
         }
         .navigationBarBackButtonHidden(true)
+        .confirmationDialog(
+            "Cancel this ride?",
+            isPresented: $showCancelConfirmation,
+            titleVisibility: .visible
+        ) {
+            Button("Cancel ride", role: .destructive) {
+                cancelRequest()
+            }
+            Button("Keep ride", role: .cancel) {}
+        } message: {
+            Text("Your ride request will end. Any applicable refund will use the existing payment process.")
+        }
         .onAppear {
+            let activeStoredRideID = UserDefaults.standard.string(forKey: "lumo_active_ride_id") ?? "none"
+            let scheduledStoredRideID = UserDefaults.standard.string(forKey: "lumo_scheduled_ride_id") ?? "none"
+            print("[Ride navigation] SearchingForDriverView received explicit database ride ID: \(rideId.uuidString)")
+            print("[Ride navigation] Persisted active ride ID: \(activeStoredRideID); persisted scheduled ride ID: \(scheduledStoredRideID)")
+            print("[Ride navigation] The explicit passed ride ID is authoritative for this searching session.")
+            cancellationUnavailable = false
             lifecycleGeneration = UUID()
             let generation = lifecycleGeneration
             allowTransition = false
@@ -362,29 +420,31 @@ struct SearchingForDriverView: View {
             startupTask = nil
             stopPolling()
         }
+        .animation(reduceMotion ? nil : .spring(response: 0.42, dampingFraction: 0.88), value: goToConfirmed)
     }
 
     // MARK: - Subviews
 
     private var header: some View {
         VStack(spacing: 8) {
-            Text("Finding you a driver")
-                .font(.system(size: 28, weight: .bold))
+            Text("Finding your ride")
+                .font(.system(size: 30, weight: .bold, design: .rounded))
                 .foregroundColor(.white)
 
-            Text("This usually takes a moment.")
+            Text("Jiylo is connecting you with a nearby driver.")
                 .font(.system(size: 15))
                 .foregroundColor(.white.opacity(0.7))
+                .multilineTextAlignment(.center)
         }
         .padding(.top, 8)
         .padding(.horizontal, 24)
     }
 
     private var heroAnimation: some View {
-        SearchingHero()
+        SearchingHero(reduceMotion: reduceMotion)
             .frame(maxWidth: .infinity)
-            .frame(height: 240)
-            .padding(.vertical, 6)
+            .frame(height: 190)
+            .padding(.vertical, 2)
     }
 
     private var tripDetailsCard: some View {
@@ -446,12 +506,6 @@ struct SearchingForDriverView: View {
                     }
                 }
 
-                if let snap = lastSnapshot {
-                    Text("Status: \(snap.status)  •  driver_id: \(snap.driverId ?? "nil")")
-                        .font(.system(size: 12))
-                        .foregroundColor(.white.opacity(0.28))
-                        .padding(.top, 2)
-                }
             }
         }
         .padding(18)
@@ -467,7 +521,7 @@ struct SearchingForDriverView: View {
 
     private var cancelButton: some View {
         Button {
-            cancelRequest()
+            showCancelConfirmation = true
         } label: {
             HStack(spacing: 10) {
                 if isCancelling {
@@ -479,20 +533,20 @@ struct SearchingForDriverView: View {
                         .foregroundColor(.white.opacity(0.9))
                 }
 
-                Text(isCancelling ? "Refunding..." : "Cancel request")
+                Text(isCancelling ? "Cancelling…" : "Cancel Ride")
             }
             .font(.system(size: 17, weight: .semibold))
             .foregroundColor(.white)
             .frame(maxWidth: .infinity)
             .padding(.vertical, 14)
-            .background(Color.white.opacity(0.15))
+            .background(Color.red.opacity(0.86))
             .overlay(
                 RoundedRectangle(cornerRadius: 28)
-                    .stroke(Color.white.opacity(0.12), lineWidth: 1)
+                    .stroke(Color.white.opacity(0.22), lineWidth: 1)
             )
             .clipShape(RoundedRectangle(cornerRadius: 28))
         }
-        .disabled(isCancelling)
+        .disabled(isCancelling || cancellationUnavailable)
         .padding(.horizontal, 24)
     }
 
@@ -541,6 +595,14 @@ struct SearchingForDriverView: View {
             }
         } catch {
             guard lifecycleGeneration == generation, !isCancelling, !Task.isCancelled else { return }
+            if error is RideNotFoundForCancellationError {
+                print("[Ride navigation] Stale cleanup condition: authenticated exact-ID Supabase lookup returned no row for \(rideId.uuidString).")
+                SupabaseRideService.shared.stopObservingRideStatus()
+                stopPolling()
+                errorText = "This ride is no longer active."
+                finishRideNavigation()
+                return
+            }
             if errorText == nil {
                 errorText = "Still searching…"
             }
@@ -548,7 +610,8 @@ struct SearchingForDriverView: View {
     }
 
     private func cancelRequest() {
-        guard !isCancelling else { return }
+        guard !isCancelling, !cancellationUnavailable else { return }
+        print("[Rider cancel] Using database ride ID: \(rideId.uuidString)")
         isCancelling = true
         errorText = nil
         lifecycleGeneration = UUID()
@@ -609,13 +672,40 @@ struct SearchingForDriverView: View {
                     print("❌ cancelRequest failed domain:", nsError.domain)
                     print("❌ cancelRequest failed code:", nsError.code)
                     print("❌ cancelRequest failed userInfo:", nsError.userInfo)
-                    let msg = (error as? LocalizedError)?.errorDescription ?? nsError.localizedDescription
-                    errorText = "Refund/cancel failed: \(msg)"
+                    if error is RideNotFoundForCancellationError {
+                        cancellationUnavailable = true
+                        errorText = "This ride is no longer available to cancel."
+                        lifecycleGeneration = UUID()
+                        stopPolling()
+                        return
+                    }
+                    errorText = cancellationErrorMessage(for: error)
                     lifecycleGeneration = UUID()
                     startPolling(generation: lifecycleGeneration)
                 }
             }
         }
+    }
+
+    /// Keeps database/provider response bodies out of the rider-facing UI while
+    /// preserving the detailed error in the debug console above.
+    private func cancellationErrorMessage(for error: Error) -> String {
+        let nsError = error as NSError
+        let raw = nsError.localizedDescription.lowercased()
+
+        if nsError.code == 401 || raw.contains("sign in") {
+            return "Please sign in again before cancelling this ride."
+        }
+
+        if nsError.code == 409 || raw.contains("can no longer be cancelled") {
+            return "This ride can no longer be cancelled from the matching screen."
+        }
+
+        if raw.contains("refund") || raw.contains("payment intent") {
+            return "Your payment could not be refunded. Your ride was not cancelled."
+        }
+
+        return "We couldn’t cancel this request. Please try again."
     }
 
     // MARK: - Helpers
@@ -646,6 +736,7 @@ struct SearchingForDriverView: View {
 // =======================================================
 
 private struct SearchingHero: View {
+    let reduceMotion: Bool
     @State private var animate = false
     @State private var breathe = false
 
@@ -674,7 +765,7 @@ private struct SearchingHero: View {
                     endRadius: glowEndRadius
                 )
                 .opacity(animate ? 1.0 : 0.8)
-                .animation(.easeInOut(duration: 1.4).repeatForever(autoreverses: true), value: animate)
+                .animation(reduceMotion ? nil : .easeInOut(duration: 1.4).repeatForever(autoreverses: true), value: animate)
 
                 Circle()
                     .stroke(Color.white.opacity(0.55), lineWidth: 2)
@@ -682,7 +773,7 @@ private struct SearchingHero: View {
                     .scaleEffect(animate ? 1.20 : 0.72)
                     .opacity(animate ? 0.0 : 1.0)
                     .blur(radius: 0.8)
-                    .animation(.easeOut(duration: 1.35).repeatForever(autoreverses: false), value: animate)
+                    .animation(reduceMotion ? nil : .easeOut(duration: 1.35).repeatForever(autoreverses: false), value: animate)
 
                 Circle()
                     .stroke(Color.white.opacity(0.60), lineWidth: 2)
@@ -690,7 +781,7 @@ private struct SearchingHero: View {
                     .scaleEffect(animate ? 1.18 : 0.70)
                     .opacity(animate ? 0.0 : 1.0)
                     .blur(radius: 0.6)
-                    .animation(.easeOut(duration: 1.05).repeatForever(autoreverses: false).delay(0.14), value: animate)
+                    .animation(reduceMotion ? nil : .easeOut(duration: 1.05).repeatForever(autoreverses: false).delay(0.14), value: animate)
 
                 ZStack {
                     Circle()
@@ -704,10 +795,10 @@ private struct SearchingHero: View {
                     LumoCenterLogo()
                         .frame(width: logoSize, height: logoSize)
                         .scaleEffect(breathe ? 1.04 : 0.98)
-                        .animation(.easeInOut(duration: 1.1).repeatForever(autoreverses: true), value: breathe)
+                        .animation(reduceMotion ? nil : .easeInOut(duration: 1.1).repeatForever(autoreverses: true), value: breathe)
                 }
 
-                SearchingDots()
+                SearchingDots(reduceMotion: reduceMotion)
                     .offset(y: dotsOffsetY)
             }
             .frame(width: w, height: h)
@@ -718,14 +809,15 @@ private struct SearchingHero: View {
             // Delay one runloop tick so the GeometryReader has its final size on real devices.
             // Prevents the center logo from visually “flying” from a transient 0-size layout.
             DispatchQueue.main.async {
-                animate = true
-                breathe = true
+                animate = !reduceMotion
+                breathe = !reduceMotion
             }
         }
     }
 }
 
 private struct SearchingDots: View {
+    let reduceMotion: Bool
     @State private var phase: Int = 0
     private let timer = Timer.publish(every: 0.35, on: .main, in: .common).autoconnect()
 
@@ -736,7 +828,7 @@ private struct SearchingDots: View {
             dot(phase == 2)
         }
         .onReceive(timer) { _ in
-            phase = (phase + 1) % 3
+            if !reduceMotion { phase = (phase + 1) % 3 }
         }
     }
 

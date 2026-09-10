@@ -7,9 +7,9 @@ final class AuthSession: ObservableObject {
     private var handle: AuthStateDidChangeListenerHandle?
 
     init() {
-        handle = Auth.auth().addStateDidChangeListener { _, user in
-            DispatchQueue.main.async {
-                self.user = user
+        handle = Auth.auth().addStateDidChangeListener { [weak self] _, user in
+            DispatchQueue.main.async { [weak self] in
+                self?.user = user
             }
         }
     }
@@ -48,7 +48,7 @@ struct SplashScreen: View {
                     VStack {
                         // TOP: Title + Car
                         VStack(spacing: 40) {
-                            Text("Lumo")
+                            Text("Jiylo")
                                 .font(.system(size: 52,
                                               weight: .regular,
                                               design: .serif))

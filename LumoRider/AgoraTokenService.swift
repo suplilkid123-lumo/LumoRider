@@ -13,13 +13,14 @@ final class AgoraTokenService {
     private init() {}
     func fetchToken(callId:UUID) async throws -> AgoraTokenResponse {
         guard let user=Auth.auth().currentUser else { throw AgoraTokenServiceError.notLoggedIn }
-        let firebaseToken=try await user.getIDToken()
         var request=URLRequest(url:functionURL); request.httpMethod="POST"; request.timeoutInterval=20
         request.setValue("application/json",forHTTPHeaderField:"Content-Type")
         request.setValue(anonKey,forHTTPHeaderField:"apikey")
-        request.setValue("Bearer \(firebaseToken)",forHTTPHeaderField:"Authorization")
         request.httpBody=try JSONEncoder().encode(["call_id":callId.uuidString.lowercased()])
+        let token = try await CallSessionService.shared.freshAuthenticatedToken(for: user)
+        request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
         let (data,response)=try await URLSession.shared.data(for:request)
+        guard Auth.auth().currentUser?.uid == user.uid else { throw URLError(.cancelled) }
         guard let http=response as? HTTPURLResponse else { throw AgoraTokenServiceError.invalidResponse }
         guard (200...299).contains(http.statusCode) else { throw AgoraTokenServiceError.serverError }
         let result=try JSONDecoder().decode(AgoraTokenResponse.self,from:data)
@@ -32,7 +33,7 @@ enum AgoraTokenServiceError:LocalizedError {
     case notLoggedIn,invalidResponse,serverError
     var errorDescription:String? { switch self {
     case .notLoggedIn:"Sign in again before calling your Driver."
-    case .invalidResponse:"Lumo returned an invalid voice authorization."
-    case .serverError:"Lumo could not authorize a private voice call. Message your Driver or try again."
+    case .invalidResponse:"Jiylo returned an invalid voice authorization."
+    case .serverError:"Jiylo could not authorize a private voice call. Message your Driver or try again."
     } }
 }

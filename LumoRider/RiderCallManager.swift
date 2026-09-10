@@ -59,7 +59,7 @@ final class RiderCallManager: ObservableObject {
     func declineIncoming() async {
         guard let incomingCall else { return }
         do { try await callSessionService.declineCall(callId:incomingCall.id) }
-        catch { errorMessage="Lumo could not confirm the decline. \(error.localizedDescription)" }
+        catch { errorMessage="Jiylo could not confirm the decline. \(error.localizedDescription)" }
         self.incomingCall=nil
     }
 

@@ -753,13 +753,20 @@ struct ScheduleRideView: View {
 
             // Persist scheduled ride ONLY after successful completion.
             if scheduledForEpochToPass > 0 {
-                hasScheduledRide = true
-                if scheduledRideId.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
-                    scheduledRideId = UUID().uuidString
+                let databaseRideID = UserDefaults.standard.string(forKey: "lumo_scheduled_ride_id") ?? ""
+                if UUID(uuidString: databaseRideID) != nil,
+                   UserDefaults.standard.bool(forKey: "lumo_scheduled_ride_id_is_database") {
+                    scheduledRideId = databaseRideID
+                    hasScheduledRide = true
+                    UserDefaults.standard.set(scheduledForEpochToPass, forKey: "lumo_scheduled_for_epoch")
+                    persistScheduledRideDraft()
+                } else {
+                    // A scheduled-ride UI record must never fabricate a database ride ID.
+                    hasScheduledRide = false
+                    scheduledRideId = ""
+                    UserDefaults.standard.removeObject(forKey: "lumo_scheduled_ride_id_is_database")
+                    print("[Scheduled ride] No Supabase ride ID was returned; not persisting a local placeholder.")
                 }
-
-                UserDefaults.standard.set(scheduledForEpochToPass, forKey: "lumo_scheduled_for_epoch")
-                persistScheduledRideDraft()
             }
 
             // Close the payment modal if it's open.

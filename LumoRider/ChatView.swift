@@ -4,11 +4,6 @@ import PhotosUI
 import UIKit
 import Combine
 
-// MARK: - Case A: Track whether ChatView is currently visible
-enum ChatPresence {
-    static var isChatOpen: Bool = false
-}
-
 struct ChatView: View {
     let rideId: UUID
     let senderId: String
@@ -127,19 +122,18 @@ struct ChatView: View {
         }
         .navigationTitle("Chat")
         .onAppear {
-            ChatPresence.isChatOpen = true
+            LumoChatPresence.setOpen(true, rideId: rideId)
             // Ensure unread logic works correctly (ChatService expects the current viewer role)
             chat.viewerRole = senderRole.lowercased()
 
+            chat.start(rideId: rideId, userID: senderId, every: 1.0)
             Task { @MainActor in
-                await chat.loadMessages(rideId: rideId)
                 // When the chat is opened, immediately mark incoming messages as read
                 await chat.markIncomingMessagesRead(rideId: rideId)
-                chat.startPolling(rideId: rideId, every: 1.0)
             }
         }
         .onDisappear {
-            ChatPresence.isChatOpen = false
+            LumoChatPresence.setOpen(false, rideId: rideId)
             chat.stopPolling()
         }
     }
@@ -150,41 +144,22 @@ struct ChatView: View {
     private func chatBubble(_ msg: ChatRow) -> some View {
         let isMe = (msg.sender_role ?? "").lowercased() == senderRole.lowercased()
         let bodyText = (msg.body ?? "").trimmingCharacters(in: .whitespacesAndNewlines)
-        let imageURLString = (msg.image_url ?? "").trimmingCharacters(in: .whitespacesAndNewlines)
+        let imageURLString: String = {
+            let storedPath = (msg.image_url ?? "").trimmingCharacters(in: .whitespacesAndNewlines)
+            if !storedPath.isEmpty { return storedPath }
+            guard (msg.type ?? "").lowercased() == "image" else { return "" }
+            return bodyText
+        }()
 
         HStack {
             if isMe { Spacer(minLength: 40) }
 
             VStack(alignment: .leading, spacing: 6) {
-                if !imageURLString.isEmpty, let url = URL(string: imageURLString) {
-                    AsyncImage(url: url) { phase in
-                        switch phase {
-                        case .empty:
-                            ZStack {
-                                RoundedRectangle(cornerRadius: 16).fill(Color(UIColor.systemGray5))
-                                ProgressView()
-                            }
-                            .frame(width: 220, height: 220)
-                        case .success(let image):
-                            image.resizable().scaledToFill()
-                                .frame(width: 220, height: 220)
-                                .clipped()
-                                .clipShape(RoundedRectangle(cornerRadius: 16))
-                        case .failure:
-                            ZStack {
-                                RoundedRectangle(cornerRadius: 16).fill(Color(UIColor.systemGray5))
-                                Image(systemName: "photo")
-                                    .font(.system(size: 28, weight: .semibold))
-                                    .foregroundColor(.black.opacity(0.6))
-                            }
-                            .frame(width: 220, height: 220)
-                        @unknown default:
-                            EmptyView()
-                        }
-                    }
+                if !imageURLString.isEmpty {
+                    SignedChatImage(attachment: imageURLString, rideId: rideId, chat: chat)
                 }
 
-                if !bodyText.isEmpty {
+                if !bodyText.isEmpty && (msg.type ?? "").lowercased() != "image" {
                     Text(bodyText)
                         .foregroundColor(isMe ? .white : .black)
                 }
@@ -206,5 +181,70 @@ struct ChatView: View {
             return img
         }
         return nil
+    }
+}
+
+private struct SignedChatImage: View {
+    let attachment: String
+    let rideId: UUID
+    let chat: ChatService
+
+    @State private var signedImage: SignedChatImageURL?
+    @State private var refreshID = UUID()
+    @State private var refreshedAfterFailure = false
+
+    var body: some View {
+        Group {
+            if let signedImage {
+                AsyncImage(url: signedImage.url) { phase in
+                    switch phase {
+                    case .empty:
+                        placeholder
+                    case .success(let image):
+                        image.resizable().scaledToFill()
+                            .frame(width: 220, height: 220)
+                            .clipped()
+                            .clipShape(RoundedRectangle(cornerRadius: 16))
+                    case .failure:
+                        placeholder
+                            .onAppear { refreshAfterImageFailure() }
+                    @unknown default:
+                        EmptyView()
+                    }
+                }
+            } else {
+                placeholder
+            }
+        }
+        .task(id: refreshID) { await resolveSignedURL() }
+        .onChange(of: attachment) { _ in
+            signedImage = nil
+            refreshedAfterFailure = false
+            refreshID = UUID()
+        }
+    }
+
+    private var placeholder: some View {
+        ZStack {
+            RoundedRectangle(cornerRadius: 16).fill(Color(UIColor.systemGray5))
+            ProgressView()
+        }
+        .frame(width: 220, height: 220)
+    }
+
+    private func resolveSignedURL() async {
+        guard let resolved = try? await chat.signedImageURL(for: attachment, rideId: rideId) else { return }
+        signedImage = resolved
+        let refreshDelay = max(1, resolved.expiresAt.timeIntervalSinceNow - 15)
+        try? await Task.sleep(for: .seconds(refreshDelay))
+        guard !Task.isCancelled, signedImage == resolved else { return }
+        refreshID = UUID()
+    }
+
+    private func refreshAfterImageFailure() {
+        guard !refreshedAfterFailure else { return }
+        refreshedAfterFailure = true
+        signedImage = nil
+        refreshID = UUID()
     }
 }

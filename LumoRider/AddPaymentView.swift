@@ -72,6 +72,12 @@ struct AddPaymentView: View {
     private let supabaseAnonKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJwcnlxYmRvZGJpZWlvZWJlZGpnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjUwNjE0MjYsImV4cCI6MjA4MDYzNzQyNn0.8ZTaA1bCyRUKb6U4NNZou6DMfXP3yyE1NeNL8Ljt9as"
     private let ridesTableName = "rides"
 
+    private func logRideDispatchTrace(_ message: @autoclosure () -> String) {
+        #if DEBUG
+        print("[RideDispatchTrace] \(message())")
+        #endif
+    }
+
     enum PaymentChoice {
         case none
         case applePay
@@ -333,6 +339,9 @@ struct AddPaymentView: View {
                                 accessToken: nil
                             )
                         )
+                    }
+                    .onAppear {
+                        print("[Ride navigation] Passing Supabase ride ID to SearchingForDriverView: \(rideId.uuidString)")
                     }
                 }
             }
@@ -636,6 +645,8 @@ struct AddPaymentView: View {
     @MainActor
     private func confirmRide() async {
         guard !rideInsertStarted, createdRideId == nil else { return }
+        logRideDispatchTrace("confirm tapped scheduledEpoch=\(scheduledForEpoch) pickupValid=\(CLLocationCoordinate2DIsValid(CLLocationCoordinate2D(latitude: pickupLat, longitude: pickupLng))) dropoffValid=\(CLLocationCoordinate2DIsValid(CLLocationCoordinate2D(latitude: dropoffLat, longitude: dropoffLng)))")
+        print("[Ride creation] Local ride ID before Supabase insert: \(createdRideId?.uuidString ?? "none")")
         confirmRideError = nil
         rideInsertStarted = true
         isConfirming = true
@@ -665,13 +676,21 @@ struct AddPaymentView: View {
 
         do {
             let ride = try await supabaseInsertRide(isScheduled: effectiveIsScheduled, scheduledISO: scheduledISO)
+            print("[Ride creation] Supabase INSERT returned id: \(ride.id ?? "nil"), status: \(ride.status ?? "nil")")
             guard let parsedRideId = UUID(uuidString: ride.id ?? "") else {
                 throw NSError(domain: "AddPaymentView", code: 2, userInfo: [NSLocalizedDescriptionKey: languageStore.settingsText(.addPaymentCouldNotConfirmRideError)])
             }
 
             createdRideId = parsedRideId
+            print("[Ride creation] Using database ride ID: \(parsedRideId.uuidString)")
+            SupabaseRideService.shared.beginObservingRideStatus(rideId: parsedRideId.uuidString)
             createdWasScheduled = effectiveIsScheduled
             createdScheduledForEpoch = effectiveIsScheduled ? scheduledForEpoch : 0
+
+            if effectiveIsScheduled {
+                UserDefaults.standard.set(parsedRideId.uuidString, forKey: "lumo_scheduled_ride_id")
+                UserDefaults.standard.set(true, forKey: "lumo_scheduled_ride_id_is_database")
+            }
 
             UserDefaults.standard.set(0, forKey: "lumo_scheduled_for_epoch")
 
@@ -744,6 +763,9 @@ struct AddPaymentView: View {
             payload["payment_status"] = "cash_due"
         }
 
+        let rideMode = (payload["ride_mode"] as? String) ?? "STANDARD"
+        logRideDispatchTrace("insert prepared table=\(ridesTableName) rider=\(uid) status=\(payload["status"] as? String ?? "unknown") driver=nil rideMode=\(rideMode) pickup=(\(pickupLat),\(pickupLng)) dropoff=(\(dropoffLat),\(dropoffLng)) scheduled=\(isScheduled)")
+
         let body = try JSONSerialization.data(withJSONObject: payload, options: [])
 
         func perform(accessToken: String) async throws -> (Data, HTTPURLResponse) {
@@ -779,14 +801,18 @@ struct AddPaymentView: View {
 
         let data = result.0
         let code = result.1.statusCode
+        let responseBody = String(data: data, encoding: .utf8) ?? "<non-UTF8 body>"
+        print("[Ride creation] Supabase INSERT HTTP \(code): \(responseBody)")
+        logRideDispatchTrace("insert response http=\(code)")
 
         guard (200...299).contains(code) else {
-            let body = String(data: data, encoding: .utf8) ?? ""
-            throw NSError(domain: "Supabase", code: code, userInfo: [NSLocalizedDescriptionKey: body.isEmpty ? languageStore.settingsText(.addPaymentCouldNotConfirmRideError) : body])
+            throw NSError(domain: "Supabase", code: code, userInfo: [NSLocalizedDescriptionKey: responseBody.isEmpty ? languageStore.settingsText(.addPaymentCouldNotConfirmRideError) : responseBody])
         }
 
         let rows = try JSONDecoder().decode([SupabaseRideRow].self, from: data)
-        return rows.first ?? SupabaseRideRow(id: nil, status: nil)
+        let ride = rows.first ?? SupabaseRideRow(id: nil, status: nil)
+        logRideDispatchTrace("insert succeeded ride=\(ride.id ?? "nil") status=\(ride.status ?? "nil") expectedDispatch=\(!isScheduled && ride.status == "requested" && rideMode == "STANDARD")")
+        return ride
     }
 
     private var normalizedCurrency: String? {

@@ -439,7 +439,7 @@ struct RideOptionsView: View {
             ),
             RideOption(
                 id: "lumox",
-                name: "LumoX",
+                name: "JiyloX",
                 nameKey: .rideOptionsLumoXName,
                 subtitleKey: .rideOptionsLumoXSubtitle,
                 etaKey: .rideOptionsLumoXEta,
@@ -449,7 +449,7 @@ struct RideOptionsView: View {
             ),
             RideOption(
                 id: "lumoxl",
-                name: "LumoXL",
+                name: "JiyloXL",
                 nameKey: .rideOptionsLumoXLName,
                 subtitleKey: .rideOptionsLumoXLSubtitle,
                 etaKey: .rideOptionsLumoXLEta,

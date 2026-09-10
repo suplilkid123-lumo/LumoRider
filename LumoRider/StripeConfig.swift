@@ -8,7 +8,7 @@ struct StripeConfig {
     static let applePayMerchantId: String = "merchant.com.alyaa.RealLumo"
     static let applePayCountryCode: String = "US"
     static let applePayCurrency: String = "usd"
-    static let merchantDisplayName: String = "RealLumo"
+    static let merchantDisplayName: String = "Jiylo"
 
     // Supabase Edge Function URL (we will fill this after deploy)
     static let createPaymentIntentURLString: String = "https://rpryqbdodbieioebedjg.functions.supabase.co/create-payment-intent"

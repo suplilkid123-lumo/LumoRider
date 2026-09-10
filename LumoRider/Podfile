@@ -4,10 +4,6 @@ project 'RealLumo.xcodeproj'
 target 'RealLumo' do
   use_frameworks!
 
-  # Firebase
-  pod 'Firebase/Auth'
-  pod 'Firebase/Firestore'
-
   # Google Sign-In / AppAuth
   pod 'AppAuth'
 
@@ -24,5 +20,25 @@ target 'RealLumo' do
 
   target 'RealLumoUITests' do
     inherit! :search_paths
+  end
+end
+
+# CocoaPods 1.16.2 emits `realpath -mq` in generated shell scripts. The macOS
+# BSD `realpath` utility does not support those GNU options, so normalize the
+# diagnostic-only error handler after every pod installation.
+post_install do |installer|
+  support_scripts = File.join(installer.sandbox.root, 'Target Support Files', '**', '*.sh')
+
+  Dir.glob(support_scripts).each do |script_path|
+    script = File.read(script_path)
+    next unless script.include?('realpath -mq "${0}"')
+
+    File.write(
+      script_path,
+      script.gsub(
+        'echo "$(realpath -mq "${0}"):$1: error: Unexpected failure"',
+        'echo "${0}:$1: error: Unexpected failure"'
+      )
+    )
   end
 end

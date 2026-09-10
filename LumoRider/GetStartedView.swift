@@ -6,37 +6,10 @@ import GoogleSignIn
 import AuthenticationServices
 import CryptoKit
 
-// Helper: format as 3-3-4 (e.g. 425-345-2691)
+// Keep all of the digits the rider entered. The selected country code is added
+// separately when constructing the E.164 value for Firebase Phone Auth.
 func formatPhoneNumber(_ number: String) -> String {
-    // Remove all non-digits
-    let digits = number.filter { $0.isNumber }
-    
-    var result = ""
-    var index = digits.startIndex
-    
-    // First 3 digits
-    if digits.count > 0 {
-        let end = digits.index(index, offsetBy: min(3, digits.count))
-        result.append(contentsOf: digits[index..<end])
-        if digits.count > 3 { result.append("-") }
-        index = end
-    }
-    
-    // Next 3 digits
-    if digits.count > 3 {
-        let end = digits.index(index, offsetBy: min(3, digits.count - 3))
-        result.append(contentsOf: digits[index..<end])
-        if digits.count > 6 { result.append("-") }
-        index = end
-    }
-    
-    // Last 4 digits
-    if digits.count > 6 {
-        let end = digits.index(index, offsetBy: min(4, digits.count - 6))
-        result.append(contentsOf: digits[index..<end])
-    }
-    
-    return result
+    number.filter { $0.isNumber }
 }
 
 // Simple model for the picker list
@@ -163,7 +136,7 @@ struct GetStartedView: View {
                         .padding(.top, 40)
 
                     // MARK: - Title
-                    Text("Get started with Lumo")
+                    Text("Get started with Jiylo")
                         .font(.system(size: 22, weight: .semibold))
                         .foregroundColor(.white)
                         .padding(.top, -60)
@@ -192,7 +165,7 @@ struct GetStartedView: View {
                                 .foregroundColor(.black)
 
                             // phone text field
-                            TextField("201-555-0123", text: $phoneNumber)
+                            TextField("Phone number", text: $phoneNumber)
                                 .keyboardType(.phonePad)
                                 .textContentType(.telephoneNumber)
                                 .foregroundColor(.black)
@@ -422,7 +395,12 @@ struct GetStartedView: View {
         guard !isAppleSigningIn else { return }
         isAppleSigningIn = true
 
-        let nonce = randomNonceString()
+        guard let nonce = randomNonceString() else {
+            isAppleSigningIn = false
+            alertMessage = "Unable to start secure Apple Sign-In. Please try again."
+            showAlert = true
+            return
+        }
         currentNonce = nonce
 
         let request = ASAuthorizationAppleIDProvider().createRequest()
@@ -504,6 +482,7 @@ private final class AppleSignInCoordinator: NSObject, ASAuthorizationControllerD
     }
 
     func authorizationController(controller: ASAuthorizationController, didCompleteWithAuthorization authorization: ASAuthorization) {
+        defer { AppleSignInCoordinatorHolder.shared.coordinator = nil }
         guard let appleIDCredential = authorization.credential as? ASAuthorizationAppleIDCredential else {
             onError(NSError(domain: "AppleSignIn", code: -1, userInfo: [NSLocalizedDescriptionKey: "Invalid Apple credential."]))
             return
@@ -535,8 +514,8 @@ private func sha256(_ input: String) -> String {
     return hashed.map { String(format: "%02x", $0) }.joined()
 }
 
-private func randomNonceString(length: Int = 32) -> String {
-    precondition(length > 0)
+private func randomNonceString(length: Int = 32) -> String? {
+    guard length > 0 else { return nil }
     let charset: [Character] = Array("0123456789ABCDEFGHIJKLMNOPQRSTUVXYZabcdefghijklmnopqrstuvwxyz-._")
     var result = ""
     var remaining = length
@@ -545,7 +524,7 @@ private func randomNonceString(length: Int = 32) -> String {
         var randomBytes = [UInt8](repeating: 0, count: 16)
         let status = SecRandomCopyBytes(kSecRandomDefault, randomBytes.count, &randomBytes)
         if status != errSecSuccess {
-            fatalError("Unable to generate nonce. SecRandomCopyBytes failed.")
+            return nil
         }
 
         randomBytes.forEach { byte in
@@ -862,4 +841,3 @@ struct EmailAuthView: View {
 #Preview {
     GetStartedView()
 }
-

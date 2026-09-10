@@ -3,6 +3,7 @@ import Foundation
 import UIKit
 import Combine
 import UserNotifications
+import FirebaseAuth
 
 // ✅ Matches public.messages
 
@@ -13,19 +14,34 @@ struct ChatRow: Identifiable, Decodable, Equatable {
     let sender_role: String?
     let body: String?
     let image_url: String?
+    let sender: String?
+    let type: String?
     let created_at: Date
     var read: Bool?
 }
 
+struct SignedChatImageURL: Equatable {
+    let url: URL
+    let expiresAt: Date
+}
+
 // MARK: - Shared flag (module-wide): whether ChatView is currently visible
 enum LumoChatPresence {
-    static var isChatOpen: Bool = false
+    private static var openRideIDs: Set<UUID> = []
+
+    static func setOpen(_ isOpen: Bool, rideId: UUID) {
+        if isOpen { openRideIDs.insert(rideId) } else { openRideIDs.remove(rideId) }
+    }
+
+    static func isOpen(rideId: UUID) -> Bool {
+        openRideIDs.contains(rideId)
+    }
 }
 
 // MARK: - Case A: Local banner when app is open but ChatView is NOT visible
 private enum LocalPush {
-    static func showIfChatClosed(title: String, body: String) {
-        guard LumoChatPresence.isChatOpen == false else { return }
+    static func showIfChatClosed(rideId: UUID, title: String, body: String) {
+        guard !LumoChatPresence.isOpen(rideId: rideId) else { return }
 
         let content = UNMutableNotificationContent()
         content.title = title
@@ -66,6 +82,13 @@ final class ChatService: ObservableObject {
 
     private var pollingTask: Task<Void, Never>?
     private var pollingRideId: UUID?
+    private var activeUserID: String?
+    private var sessionGeneration = UUID()
+    private var loadInFlight = false
+
+    deinit {
+        pollingTask?.cancel()
+    }
 
     private let decoder: JSONDecoder = {
         let d = JSONDecoder()
@@ -90,6 +113,14 @@ final class ChatService: ObservableObject {
     }()
 
     func loadMessages(rideId: UUID) async {
+        guard pollingRideId == rideId, !loadInFlight,
+              let userID = activeUserID,
+              Auth.auth().currentUser?.uid == userID else { return }
+        let generation = sessionGeneration
+        loadInFlight = true
+        defer {
+            if sessionGeneration == generation { loadInFlight = false }
+        }
         do {
             let data = try await get(
                 path: "messages",
@@ -99,6 +130,9 @@ final class ChatService: ObservableObject {
                 ]
             )
             let decoded = try decoder.decode([ChatRow].self, from: data)
+            guard !Task.isCancelled, sessionGeneration == generation,
+                  pollingRideId == rideId,
+                  Auth.auth().currentUser?.uid == userID else { return }
 
             // ✅ Case A: If a NEW incoming message arrives (not on first load) and ChatView is not open, show a banner
             let previousIds = Set(rows.map { $0.id })
@@ -118,16 +152,12 @@ final class ChatService: ObservableObject {
                         return "New message"
                     }()
 
-                    LocalPush.showIfChatClosed(title: title, body: bodyText)
+                    LocalPush.showIfChatClosed(rideId: rideId, title: title, body: bodyText)
                 }
             }
 
             rows = Array(decoded)
             recomputeUnread()
-
-            if pollingTask == nil || pollingRideId != rideId {
-                startPolling(rideId: rideId, every: 1.0)
-            }
         } catch {
             if let ns = error as NSError? {
                 print("❌ loadMessages failed:", ns.code, ns.userInfo)
@@ -138,15 +168,25 @@ final class ChatService: ObservableObject {
     }
 
     func sendMessage(rideId: UUID, senderId: String, senderRole: String, body: String) async {
+        guard pollingRideId == rideId,
+              activeUserID == senderId,
+              Auth.auth().currentUser?.uid == senderId,
+              validRole(senderRole), validFirebaseUID(senderId) else { return }
+        let generation = sessionGeneration
         let payload: [String: Any] = [
             "ride_id": rideId.uuidString,
             "sender_id": senderId,
             "sender_role": senderRole,
+            "sender": senderRole,
+            "type": "text",
             "body": body
         ]
 
         do {
             _ = try await post(path: "messages", json: payload)
+            guard !Task.isCancelled, sessionGeneration == generation,
+                  pollingRideId == rideId,
+                  Auth.auth().currentUser?.uid == senderId else { return }
             await notifyDriverOfNewMessage(rideId: rideId, senderRole: senderRole, messageBody: body)
             await loadMessages(rideId: rideId)
         } catch {
@@ -159,14 +199,25 @@ final class ChatService: ObservableObject {
     }
 
     func sendImageMessage(rideId: UUID, senderId: String, senderRole: String, image: UIImage) async {
+        guard pollingRideId == rideId,
+              activeUserID == senderId,
+              Auth.auth().currentUser?.uid == senderId,
+              validRole(senderRole), validFirebaseUID(senderId) else { return }
+        let generation = sessionGeneration
         do {
-            let imageURL = try await uploadChatImage(image)
+            let objectPath = try await uploadChatImage(image, rideId: rideId, senderId: senderId, senderRole: senderRole)
+            guard !Task.isCancelled, sessionGeneration == generation,
+                  pollingRideId == rideId,
+                  Auth.auth().currentUser?.uid == senderId else { return }
 
             let payload: [String: Any] = [
                 "ride_id": rideId.uuidString,
                 "sender_id": senderId,
                 "sender_role": senderRole,
-                "image_url": imageURL
+                "sender": senderRole,
+                "type": "image",
+                "body": objectPath,
+                "image_url": objectPath
             ]
 
             _ = try await post(path: "messages", json: payload)
@@ -182,6 +233,9 @@ final class ChatService: ObservableObject {
     }
 
     func markIncomingMessagesRead(rideId: UUID) async {
+        guard pollingRideId == rideId, let userID = activeUserID,
+              Auth.auth().currentUser?.uid == userID else { return }
+        let generation = sessionGeneration
         let otherRole = (viewerRole == "driver") ? "rider" : "driver"
 
         do {
@@ -194,6 +248,9 @@ final class ChatService: ObservableObject {
                 ],
                 json: ["read": true]
             )
+            guard !Task.isCancelled, sessionGeneration == generation,
+                  pollingRideId == rideId,
+                  Auth.auth().currentUser?.uid == userID else { return }
 
             for idx in rows.indices {
                 if rows[idx].sender_role?.lowercased() == otherRole {
@@ -210,22 +267,34 @@ final class ChatService: ObservableObject {
         }
     }
 
-    func startPolling(rideId: UUID, every seconds: Double = 1.0) {
+    func start(rideId: UUID, userID: String, every seconds: Double = 1.0) {
         stopPolling()
+        guard Auth.auth().currentUser?.uid == userID else { return }
+        sessionGeneration = UUID()
+        let generation = sessionGeneration
         pollingRideId = rideId
+        activeUserID = userID
+        rows = []
         pollingTask = Task { [weak self] in
-            guard let self else { return }
             while !Task.isCancelled {
+                guard let self,
+                      self.sessionGeneration == generation,
+                      self.pollingRideId == rideId,
+                      Auth.auth().currentUser?.uid == userID else { return }
                 await self.loadMessages(rideId: rideId)
-                try? await Task.sleep(nanoseconds: UInt64(seconds * 1_000_000_000))
+                let delay = seconds.isFinite ? min(60, max(0.1, seconds)) : 1
+                do { try await Task.sleep(for: .seconds(delay)) } catch { return }
             }
         }
     }
 
     func stopPolling() {
+        sessionGeneration = UUID()
         pollingTask?.cancel()
         pollingTask = nil
         pollingRideId = nil
+        activeUserID = nil
+        loadInFlight = false
     }
 
     private func recomputeUnread() {
@@ -280,7 +349,6 @@ final class ChatService: ObservableObject {
             req.httpMethod = "POST"
             req.setValue("application/json", forHTTPHeaderField: "Content-Type")
             req.setValue(anonKey, forHTTPHeaderField: "apikey")
-            req.setValue("Bearer \(anonKey)", forHTTPHeaderField: "Authorization")
 
             let bodyText = messageBody.trimmingCharacters(in: .whitespacesAndNewlines)
             let payload: [String: Any] = [
@@ -296,7 +364,7 @@ final class ChatService: ObservableObject {
 
             req.httpBody = try JSONSerialization.data(withJSONObject: payload, options: [])
 
-            let (data, resp) = try await URLSession.shared.data(for: req)
+            let (data, resp) = try await SupabaseRideService.shared.authenticatedRideData(for: req)
             if let http = resp as? HTTPURLResponse {
                 print("📨 notifyDriverOfNewMessage: status=\(http.statusCode)")
             }
@@ -331,7 +399,6 @@ final class ChatService: ObservableObject {
         req.cachePolicy = .reloadIgnoringLocalCacheData
         req.setValue("no-cache", forHTTPHeaderField: "Cache-Control")
         req.setValue(anonKey, forHTTPHeaderField: "apikey")
-        req.setValue("Bearer \(anonKey)", forHTTPHeaderField: "Authorization")
         req.setValue("application/json", forHTTPHeaderField: "Accept")
 
         return req
@@ -339,7 +406,7 @@ final class ChatService: ObservableObject {
 
     private func get(path: String, queryItems: [URLQueryItem]) async throws -> Data {
         let req = try makeRequest(path: path, method: "GET", queryItems: queryItems)
-        let (data, resp) = try await URLSession.shared.data(for: req)
+        let (data, resp) = try await SupabaseRideService.shared.authenticatedRideData(for: req)
         try validate(resp: resp, data: data, tag: "GET \(path)")
         return data
     }
@@ -350,7 +417,7 @@ final class ChatService: ObservableObject {
         req.setValue("return=representation", forHTTPHeaderField: "Prefer")
         req.httpBody = try JSONSerialization.data(withJSONObject: json, options: [])
 
-        let (data, resp) = try await URLSession.shared.data(for: req)
+        let (data, resp) = try await SupabaseRideService.shared.authenticatedRideData(for: req)
         try validate(resp: resp, data: data, tag: "POST \(path)")
         return data
     }
@@ -361,7 +428,7 @@ final class ChatService: ObservableObject {
         req.setValue("return=minimal", forHTTPHeaderField: "Prefer")
         req.httpBody = try JSONSerialization.data(withJSONObject: json, options: [])
 
-        let (data, resp) = try await URLSession.shared.data(for: req)
+        let (data, resp) = try await SupabaseRideService.shared.authenticatedRideData(for: req)
         try validate(resp: resp, data: data, tag: "PATCH \(path)")
         return data
     }
@@ -378,25 +445,103 @@ final class ChatService: ObservableObject {
         }
     }
 
-    private func uploadChatImage(_ image: UIImage) async throws -> String {
+    func signedImageURL(for attachment: String, rideId: UUID) async throws -> SignedChatImageURL {
+        let objectPath = try validatedAttachmentPath(attachment, rideId: rideId)
+        let signingURL = supabaseURL.appendingPathComponent("storage/v1/object/sign/chat-images/\(objectPath)")
+        var request = URLRequest(url: signingURL)
+        request.httpMethod = "POST"
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        request.httpBody = try JSONSerialization.data(withJSONObject: ["expiresIn": 300])
+
+        let (data, response) = try await SupabaseRideService.shared.authenticatedRideData(for: request)
+        try validate(resp: response, data: data, tag: "SIGN chat image")
+        let payload = try JSONSerialization.jsonObject(with: data) as? [String: Any]
+        guard let signedPath = (payload?["signedURL"] ?? payload?["signedUrl"]) as? String,
+              let signedURL = signedURL(from: signedPath, objectPath: objectPath) else {
+            throw NSError(domain: "ChatService.signedImageURL", code: 0)
+        }
+        return SignedChatImageURL(url: signedURL, expiresAt: Date().addingTimeInterval(300))
+    }
+
+    private func uploadChatImage(_ image: UIImage, rideId: UUID, senderId: String, senderRole: String) async throws -> String {
         guard let data = image.jpegData(compressionQuality: 0.85) else {
             throw NSError(domain: "ChatService.uploadChatImage", code: 0)
         }
+        guard senderRole.lowercased() == "rider", validFirebaseUID(senderId) else {
+            throw NSError(domain: "ChatService.uploadChatImage", code: 1)
+        }
 
         let fileName = "\(UUID().uuidString).jpg"
-        let uploadURL = supabaseURL.appendingPathComponent("/storage/v1/object/chat-images/\(fileName)")
+        let objectPath = "\(rideId.uuidString)/rider/\(senderId)/\(fileName)"
+        guard (try? validatedAttachmentPath(objectPath, rideId: rideId)) != nil else {
+            throw NSError(domain: "ChatService.uploadChatImage", code: 2)
+        }
+        let uploadURL = supabaseURL.appendingPathComponent("storage/v1/object/chat-images/\(objectPath)")
 
         var req = URLRequest(url: uploadURL)
         req.httpMethod = "POST"
         req.setValue(anonKey, forHTTPHeaderField: "apikey")
-        req.setValue("Bearer \(anonKey)", forHTTPHeaderField: "Authorization")
         req.setValue("image/jpeg", forHTTPHeaderField: "Content-Type")
 
-        let (respData, resp) = try await URLSession.shared.upload(for: req, from: data)
+        let (respData, resp) = try await SupabaseRideService.shared.authenticatedRideUpload(for: req, from: data)
         try validate(resp: resp, data: respData, tag: "UPLOAD chat-images")
 
-        return supabaseURL
-            .appendingPathComponent("/storage/v1/object/public/chat-images/\(fileName)")
-            .absoluteString
+        return objectPath
+    }
+
+    private func validatedAttachmentPath(_ attachment: String, rideId: UUID) throws -> String {
+        let value = attachment.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !value.isEmpty, !value.contains("\\"), !value.contains("%"), !value.contains("..") else {
+            throw NSError(domain: "ChatService.attachment", code: 1)
+        }
+
+        if let legacyPath = validatedLegacyPublicPath(value) {
+            return legacyPath
+        }
+
+        guard URL(string: value)?.scheme == nil else {
+            throw NSError(domain: "ChatService.attachment", code: 2)
+        }
+        let components = value.split(separator: "/", omittingEmptySubsequences: false).map(String.init)
+        guard components.count == 4,
+              UUID(uuidString: components[0]) == rideId,
+              validRole(components[1]),
+              validFirebaseUID(components[2]),
+              validObjectID(components[3]) else {
+            throw NSError(domain: "ChatService.attachment", code: 3)
+        }
+        return value
+    }
+
+    private func validatedLegacyPublicPath(_ value: String) -> String? {
+        guard let url = URL(string: value),
+              url.scheme == "https", url.host == supabaseURL.host,
+              url.port == nil, url.query == nil, url.fragment == nil,
+              let components = URLComponents(url: url, resolvingAgainstBaseURL: false),
+              !components.percentEncodedPath.contains("%") else { return nil }
+        let prefix = "/storage/v1/object/public/chat-images/"
+        guard url.path.hasPrefix(prefix) else { return nil }
+        let objectID = String(url.path.dropFirst(prefix.count))
+        guard !objectID.contains("/"), !objectID.contains("\\"), validObjectID(objectID) else { return nil }
+        return objectID
+    }
+
+    private func signedURL(from responseValue: String, objectPath: String) -> URL? {
+        guard let url = URL(string: responseValue, relativeTo: supabaseURL)?.absoluteURL,
+              url.scheme == "https", url.host == supabaseURL.host,
+              url.path == "/storage/v1/object/sign/chat-images/\(objectPath)" else { return nil }
+        return url
+    }
+
+    private func validRole(_ value: String) -> Bool {
+        ["rider", "driver"].contains(value.trimmingCharacters(in: .whitespacesAndNewlines).lowercased())
+    }
+
+    private func validFirebaseUID(_ value: String) -> Bool {
+        value.range(of: "^[A-Za-z0-9_-]{1,128}$", options: .regularExpression) != nil
+    }
+
+    private func validObjectID(_ value: String) -> Bool {
+        value.range(of: "^[0-9A-Fa-f]{8}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{12}\\.(jpg|jpeg|png|heic)$", options: .regularExpression) != nil
     }
 }

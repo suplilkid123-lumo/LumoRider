@@ -13,6 +13,7 @@ struct VerificationView: View {
     @State private var canResend: Bool = false
     @State private var resendSeconds: Int = 30
     @State private var resendTimer: Timer? = nil
+    @State private var isVisible = false
 
     @State private var verificationIDState: String
 
@@ -47,24 +48,17 @@ struct VerificationView: View {
                             .font(.system(size: 18))
                             .foregroundColor(.black)
 
-                        ZStack(alignment: .leading) {
-                            if code.isEmpty {
-                                Text("123456")
-                                    .foregroundColor(.gray.opacity(0.8))
-                            }
-
-                            TextField("", text: $code)
-                                .keyboardType(.numberPad)
-                                .foregroundColor(.black)
-                                .onChange(of: code) { newValue in
-                                    let filtered = newValue.filter { $0.isNumber }
-                                    if filtered.count > 6 {
-                                        code = String(filtered.prefix(6))
-                                    } else if filtered != newValue {
-                                        code = filtered
-                                    }
+                        TextField("6-digit code", text: $code)
+                            .keyboardType(.numberPad)
+                            .foregroundColor(.black)
+                            .onChange(of: code) { newValue in
+                                let filtered = newValue.filter { $0.isNumber }
+                                if filtered.count > 6 {
+                                    code = String(filtered.prefix(6))
+                                } else if filtered != newValue {
+                                    code = filtered
                                 }
-                        }
+                            }
                     }
                     .padding(.horizontal, 16)
                     .frame(height: 56)
@@ -107,7 +101,13 @@ struct VerificationView: View {
                 }
             }
             .onAppear {
+                isVisible = true
                 startResendCooldown(30)
+            }
+            .onDisappear {
+                isVisible = false
+                resendTimer?.invalidate()
+                resendTimer = nil
             }
             // 👇 NEW: when goToHome = true, push HomeView
             .navigationDestination(isPresented: $goToHome) {
@@ -118,6 +118,7 @@ struct VerificationView: View {
 
     // MARK: - Verify SMS code with Firebase
     private func verifyCode() {
+        guard !isVerifying else { return }
         errorMessage = nil
         let trimmedCode = code.trimmingCharacters(in: .whitespacesAndNewlines)
 
@@ -136,6 +137,7 @@ struct VerificationView: View {
 
         Auth.auth().signIn(with: credential) { authResult, error in
             DispatchQueue.main.async {
+                guard isVisible else { return }
                 self.isVerifying = false
                 if let error = error as NSError? {
                     if let code = AuthErrorCode(rawValue: error.code) {
@@ -196,6 +198,7 @@ struct VerificationView: View {
 
         PhoneAuthProvider.provider().verifyPhoneNumber(phone, uiDelegate: nil) { id, error in
             DispatchQueue.main.async {
+                guard isVisible else { return }
                 if let error = error as NSError? {
                     if let code = AuthErrorCode(rawValue: error.code) {
                         switch code {

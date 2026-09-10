@@ -41,6 +41,8 @@ struct RideHistoryRecord: Decodable, Identifiable {
 struct ActiveRideRecord: Decodable, Identifiable {
     let id: String
     let status: String
+    let completedAt: String?
+    let cancelledAt: String?
     let driverId: String?
     let pickupAddress: String?
     let dropoffAddress: String?
@@ -65,6 +67,8 @@ struct ActiveRideRecord: Decodable, Identifiable {
 
     enum CodingKeys: String, CodingKey {
         case id, status, currency
+        case completedAt = "completed_at"
+        case cancelledAt = "cancelled_at"
         case driverId = "driver_id"
         case pickupAddress = "pickup_address"
         case dropoffAddress = "dropoff_address"
@@ -88,20 +92,37 @@ struct ActiveRideRecord: Decodable, Identifiable {
     }
 
     var normalizedStatus: String { status.trimmingCharacters(in: .whitespacesAndNewlines).lowercased() }
+    var hasTerminalTimestamp: Bool { completedAt != nil || cancelledAt != nil }
     var displayRideType: String? { rideType ?? rideTypeLabel ?? serviceType }
     var fare: Double? { paidAmount ?? estimatedFare }
+}
+
+enum ActiveRideRecoveryError: LocalizedError {
+    case conflict(String)
+
+    var errorDescription: String? {
+        switch self {
+        case .conflict(let message): return message
+        }
+    }
 }
 
 final class SupabaseRideService: ObservableObject {
     static let shared = SupabaseRideService()
 
     static let restorableStatuses: Set<String> = [
-        "requested", "searching", "accepted", "arrived", "started", "in_progress"
+        "requested", "searching", "accepted", "arrived", "arrived_at_pickup", "started", "in_progress"
     ]
     static let terminalStatuses: Set<String> = [
         "completed", "cancelled", "canceled", "cancelled_by_rider", "rider_cancelled",
-        "cancelled_by_driver", "driver_cancelled", "cancelled_no_show", "no_show", "declined"
+        "cancelled_by_driver", "driver_cancelled", "cancelled_no_show", "no_show", "declined",
+        "cancelled_by_system", "system_cancelled"
     ]
+
+    static func isTerminal(status: String, completedAt: String? = nil, cancelledAt: String? = nil) -> Bool {
+        let normalizedStatus = status.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
+        return terminalStatuses.contains(normalizedStatus) || completedAt != nil || cancelledAt != nil
+    }
 
     private let baseURL = URL(string: "https://rpryqbdodbieioebedjg.supabase.co")!
     private let anonKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJwcnlxYmRvZGJpZWlvZWJlZGpnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjUwNjE0MjYsImV4cCI6MjA4MDYzNzQyNn0.8ZTaA1bCyRUKb6U4NNZou6DMfXP3yyE1NeNL8Ljt9as"
@@ -152,28 +173,70 @@ final class SupabaseRideService: ObservableObject {
         #endif
     }
 
+    /// All ride reads use the current Firebase identity, including a refresh
+    /// after a gateway 401. An empty RLS result is never proof of cancellation.
+    func authenticatedRideData(for request: URLRequest) async throws -> (Data, URLResponse) {
+        guard request.url?.host == baseURL.host,
+              let user = Auth.auth().currentUser else { throw URLError(.userAuthenticationRequired) }
+        for refresh in [false, true] {
+            try Task.checkCancellation()
+            var authenticated = request
+            authenticated.setValue(anonKey, forHTTPHeaderField: "apikey")
+            authenticated.setValue("Bearer \(try await user.getIDToken(forcingRefresh: refresh))", forHTTPHeaderField: "Authorization")
+            guard Auth.auth().currentUser?.uid == user.uid else { throw URLError(.cancelled) }
+            let result = try await URLSession.shared.data(for: authenticated)
+            guard Auth.auth().currentUser?.uid == user.uid else { throw URLError(.cancelled) }
+            guard let http = result.1 as? HTTPURLResponse else { throw URLError(.badServerResponse) }
+            if http.statusCode == 401 && !refresh { continue }
+            guard (200...299).contains(http.statusCode) else {
+                throw NSError(domain: "RiderRideRead", code: http.statusCode,
+                    userInfo: [NSLocalizedDescriptionKey: "Could not refresh the trip (HTTP \(http.statusCode))."])
+            }
+            return result
+        }
+        throw URLError(.userAuthenticationRequired)
+    }
+
+    /// Authenticated counterpart for uploads that must preserve the request
+    /// body outside URLRequest (for example, chat images).
+    func authenticatedRideUpload(for request: URLRequest, from body: Data) async throws -> (Data, URLResponse) {
+        guard request.url?.host == baseURL.host,
+              let user = Auth.auth().currentUser else { throw URLError(.userAuthenticationRequired) }
+        for refresh in [false, true] {
+            try Task.checkCancellation()
+            var authenticated = request
+            authenticated.setValue(anonKey, forHTTPHeaderField: "apikey")
+            authenticated.setValue("Bearer \(try await user.getIDToken(forcingRefresh: refresh))", forHTTPHeaderField: "Authorization")
+            guard Auth.auth().currentUser?.uid == user.uid else { throw URLError(.cancelled) }
+            let result = try await URLSession.shared.upload(for: authenticated, from: body)
+            guard Auth.auth().currentUser?.uid == user.uid else { throw URLError(.cancelled) }
+            guard let http = result.1 as? HTTPURLResponse else { throw URLError(.badServerResponse) }
+            if http.statusCode == 401 && !refresh { continue }
+            guard (200...299).contains(http.statusCode) else {
+                throw NSError(domain: "SupabaseRideService.authenticatedRideUpload", code: http.statusCode)
+            }
+            return result
+        }
+        throw URLError(.userAuthenticationRequired)
+    }
+
     func fetchNewestActiveRide() async throws -> (ride: ActiveRideRecord?, accessToken: String) {
         #if canImport(FirebaseAuth)
         guard let user = Auth.auth().currentUser, !user.uid.isEmpty else {
             throw NSError(domain: "SupabaseRideService.fetchNewestActiveRide", code: 401, userInfo: [NSLocalizedDescriptionKey: "The rider is not signed in."])
         }
 
-        var components = URLComponents(url: baseURL.appendingPathComponent("rest/v1/rides"), resolvingAgainstBaseURL: false)
-        components?.queryItems = [
-            URLQueryItem(name: "select", value: "*"),
-            URLQueryItem(name: "rider_id", value: "eq.\(user.uid)"),
-            URLQueryItem(name: "order", value: "created_at.desc"),
-            URLQueryItem(name: "limit", value: "1")
-        ]
-        guard let url = components?.url else { throw URLError(.badURL) }
+        let url = baseURL.appendingPathComponent("rest/v1/rpc/get_current_rider_ride_v1")
 
         func perform(token: String) async throws -> (Data, HTTPURLResponse) {
             var request = URLRequest(url: url)
-            request.httpMethod = "GET"
+            request.httpMethod = "POST"
             request.timeoutInterval = 15
             request.setValue("application/json", forHTTPHeaderField: "Accept")
             request.setValue(anonKey, forHTTPHeaderField: "apikey")
             request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
+            request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+            request.httpBody = Data("{}".utf8)
             let (data, response) = try await URLSession.shared.data(for: request)
             guard let http = response as? HTTPURLResponse else { throw URLError(.badServerResponse) }
             return (data, http)
@@ -187,11 +250,19 @@ final class SupabaseRideService: ObservableObject {
         }
 
         guard (200...299).contains(result.1.statusCode) else {
-            throw NSError(domain: "SupabaseRideService.fetchNewestActiveRide", code: result.1.statusCode, userInfo: [NSLocalizedDescriptionKey: "Unable to restore the active ride."])
+            let payload = try? JSONSerialization.jsonObject(with: result.0) as? [String: Any]
+            let message = payload?["message"] as? String ?? "Unable to restore the active ride."
+            if result.1.statusCode == 409 || message.lowercased().contains("multiple recoverable passenger rides") {
+                throw ActiveRideRecoveryError.conflict(message)
+            }
+            throw NSError(domain: "SupabaseRideService.fetchNewestActiveRide", code: result.1.statusCode, userInfo: [NSLocalizedDescriptionKey: message])
         }
-
-        let ride = try JSONDecoder().decode([ActiveRideRecord].self, from: result.0).first
-        guard let ride, Self.restorableStatuses.contains(ride.normalizedStatus) else {
+        try Task.checkCancellation()
+        guard Auth.auth().currentUser?.uid == user.uid else { throw URLError(.cancelled) }
+        if result.0 == Data("null".utf8) { return (nil, accessToken) }
+        let ride = try JSONDecoder().decode(ActiveRideRecord.self, from: result.0)
+        guard Self.restorableStatuses.contains(ride.normalizedStatus),
+              !ride.hasTerminalTimestamp else {
             return (nil, accessToken)
         }
         return (ride, accessToken)
@@ -231,6 +302,8 @@ final class SupabaseRideService: ObservableObject {
             let authorizationHeaderType = hasToken ? "Bearer Firebase ID token" : "missing"
             print("[Rider cancel] request URL: \(url.absoluteString)")
             print("[Rider cancel] HTTP method: \(method)")
+            print("[Rider cancel] ride UUID: \(rideId)")
+            print("[Rider cancel] reason supplied: \(!(reason?.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ?? true))")
             print("[Rider cancel] Firebase UID: \(user.uid)")
             print("[Rider cancel] Firebase ID token exists: \(hasToken)")
             print("[Rider cancel] Authorization header type: \(authorizationHeaderType)")
@@ -249,8 +322,13 @@ final class SupabaseRideService: ObservableObject {
         }
         guard (200...299).contains(result.1.statusCode) else {
             let responseBody = String(data: result.0, encoding: .utf8) ?? ""
+            let responsePayload = try? JSONSerialization.jsonObject(with: result.0) as? [String: Any]
+            let serverMessage = responsePayload?["message"] as? String
+                ?? responsePayload?["error"] as? String
+                ?? responsePayload?["details"] as? String
             throw NSError(domain: "SupabaseRideService.cancelPassengerRideByRider", code: result.1.statusCode, userInfo: [
-                NSLocalizedDescriptionKey: responseBody.isEmpty ? "Cancellation failed (HTTP \(result.1.statusCode))." : responseBody
+                NSLocalizedDescriptionKey: serverMessage
+                    ?? (responseBody.isEmpty ? "Cancellation failed (HTTP \(result.1.statusCode))." : "Cancellation failed (HTTP \(result.1.statusCode)): \(responseBody)")
             ])
         }
         await MainActor.run {
@@ -455,7 +533,7 @@ final class SupabaseRideService: ObservableObject {
 
         var components = URLComponents(url: baseURL.appendingPathComponent("rest/v1/rides"), resolvingAgainstBaseURL: false)
         components?.queryItems = [
-            URLQueryItem(name: "select", value: "status"),
+            URLQueryItem(name: "select", value: "status,completed_at,cancelled_at"),
             URLQueryItem(name: "id", value: "eq.\(rideId)"),
             URLQueryItem(name: "rider_id", value: "eq.\(user.uid)"),
             URLQueryItem(name: "limit", value: "1")
@@ -483,14 +561,15 @@ final class SupabaseRideService: ObservableObject {
                   let rows = try JSONSerialization.jsonObject(with: result.0) as? [[String: Any]]
             else { return }
 
-            guard let status = rows.first?["status"] as? String else {
-                stopObservingRideStatus()
-                return
-            }
+            // An empty RLS response is not authoritative evidence that the ride
+            // ended. Preserve the local ride until an exact visible terminal
+            // status (or terminal timestamp) confirms cleanup is safe.
+            guard let status = rows.first?["status"] as? String else { return }
             let normalizedStatus = status.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
+            let hasTerminalTimestamp = rows.first?["completed_at"] is String || rows.first?["cancelled_at"] is String
             guard !Task.isCancelled, isActiveRideSessionCurrent(generation), activeRideID == rideId else { return }
             activeRideStatus = normalizedStatus
-            if Self.terminalStatuses.contains(normalizedStatus) {
+            if Self.terminalStatuses.contains(normalizedStatus) || hasTerminalTimestamp {
                 stopObservingRideStatus(terminalStatus: normalizedStatus)
             }
         } catch {
@@ -506,5 +585,9 @@ final class SupabaseRideService: ObservableObject {
         activeRideID = nil
         activeRideStatus = terminalStatus
         UserDefaults.standard.removeObject(forKey: "lumo_active_ride_id")
+    }
+
+    func clearActiveRideForLogout() {
+        stopObservingRideStatus()
     }
 }

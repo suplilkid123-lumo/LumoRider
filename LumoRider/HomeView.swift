@@ -236,10 +236,10 @@ enum LumoSettingsL10n {
         .rideOptionsShareName: "Share",
         .rideOptionsShareSubtitle: "Share your ride and save 30%",
         .rideOptionsShareEta: "6:15 PM · 8–17 min",
-        .rideOptionsLumoXName: "LumoX",
+        .rideOptionsLumoXName: "JiyloX",
         .rideOptionsLumoXSubtitle: "Standard ride for up to 4",
         .rideOptionsLumoXEta: "6:03 PM · 7 min",
-        .rideOptionsLumoXLName: "LumoXL",
+        .rideOptionsLumoXLName: "JiyloXL",
         .rideOptionsLumoXLSubtitle: "Larger car, up to 6",
         .rideOptionsLumoXLEta: "6:05 PM · 8 min",
         .rideOptionsFasterBadge: "Faster",
@@ -274,9 +274,9 @@ enum LumoSettingsL10n {
         .privacyTitle: "Privacy",
         .privacyLocationTracking: "Location & tracking",
         .privacyAllowLocationTitle: "Allow location",
-        .privacyAllowLocationSubtitle: "Let Lumo use your location for pickups and nearby drivers.",
+        .privacyAllowLocationSubtitle: "Let Jiylo use your location for pickups and nearby drivers.",
         .privacyDiagnosticsTitle: "Share anonymous diagnostics",
-        .privacyDiagnosticsSubtitle: "Help improve Lumo by sending anonymous crash and performance data.",
+        .privacyDiagnosticsSubtitle: "Help improve Jiylo by sending anonymous crash and performance data.",
         .privacyPersonalization: "Personalization",
         .privacyPersonalizedSuggestionsTitle: "Personalized suggestions",
         .privacyPersonalizedSuggestionsSubtitle: "Use your ride history to improve recommendations.",
@@ -313,7 +313,7 @@ enum LumoSettingsL10n {
         .supportAccountLoginSubtitle: "Phone number, email, and profile",
         .supportSafetySecurityTitle: "Safety & security",
         .supportSafetySecuritySubtitle: "Reporting issues, emergency options",
-        .supportUsingLumoTitle: "Using Lumo",
+        .supportUsingLumoTitle: "Using Jiylo",
         .supportUsingLumoSubtitle: "How rides, pickups, and ETA work",
         .supportContactTitle: "Contact",
         .supportMessageTitle: "Message support",
@@ -321,13 +321,13 @@ enum LumoSettingsL10n {
 
         .legalTitle: "Legal",
         .legalDocumentsTitle: "Legal documents",
-        .legalDocumentsSubtitle: "Review the terms that apply to your use of Lumo.",
+        .legalDocumentsSubtitle: "Review the terms that apply to your use of Jiylo.",
         .legalTermsTitle: "Terms of Service",
-        .legalTermsSubtitle: "Your agreement with Lumo",
+        .legalTermsSubtitle: "Your agreement with Jiylo",
         .legalPrivacyTitle: "Privacy Policy",
         .legalPrivacySubtitle: "How we handle your data",
         .legalGuidelinesTitle: "Community Guidelines",
-        .legalGuidelinesSubtitle: "Rules for using Lumo",
+        .legalGuidelinesSubtitle: "Rules for using Jiylo",
         .legalLicensesTitle: "Licenses",
         .legalLicensesSubtitle: "Open-source components and licenses",
         .legalBackTitle: "Back"
@@ -385,10 +385,10 @@ enum LumoSettingsL10n {
         .rideOptionsShareName: "مشترك",
         .rideOptionsShareSubtitle: "شارك الرحلة ووفر 30٪",
         .rideOptionsShareEta: "6:15 م · 8–17 دقيقة",
-        .rideOptionsLumoXName: "LumoX",
+        .rideOptionsLumoXName: "JiyloX",
         .rideOptionsLumoXSubtitle: "رحلة عادية حتى 4 ركاب",
         .rideOptionsLumoXEta: "6:03 م · 7 دقائق",
-        .rideOptionsLumoXLName: "LumoXL",
+        .rideOptionsLumoXLName: "JiyloXL",
         .rideOptionsLumoXLSubtitle: "سيارة أوسع حتى 6 ركاب",
         .rideOptionsLumoXLEta: "6:05 م · 8 دقائق",
         .rideOptionsFasterBadge: "أسرع",
@@ -423,9 +423,9 @@ enum LumoSettingsL10n {
         .privacyTitle: "الخصوصية",
         .privacyLocationTracking: "الموقع والتتبع",
         .privacyAllowLocationTitle: "السماح بالموقع",
-        .privacyAllowLocationSubtitle: "السماح لـ Lumo باستخدام موقعك لعمليات الالتقاط والسائقين القريبين.",
+        .privacyAllowLocationSubtitle: "السماح لـ Jiylo باستخدام موقعك لعمليات الالتقاط والسائقين القريبين.",
         .privacyDiagnosticsTitle: "مشاركة تشخيصات مجهولة",
-        .privacyDiagnosticsSubtitle: "ساعد في تحسين Lumo بإرسال بيانات أعطال وأداء مجهولة.",
+        .privacyDiagnosticsSubtitle: "ساعد في تحسين Jiylo بإرسال بيانات أعطال وأداء مجهولة.",
         .privacyPersonalization: "التخصيص",
         .privacyPersonalizedSuggestionsTitle: "اقتراحات مخصصة",
         .privacyPersonalizedSuggestionsSubtitle: "استخدام سجل رحلاتك لتحسين التوصيات.",
@@ -462,7 +462,7 @@ enum LumoSettingsL10n {
         .supportAccountLoginSubtitle: "رقم الهاتف والبريد الإلكتروني والملف الشخصي",
         .supportSafetySecurityTitle: "السلامة والأمان",
         .supportSafetySecuritySubtitle: "الإبلاغ عن المشكلات وخيارات الطوارئ",
-        .supportUsingLumoTitle: "استخدام Lumo",
+        .supportUsingLumoTitle: "استخدام Jiylo",
         .supportUsingLumoSubtitle: "كيفية عمل الرحلات ونقاط الالتقاط ووقت الوصول المتوقع",
         .supportContactTitle: "التواصل",
         .supportMessageTitle: "مراسلة الدعم",
@@ -470,13 +470,13 @@ enum LumoSettingsL10n {
 
         .legalTitle: "المستندات القانونية",
         .legalDocumentsTitle: "المستندات القانونية",
-        .legalDocumentsSubtitle: "راجع الشروط التي تنطبق على استخدامك لـ Lumo.",
+        .legalDocumentsSubtitle: "راجع الشروط التي تنطبق على استخدامك لـ Jiylo.",
         .legalTermsTitle: "شروط الخدمة",
-        .legalTermsSubtitle: "اتفاقيتك مع Lumo",
+        .legalTermsSubtitle: "اتفاقيتك مع Jiylo",
         .legalPrivacyTitle: "سياسة الخصوصية",
         .legalPrivacySubtitle: "كيف نتعامل مع بياناتك",
         .legalGuidelinesTitle: "إرشادات المجتمع",
-        .legalGuidelinesSubtitle: "قواعد استخدام Lumo",
+        .legalGuidelinesSubtitle: "قواعد استخدام Jiylo",
         .legalLicensesTitle: "التراخيص",
         .legalLicensesSubtitle: "مكونات وتراخيص مفتوحة المصدر",
         .legalBackTitle: "رجوع"
@@ -576,7 +576,7 @@ struct HomeView: View {
 
                     // MARK: — TOP BAR
                     HStack(spacing: 16) {
-                        Text("Lumo")
+                        Text("Jiylo")
                             .font(.system(size: 31, weight: .bold, design: .rounded))
                             .tracking(-0.7)
                             .foregroundColor(.white)
@@ -1015,6 +1015,8 @@ struct HomeView: View {
                             // MARK: - Log out button in side menu
                             Button {
                                 do {
+                                    rideService.clearActiveRideForLogout()
+                                    activeRideId = ""
                                     try Auth.auth().signOut()
 
                                     // 👇 trigger navigation to GetStartedView with NO animation
@@ -1205,9 +1207,15 @@ struct HomeView: View {
             showRestoredActiveRide = true
         } catch {
             guard rideService.isActiveRideSessionCurrent(sessionToken) else { return }
-            restoredActiveRide = nil
-            restoredAccessToken = nil
-            activeRideId = ""
+            if error is ActiveRideRecoveryError {
+                // An ambiguous backend result is not safe to resume.  Clear every
+                // local restore handle rather than letting an old ID reappear.
+                clearActiveRideNavigation()
+                return
+            }
+            // A network/authentication failure is not evidence that the trip ended.
+            // Keep the persisted ride identifier for the next recovery attempt.
+            print("[RideRecovery] Active ride lookup failed; retaining trip context.")
         }
     }
 
@@ -1282,14 +1290,16 @@ struct HomeView: View {
             !scheduledPickupAddress.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ||
             !scheduledDropoffAddress.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
 
-        if hasAnyScheduledData {
-            if scheduledRideId.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
-                scheduledRideId = UUID().uuidString
-            }
+        let hasDatabaseScheduledRideID =
+            UUID(uuidString: scheduledRideId) != nil &&
+            UserDefaults.standard.bool(forKey: "lumo_scheduled_ride_id_is_database")
+
+        if hasAnyScheduledData && hasDatabaseScheduledRideID {
             hasScheduledRide = true
         } else {
             hasScheduledRide = false
             scheduledRideId = ""
+            UserDefaults.standard.removeObject(forKey: "lumo_scheduled_ride_id_is_database")
         }
     }
 
@@ -1464,12 +1474,12 @@ struct ProfileView: View {
     // ✅ Binding from HomeView so Profile can trigger logout navigation
     @Binding var logoutTriggered: Bool
 
-    // MARK: - Mock user data (later you can bind these to real user info)
+    // MARK: - User profile data
     @State private var fullName: String = "Your name"
     @State private var email: String = ""
-    @State private var phoneNumber: String = "+1 (312) 555-0123"
+    @State private var phoneNumber: String = ""
 
-    @State private var preferredRideType: String = "LumoX"
+    @State private var preferredRideType: String = "JiyloX"
     @State private var countryRegion: String = "United States"
     @State private var memberSince: String = ""
 
@@ -1486,7 +1496,7 @@ struct ProfileView: View {
     private let profileInfoDefaultsKey = "lumo_profileInfo"
 
     // Simple ride type options
-    private let rideTypes = ["Saver", "LumoX", "LumoXL"]
+    private let rideTypes = ["Saver", "JiyloX", "JiyloXL"]
 
     var body: some View {
         ZStack {
@@ -1560,16 +1570,15 @@ struct ProfileView: View {
                                 .clipShape(RoundedRectangle(cornerRadius: 12))
                         }
 
-                        // Phone (editable, but labeled as managed)
+                        // Phone (managed by Firebase Phone Auth)
                         VStack(alignment: .leading, spacing: 6) {
                             Text("Phone")
                                 .font(.system(size: 13))
                                 .foregroundColor(.white.opacity(0.6))
 
-                            TextField("+1 (312) 555-0123", text: $phoneNumber)
+                            Text(phoneNumber.isEmpty ? "Not set" : phoneNumber)
                                 .font(.system(size: 16))
                                 .foregroundColor(.white)
-                                .keyboardType(.phonePad)
                                 .padding(10)
                                 .background(Color.white.opacity(0.08))
                                 .clipShape(RoundedRectangle(cornerRadius: 12))
@@ -1745,8 +1754,10 @@ struct ProfileView: View {
 
             if let currentUser = Auth.auth().currentUser {
                 email = currentUser.email ?? ""
+                phoneNumber = currentUser.phoneNumber ?? ""
             } else {
                 email = ""
+                phoneNumber = ""
             }
 
             let defaults = UserDefaults.standard
@@ -1758,7 +1769,6 @@ struct ProfileView: View {
             if let savedInfo = defaults.dictionary(forKey: profileInfoDefaultsKey) as? [String: String] {
                 fullName = savedInfo["fullName"] ?? fullName
                 email = savedInfo["email"] ?? email
-                phoneNumber = savedInfo["phone"] ?? phoneNumber
                 countryRegion = savedInfo["country"] ?? countryRegion
                 if let ride = savedInfo["rideType"], rideTypes.contains(ride) {
                     preferredRideType = ride
@@ -1786,7 +1796,6 @@ struct ProfileView: View {
         let info: [String: String] = [
             "fullName": fullName,
             "email": email,
-            "phone": phoneNumber,
             "country": countryRegion,
             "rideType": preferredRideType
         ]
@@ -1801,6 +1810,7 @@ struct ProfileView: View {
     // MARK: - Logout logic
     private func handleLogout() {
         do {
+            SupabaseRideService.shared.clearActiveRideForLogout()
             try Auth.auth().signOut()
             logoutTriggered = true   // tell HomeView to navigate out
         } catch {
@@ -2021,7 +2031,7 @@ private struct LumoWalletCard: View {
                 )
 
             VStack(alignment: .leading, spacing: 10) {
-                Text("Lumo balance")
+                Text("Jiylo balance")
                     .font(.system(size: 18, weight: .semibold))
                     .foregroundColor(.white.opacity(0.92))
 
@@ -2109,7 +2119,7 @@ private struct LumoAddFundsSheet: View {
                             .font(.system(size: 26, weight: .bold))
                             .foregroundColor(.white)
 
-                        Text("Funds will be added to your Lumo balance.")
+                        Text("Funds will be added to your Jiylo balance.")
                             .font(.system(size: 13, weight: .medium))
                             .foregroundColor(.white.opacity(0.6))
                     }
@@ -2615,16 +2625,14 @@ final class LumoWalletStore: ObservableObject {
             userPhone = "Not set"
         }
 
-        // If ProfileView saved info exists, prefer it (since you already persist it)
+        // Profile preferences can supplement Firebase account data, but they
+        // must not replace the authenticated phone number.
         if let saved = UserDefaults.standard.dictionary(forKey: "lumo_profileInfo") as? [String: String] {
             if let n = saved["fullName"], !n.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
                 userFullName = n
             }
             if let e = saved["email"], !e.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
                 userEmail = e
-            }
-            if let p = saved["phone"], !p.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
-                userPhone = p
             }
         }
     }
@@ -3356,43 +3364,43 @@ private enum LegalDocument: CaseIterable, Hashable, Identifiable {
         switch self {
         case .termsOfService:
             return """
-            Welcome to Lumo. By using Lumo, you agree to use the app responsibly and follow these terms.
+            Welcome to Jiylo. By using Jiylo, you agree to use the app responsibly and follow these terms.
 
-            Lumo connects riders with independent drivers for transportation requests. Ride availability, pickup times, prices, and driver availability may vary.
+            Jiylo connects riders with independent drivers for transportation requests. Ride availability, pickup times, prices, and driver availability may vary.
 
-            You are responsible for providing accurate pickup and dropoff information. You agree not to misuse the app, create false ride requests, harass drivers or riders, or use Lumo for illegal activity.
+            You are responsible for providing accurate pickup and dropoff information. You agree not to misuse the app, create false ride requests, harass drivers or riders, or use Jiylo for illegal activity.
 
-            Drivers using Lumo are responsible for following local laws, maintaining valid licenses, insurance, and vehicle requirements, and providing safe transportation.
+            Drivers using Jiylo are responsible for following local laws, maintaining valid licenses, insurance, and vehicle requirements, and providing safe transportation.
 
-            Payments made through Lumo must be valid and authorized. If a payment fails, the ride may not be confirmed.
+            Payments made through Jiylo must be valid and authorized. If a payment fails, the ride may not be confirmed.
 
-            Lumo may suspend or remove accounts that violate these terms, create safety concerns, commit fraud, or misuse the platform.
+            Jiylo may suspend or remove accounts that violate these terms, create safety concerns, commit fraud, or misuse the platform.
 
-            Lumo may update these terms from time to time. Continued use of the app means you accept the updated terms.
+            Jiylo may update these terms from time to time. Continued use of the app means you accept the updated terms.
 
-            If you do not agree with these terms, please stop using Lumo.
+            If you do not agree with these terms, please stop using Jiylo.
             """
         case .privacyPolicy:
             return """
-            Lumo respects your privacy. This policy explains how we handle information used to provide rides and app features.
+            Jiylo respects your privacy. This policy explains how we handle information used to provide rides and app features.
 
             We may collect information such as your name, phone number, email address, profile photo, pickup and dropoff locations, ride history, payment status, device information, app activity, messages, and support information.
 
-            We use this information to create and manage accounts, connect riders and drivers, process rides, improve safety, provide support, send notifications, prevent fraud, and improve Lumo.
+            We use this information to create and manage accounts, connect riders and drivers, process rides, improve safety, provide support, send notifications, prevent fraud, and improve Jiylo.
 
             Location information may be used while the app is active and, when needed, during active rides to show pickup, dropoff, driver movement, routing, and trip progress.
 
-            Payment details are processed through Stripe. Lumo does not store full card numbers in the app.
+            Payment details are processed through Stripe. Jiylo does not store full card numbers in the app.
 
             Messages, call-related records, and ride information may be used to support safety, customer support, and dispute review.
 
-            We do not sell your personal information. We may share information with service providers such as payment processors, cloud hosting, maps, notifications, and safety/support tools only as needed to operate Lumo.
+            We do not sell your personal information. We may share information with service providers such as payment processors, cloud hosting, maps, notifications, and safety/support tools only as needed to operate Jiylo.
 
-            You may request help with your account, data, or privacy questions by contacting Lumo support.
+            You may request help with your account, data, or privacy questions by contacting Jiylo support.
             """
         case .communityGuidelines:
             return """
-            Lumo is built for safe, respectful transportation. Riders and drivers must treat each other with respect.
+            Jiylo is built for safe, respectful transportation. Riders and drivers must treat each other with respect.
 
             Do not threaten, harass, discriminate against, abuse, or endanger another person.
 
@@ -3410,7 +3418,7 @@ private enum LegalDocument: CaseIterable, Hashable, Identifiable {
             """
         case .licenses:
             return """
-            Lumo uses third-party services and open-source components to provide app features.
+            Jiylo uses third-party services and open-source components to provide app features.
 
             These may include services and SDKs for maps, navigation, authentication, cloud hosting, notifications, payments, analytics, and app infrastructure.
 

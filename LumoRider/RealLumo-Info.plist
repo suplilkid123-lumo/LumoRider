@@ -6,6 +6,8 @@
 	<string>5d50c653add646e7a8103da341ec9ca1</string>
 	<key>CFBundleIconName</key>
 	<string>AppIcon</string>
+	<key>CFBundleName</key>
+	<string>Jiylo</string>
 	<key>CFBundleURLTypes</key>
 	<array>
 		<dict>
