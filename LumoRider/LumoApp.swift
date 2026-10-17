@@ -9,6 +9,58 @@ import UserNotifications
 import FirebaseMessaging
 import UIKit
 
+@MainActor
+private enum RiderRideScreenAwakeController {
+    private static let awakeStatuses: Set<String> = [
+        "requested", "searching", "accepted", "approaching", "arrived",
+        "arrived_at_pickup", "started", "in_progress"
+    ]
+
+    static func update(rideID: String?, status: String?, applicationIsActive: Bool) {
+        let normalizedRideID = rideID?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+        let normalizedStatus = status?.trimmingCharacters(in: .whitespacesAndNewlines).lowercased() ?? ""
+        let shouldKeepAwake = applicationIsActive
+            && !normalizedRideID.isEmpty
+            && awakeStatuses.contains(normalizedStatus)
+
+        if UIApplication.shared.isIdleTimerDisabled != shouldKeepAwake {
+            UIApplication.shared.isIdleTimerDisabled = shouldKeepAwake
+        }
+    }
+
+    static func restoreSystemIdleTimer() {
+        if UIApplication.shared.isIdleTimerDisabled {
+            UIApplication.shared.isIdleTimerDisabled = false
+        }
+    }
+}
+
+private struct RiderRideScreenAwakeModifier: ViewModifier {
+    @Environment(\.scenePhase) private var scenePhase
+
+    let rideID: String?
+    let status: String?
+
+    func body(content: Content) -> some View {
+        content
+            .onAppear(perform: synchronize)
+            .onChange(of: rideID) { _, _ in synchronize() }
+            .onChange(of: status) { _, _ in synchronize() }
+            .onChange(of: scenePhase) { _, _ in synchronize() }
+            .onDisappear {
+                RiderRideScreenAwakeController.restoreSystemIdleTimer()
+            }
+    }
+
+    private func synchronize() {
+        RiderRideScreenAwakeController.update(
+            rideID: rideID,
+            status: status,
+            applicationIsActive: scenePhase == .active
+        )
+    }
+}
+
 enum LumoAppLanguage: String, CaseIterable, Identifiable {
     case english = "en"
     case arabic = "ar"
@@ -424,6 +476,7 @@ struct LumoApp: App {
 
     @StateObject private var navigationCoordinator = NavigationCoordinator()
     @StateObject private var languageStore = LumoLanguageStore()
+    @ObservedObject private var rideService = SupabaseRideService.shared
     @State private var showLaunchAnimation = true
 
     init() {
@@ -460,6 +513,10 @@ struct LumoApp: App {
                         .zIndex(1)
                 }
             }
+            .modifier(RiderRideScreenAwakeModifier(
+                rideID: rideService.activeRideID,
+                status: rideService.activeRideStatus
+            ))
         }
     }
 }

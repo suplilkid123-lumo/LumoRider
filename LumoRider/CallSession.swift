@@ -6,6 +6,7 @@ enum CallStatus: String, Codable {
     case declined
     case ended
     case missed
+    case failed
 }
 
 enum CallUserType: String, Codable {

@@ -561,6 +561,7 @@ struct HomeView: View {
     @State private var showProfileMenu = false
     @State private var logoutTriggered: Bool = false
     @State private var homeContentHeight: CGFloat?
+    @AppStorage("lumo_profileImageData") private var profileImageData: Data = Data()
 
     private let homeSectionSpacing: CGFloat = 18
 
@@ -588,17 +589,32 @@ struct HomeView: View {
                                 showProfileMenu.toggle()
                             }
                         } label: {
-                            Image(systemName: "person.fill")
-                                .font(.system(size: 16, weight: .semibold))
-                                .foregroundColor(.white)
-                                .frame(width: 44, height: 44)
-                                .background(Color.white.opacity(0.12), in: Circle())
-                                .overlay {
-                                    Circle()
-                                        .stroke(Color.white.opacity(0.14), lineWidth: 1)
+                            ZStack {
+                                Circle()
+                                    .fill(Color.white.opacity(0.12))
+
+                                if let profileImage = UIImage(data: profileImageData) {
+                                    Image(uiImage: profileImage)
+                                        .resizable()
+                                        .scaledToFill()
+                                        .frame(width: 44, height: 44)
+                                        .clipShape(Circle())
+                                } else {
+                                    Image(systemName: "person.fill")
+                                        .font(.system(size: 16, weight: .semibold))
+                                        .foregroundColor(.white)
                                 }
+                            }
+                            .frame(width: 44, height: 44)
+                            .clipShape(Circle())
+                            .overlay {
+                                Circle()
+                                    .stroke(Color.white.opacity(0.14), lineWidth: 1)
+                            }
+                            .accessibilityHidden(true)
                         }
                         .buttonStyle(.plain)
+                        .accessibilityLabel(languageStore.settingsText(.accountMenuProfile))
                     }
                     .padding(.horizontal, 20)
                     .padding(.top, 8)
@@ -1489,8 +1505,7 @@ struct ProfileView: View {
 
     // Profile photo state
     @State private var selectedPhotoItem: PhotosPickerItem?
-    @State private var profileImageData: Data?
-    private let profileImageDefaultsKey = "lumo_profileImageData"
+    @AppStorage("lumo_profileImageData") private var profileImageData: Data = Data()
 
     // Persisted profile info
     private let profileInfoDefaultsKey = "lumo_profileInfo"
@@ -1508,8 +1523,7 @@ struct ProfileView: View {
                     // MARK: - Header with avatar
                     VStack(spacing: 14) {
                         ZStack {
-                            if let data = profileImageData,
-                               let uiImage = UIImage(data: data) {
+                            if let uiImage = UIImage(data: profileImageData) {
                                 Image(uiImage: uiImage)
                                     .resizable()
                                     .scaledToFill()
@@ -1542,7 +1556,6 @@ struct ProfileView: View {
                                 if let data = try? await newItem.loadTransferable(type: Data.self) {
                                     await MainActor.run {
                                         profileImageData = data
-                                        UserDefaults.standard.set(data, forKey: profileImageDefaultsKey)
                                     }
                                 }
                             }
@@ -1761,10 +1774,6 @@ struct ProfileView: View {
             }
 
             let defaults = UserDefaults.standard
-            if let savedData = defaults.data(forKey: profileImageDefaultsKey) {
-                profileImageData = savedData
-            }
-
             // restore saved profile info
             if let savedInfo = defaults.dictionary(forKey: profileInfoDefaultsKey) as? [String: String] {
                 fullName = savedInfo["fullName"] ?? fullName

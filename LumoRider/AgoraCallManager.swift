@@ -99,6 +99,7 @@ final class AgoraCallManager: NSObject, ObservableObject {
         agoraEngine?.leaveChannel(nil)
 
         DispatchQueue.main.async {
+            RiderCallAudioFeedback.shared.stop(deactivateAudioSession: false)
             self.isInCall = false
             self.isMuted = false
             self.remoteUserJoined = false
@@ -178,6 +179,7 @@ final class AgoraCallManager: NSObject, ObservableObject {
 
     private func setError(_ message: String) {
         DispatchQueue.main.async {
+            RiderCallAudioFeedback.shared.stop(deactivateAudioSession: !self.isInCall)
             self.errorMessage = message
         }
     }
@@ -205,6 +207,7 @@ extension AgoraCallManager: AgoraRtcEngineDelegate {
         elapsed: Int
     ) {
         DispatchQueue.main.async {
+            RiderCallAudioFeedback.shared.stop(deactivateAudioSession: false)
             self.remoteUserJoined = true
         }
     }
