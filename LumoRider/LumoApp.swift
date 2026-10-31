@@ -9,6 +9,75 @@ import UserNotifications
 import FirebaseMessaging
 import UIKit
 
+/// Development-only isolated backend selection. Test settings are injected only
+/// by the local test build; all normal Debug and Release builds use production.
+enum JiyloTestEnvironment {
+    private static let productionURL = "https://rpryqbdodbieioebedjg.supabase.co"
+    private static let productionAnonKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJwcnlxYmRvZGJpZWlvZWJlZGpnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjUwNjE0MjYsImV4cCI6MjA4MDYzNzQyNn0.8ZTaA1bCyRUKb6U4NNZou6DMfXP3yyE1NeNL8Ljt9as"
+
+    static let isEnabled: Bool = {
+        #if DEBUG
+        guard Bundle.main.object(forInfoDictionaryKey: "JIYLO_TEST_MODE") as? String == "YES",
+              let value = Bundle.main.object(forInfoDictionaryKey: "JIYLO_TEST_BACKEND_URL") as? String,
+              let url = URL(string: value),
+              url.scheme == "http",
+              let host = url.host,
+              !host.isEmpty,
+              (host == "localhost" || host == "127.0.0.1" || host == "[::1]" || host.hasSuffix(".local") || (host.contains(":") && host.lowercased().hasPrefix("fd"))),
+              url.absoluteString != productionURL else {
+            return false
+        }
+        return true
+        #else
+        return false
+        #endif
+    }()
+
+    static var isAuthorizedTestRider: Bool {
+        #if DEBUG
+        return isEnabled
+            && FirebaseApp.app()?.options.projectID == "demo-jiylo-test"
+            && Auth.auth().currentUser?.email == "rider.jiylo.test@example.invalid"
+        #else
+        return false
+        #endif
+    }
+
+    static var supabaseURLString: String {
+        guard isEnabled,
+              let value = Bundle.main.object(forInfoDictionaryKey: "JIYLO_TEST_BACKEND_URL") as? String else {
+            return productionURL
+        }
+        return value
+    }
+
+    static var supabaseAnonKey: String {
+        guard isEnabled,
+              let value = Bundle.main.object(forInfoDictionaryKey: "JIYLO_TEST_ANON_KEY") as? String,
+              !value.isEmpty else {
+            return productionAnonKey
+        }
+        return value
+    }
+
+    static var testRiderSignInURL: URL? {
+        guard isEnabled,
+              let value = Bundle.main.object(forInfoDictionaryKey: "JIYLO_TEST_RIDER_SIGN_IN_URL") as? String else {
+            return nil
+        }
+        return URL(string: value)
+    }
+
+    static func configureFirebaseAuthIfNeeded() {
+        guard isEnabled,
+              let host = Bundle.main.object(forInfoDictionaryKey: "JIYLO_TEST_FIREBASE_HOST") as? String,
+              let portText = Bundle.main.object(forInfoDictionaryKey: "JIYLO_TEST_FIREBASE_PORT") as? String,
+              let port = Int(portText),
+              !host.isEmpty else { return }
+        Auth.auth().useEmulator(withHost: host, port: port)
+    }
+}
+
 @MainActor
 private enum RiderRideScreenAwakeController {
     private static let awakeStatuses: Set<String> = [
@@ -174,7 +243,21 @@ private enum RiderFirebaseBootstrap {
     // emits I-COR000003 during launch.
     private static let configureDefaultApp: Void = {
         print("[FirebaseStartup][Rider] configure begin")
-        FirebaseApp.configure()
+        if JiyloTestEnvironment.isEnabled {
+            // Auth stores its session under the Google app ID. Give the local
+            // emulator a distinct ID so a previously signed-in production
+            // rider cannot be reused by an in-place DEBUG test install.
+            let options = FirebaseOptions(
+                googleAppID: "1:000000000000:ios:0000000000000000",
+                gcmSenderID: "000000000000"
+            )
+            options.projectID = "demo-jiylo-test"
+            options.apiKey = "AIza" + String(repeating: "0", count: 35)
+            FirebaseApp.configure(options: options)
+        } else {
+            FirebaseApp.configure()
+        }
+        JiyloTestEnvironment.configureFirebaseAuthIfNeeded()
         print("[FirebaseStartup][Rider] configure complete")
     }()
 
@@ -249,6 +332,14 @@ final class RiderAppDelegate: NSObject, UIApplicationDelegate, UNUserNotificatio
         RiderFirebaseBootstrap.ensureConfigured(stage: "didFinishLaunching")
         firebaseReady = true
 
+        // The isolated test build never registers its APNs/FCM token with the
+        // hosted project. Test rides use local-only state and have no remote
+        // push delivery side effects.
+        if JiyloTestEnvironment.isEnabled {
+            GMSServices.provideAPIKey("AIzaSyBGGtwh_qslNfTnr7jVJD4iYNNPHMbRYXY")
+            return true
+        }
+
         // ✅ Push Notifications (FCM)
         UNUserNotificationCenter.current().delegate = self
         print("[FirebaseStartup][Rider] first Messaging access")
@@ -265,9 +356,15 @@ final class RiderAppDelegate: NSObject, UIApplicationDelegate, UNUserNotificatio
 
             DispatchQueue.main.async {
                 application.registerForRemoteNotifications()
+                // The Firebase delegate proxy can receive the APNs token even
+                // when UIKit does not call this app delegate's registration
+                // method. Reconcile that token before uploading an FCM token.
+                DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+                    self.reconcileMessagingAPNsToken(attempt: 0)
+                }
 
-                // FCM registration is requested only after APNs has supplied a
-                // device token in didRegisterForRemoteNotificationsWithDeviceToken.
+                // FCM registration waits for an APNs token from UIKit or the
+                // Firebase Messaging delegate proxy.
             }
         }
 
@@ -344,8 +441,34 @@ final class RiderAppDelegate: NSObject, UIApplicationDelegate, UNUserNotificatio
         print("🔴 Failed to register for remote notifications: \(error)")
     }
 
+    private func reconcileMessagingAPNsToken(attempt: Int) {
+        guard !hasAPNSToken else { return }
+        guard Messaging.messaging().apnsToken != nil else {
+            if attempt < 3 {
+                DispatchQueue.main.asyncAfter(deadline: .now() + 5) {
+                    self.reconcileMessagingAPNsToken(attempt: attempt + 1)
+                }
+            }
+            return
+        }
+        hasAPNSToken = true
+        print("[RiderChatPush] APNs token recovered from Firebase Messaging")
+        Messaging.messaging().token { token, error in
+            if let error {
+                print("🔴 FCM token recovery error: \(error)")
+                return
+            }
+            guard let token, !token.isEmpty else { return }
+            UserDefaults.standard.set(token, forKey: "lumo_fcm_token")
+            Task { @MainActor in
+                await self.uploadDeviceTokenIfPossible(token)
+            }
+        }
+    }
+
     // ✅ FCM token
     func messaging(_ messaging: Messaging, didReceiveRegistrationToken fcmToken: String?) {
+        if messaging.apnsToken != nil { hasAPNSToken = true }
         guard hasAPNSToken else { return }
         guard let fcmToken = fcmToken, !fcmToken.isEmpty else { return }
 
@@ -480,7 +603,8 @@ struct LumoApp: App {
     @State private var showLaunchAnimation = true
 
     init() {
-        StripeAPI.defaultPublishableKey = "pk_test_51SYcoMLxOAYYnBGn6DlClEfr2WdraGlgyntgNM2T9qnogzLbHHxHt1rJTxOhmGOigrN61Cp3ZetxG1pK92UCNe7X00IfuokhdW"
+        // Keep the SDK and payment screen on one explicitly configured key.
+        StripeAPI.defaultPublishableKey = StripeConfig.publishableKey
 
         guard let agoraAppID = Bundle.main.object(
             forInfoDictionaryKey: "AgoraAppID"
@@ -497,13 +621,16 @@ struct LumoApp: App {
         WindowGroup {
             ZStack {
                 if delegate.firebaseReady {
-                NavigationStack(path: $navigationCoordinator.path) {
-                    SplashScreen()
+                #if DEBUG
+                if JiyloTestEnvironment.isEnabled && ProcessInfo.processInfo.arguments.contains("--jiylo-payment-smoke") {
+                    JiyloPaymentSmokeView()
+                        .environmentObject(languageStore)
+                } else {
+                    normalRoot
                 }
-                .environmentObject(navigationCoordinator)
-                .environmentObject(languageStore)
-                .environment(\.locale, languageStore.locale)
-                .environment(\.layoutDirection, languageStore.layoutDirection)
+                #else
+                normalRoot
+                #endif
                 } else {
                     Color.black.ignoresSafeArea()
                 }
@@ -519,4 +646,65 @@ struct LumoApp: App {
             ))
         }
     }
+
+    private var normalRoot: some View {
+                NavigationStack(path: $navigationCoordinator.path) {
+                    SplashScreen()
+                }
+                .environmentObject(navigationCoordinator)
+                .environmentObject(languageStore)
+                .environment(\.locale, languageStore.locale)
+                .environment(\.layoutDirection, languageStore.layoutDirection)
+    }
 }
+
+#if DEBUG
+/// Physical-device regression route. It is unavailable outside the isolated
+/// local test build and signs in only to the Firebase Auth emulator.
+private struct JiyloPaymentSmokeView: View {
+    @State private var ready = false
+    @State private var errorText: String?
+
+    var body: some View {
+        NavigationStack {
+            if ready {
+                AddPaymentView(
+                    pickupAddress: "TEST Chicago pickup",
+                    dropoffAddress: "TEST Chicago destination",
+                    pickupLat: 41.8780,
+                    pickupLng: -87.6298,
+                    dropoffLat: 41.8850,
+                    dropoffLng: -87.6200,
+                    rideTypeLabel: "JiyloX"
+                )
+            } else {
+                Text(errorText ?? "Signing in to isolated Test Rider…")
+                    .task { await signIn() }
+            }
+        }
+    }
+
+    private func signIn() async {
+        guard let url = JiyloTestEnvironment.testRiderSignInURL else {
+            errorText = "The isolated Test Rider endpoint is unavailable."
+            return
+        }
+        do {
+            var request = URLRequest(url: url)
+            request.httpMethod = "POST"
+            let (data, response) = try await URLSession.shared.data(for: request)
+            guard (response as? HTTPURLResponse)?.statusCode == 200,
+                  let object = try JSONSerialization.jsonObject(with: data) as? [String: Any],
+                  let token = object["customToken"] as? String else {
+                throw URLError(.userAuthenticationRequired)
+            }
+            _ = try await Auth.auth().signIn(withCustomToken: token)
+            ready = true
+        } catch {
+            let ns = error as NSError
+            print("[JiyloPaymentSmoke] sign-in error domain=\(ns.domain) code=\(ns.code) message=\(ns.localizedDescription)")
+            errorText = "Test Rider sign-in failed (\(ns.domain) \(ns.code))."
+        }
+    }
+}
+#endif

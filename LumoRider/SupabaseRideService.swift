@@ -124,8 +124,8 @@ final class SupabaseRideService: ObservableObject {
         return terminalStatuses.contains(normalizedStatus) || completedAt != nil || cancelledAt != nil
     }
 
-    private let baseURL = URL(string: "https://rpryqbdodbieioebedjg.supabase.co")!
-    private let anonKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJwcnlxYmRvZGJpZWlvZWJlZGpnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjUwNjE0MjYsImV4cCI6MjA4MDYzNzQyNn0.8ZTaA1bCyRUKb6U4NNZou6DMfXP3yyE1NeNL8Ljt9as"
+    private var baseURL: URL { URL(string: JiyloTestEnvironment.supabaseURLString)! }
+    private var anonKey: String { JiyloTestEnvironment.supabaseAnonKey }
 
     private init() {}
 

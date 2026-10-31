@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		FA71000130F0000000000001 /* PaymentSmokeUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA71000230F0000000000001 /* PaymentSmokeUITests.swift */; };
 		B7D0A15231A5000100C0DE01 /* IncomingCallView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B7D0A15131A5000100C0DE01 /* IncomingCallView.swift */; };
 		B7F2A10031A4000100C0DE01 /* LumoLaunchView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B7F2A10031A4000100C0DE02 /* LumoLaunchView.swift */; };
 		C112358F2F134FE8008CCCC0 /* Message.swift in Sources */ = {isa = PBXBuildFile; fileRef = C112358E2F134FE8008CCCC0 /* Message.swift */; };
@@ -83,6 +84,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		FA71000230F0000000000001 /* PaymentSmokeUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PaymentSmokeUITests.swift; sourceTree = "<group>"; };
 		B7D0A15131A5000100C0DE01 /* IncomingCallView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IncomingCallView.swift; sourceTree = "<group>"; };
 		B7F2A10031A4000100C0DE02 /* LumoLaunchView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LumoLaunchView.swift; sourceTree = "<group>"; };
 		C112358E2F134FE8008CCCC0 /* Message.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Message.swift; sourceTree = "<group>"; };
@@ -228,6 +230,7 @@
 				C1D548AF2ED6942400A387ED /* RealLumo.app */,
 				C1876E422ED69B0500FD8CAC /* RealLumoTests.xctest */,
 				C1876E432ED69B0500FD8CAC /* RealLumoUITests.xctest */,
+				FA71000230F0000000000001 /* PaymentSmokeUITests.swift */,
 				C1876E452ED69DCB00FD8CAC /* Assets.xcassets */,
 				C18AFCBD2FF2E29700E5850F /* Frameworks */,
 			);
@@ -447,6 +450,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				FA71000130F0000000000001 /* PaymentSmokeUITests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -593,13 +597,13 @@
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = RealLumo.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 6;
+				CURRENT_PROJECT_VERSION = 8;
 				DEVELOPMENT_TEAM = 865S59PB5Y;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = "RealLumo-Info.plist";
-				INFOPLIST_KEY_CFBundleDisplayName = Jiylo;
-				INFOPLIST_KEY_CFBundleName = Jiylo;
+				INFOPLIST_KEY_CFBundleDisplayName = "Jiylo Rider";
+				INFOPLIST_KEY_CFBundleName = "Jiylo Rider";
 				INFOPLIST_KEY_LSApplicationCategoryType = "";
 				INFOPLIST_KEY_NSCameraUsageDescription = "";
 				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "Jiylo uses your location to show nearby rides.\n";
@@ -613,7 +617,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.03;
+				MARKETING_VERSION = 1.04;
 				PRODUCT_BUNDLE_IDENTIFIER = com.alyaa.RealLumo;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
@@ -635,14 +639,16 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = RealLumo.entitlements;
-				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 6;
+				CODE_SIGN_IDENTITY = "Apple Distribution";
+				CODE_SIGN_STYLE = Manual;
+				PROVISIONING_PROFILE_SPECIFIER = "JIYLO Rider App Store 2026";
+				CURRENT_PROJECT_VERSION = 8;
 				DEVELOPMENT_TEAM = 865S59PB5Y;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = "RealLumo-Info.plist";
-				INFOPLIST_KEY_CFBundleDisplayName = Jiylo;
-				INFOPLIST_KEY_CFBundleName = Jiylo;
+				INFOPLIST_KEY_CFBundleDisplayName = "Jiylo Rider";
+				INFOPLIST_KEY_CFBundleName = "Jiylo Rider";
 				INFOPLIST_KEY_LSApplicationCategoryType = "";
 				INFOPLIST_KEY_NSCameraUsageDescription = "";
 				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "Jiylo uses your location to show nearby rides.\n";
@@ -656,7 +662,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.03;
+				MARKETING_VERSION = 1.04;
 				PRODUCT_BUNDLE_IDENTIFIER = com.alyaa.RealLumo;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;

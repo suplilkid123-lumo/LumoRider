@@ -6,6 +6,40 @@ import Stripe
 import PassKit
 import CoreLocation
 
+// BEGIN RideCreationContract (Foundation-only; exercised by the regression runner)
+enum RideCreationContract {
+    static func rpcError(status: Int, payload: [String: Any]?, operation: String) -> NSError {
+        let code = payload?["code"] as? String
+        let serverMessage = payload?["message"] as? String
+        let message: String
+        if code == "PGRST202" {
+            message = "Ride booking is temporarily unavailable because the server is missing a required booking service. Please contact Jiylo support."
+        } else if status == 401 && serverMessage?.lowercased() == "invalid api key" {
+            message = "Jiylo could not connect to the booking service because its server configuration was rejected. Please contact Jiylo support."
+        } else {
+            message = serverMessage ?? "Could not create the ride securely."
+        }
+        return NSError(domain: "AddPaymentView", code: status, userInfo: [
+            NSLocalizedDescriptionKey: message,
+            "operation": operation,
+            "backendCode": code ?? ""
+        ])
+    }
+
+    static func validate(_ response: [String: Any], scheduled: Bool) throws {
+        guard let id = response["id"] as? String, UUID(uuidString: id) != nil,
+              let status = response["status"] as? String,
+              status == (scheduled ? "scheduled" : "requested") else {
+            // An idempotent retry may return an already accepted or terminal ride.
+            // Do not present it as a newly searching request or create another ride.
+            throw NSError(domain: "AddPaymentView", code: 409, userInfo: [
+                NSLocalizedDescriptionKey: "The server did not confirm a new ride request. Return to Home to check your current trip before trying again."
+            ])
+        }
+    }
+}
+// END RideCreationContract
+
 // Helper to read saved card info (brand + last4) from UserDefaults
 private func loadSavedCardInfo() -> (brand: String, last4: String)? {
     let defaults = UserDefaults.standard
@@ -60,6 +94,10 @@ struct AddPaymentView: View {
     // MARK: - Confirm ride flow
     @State private var isConfirming: Bool = false
     @State private var rideInsertStarted: Bool = false
+    @State private var authoritativeQuoteRequestID = UUID()
+    @State private var authoritativeRideRequestID = UUID()
+    @State private var authoritativeCashFareText: String? = nil
+    @State private var approvedQuoteID: String? = nil
     @State private var confirmRideError: String? = nil
     @State private var showRideConfirmed: Bool = false
 
@@ -68,14 +106,21 @@ struct AddPaymentView: View {
     @State private var applePayContext: STPApplePayContext? = nil
 
     // MARK: - Supabase config
-    private let supabaseProjectURL = "https://rpryqbdodbieioebedjg.supabase.co"
-    private let supabaseAnonKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJwcnlxYmRvZGJpZWlvZWJlZGpnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjUwNjE0MjYsImV4cCI6MjA4MDYzNzQyNn0.8ZTaA1bCyRUKb6U4NNZou6DMfXP3yyE1NeNL8Ljt9as"
+    private var supabaseProjectURL: String { JiyloTestEnvironment.supabaseURLString }
+    private var supabaseAnonKey: String { JiyloTestEnvironment.supabaseAnonKey }
     private let ridesTableName = "rides"
 
     private func logRideDispatchTrace(_ message: @autoclosure () -> String) {
         #if DEBUG
         print("[RideDispatchTrace] \(message())")
         #endif
+    }
+
+    /// Test payment is available only to a DEBUG build connected directly to a
+    /// local development backend. A physical DEBUG build that still points
+    /// at the hosted backend must never simulate a payment.
+    private var simulatedPaymentEnabled: Bool {
+        JiyloTestEnvironment.isAuthorizedTestRider
     }
 
     enum PaymentChoice {
@@ -211,18 +256,18 @@ struct AddPaymentView: View {
                             }
                         )
 
-                        #if DEBUG
-                        paymentOptionRow(
-                            icon: "wrench.and.screwdriver",
-                            title: languageStore.settingsText(.addPaymentTestPaymentTitle),
-                            subtitle: languageStore.settingsText(.addPaymentTestPaymentSubtitle),
-                            isSelected: selectedPayment == .test,
-                            action: {
-                                selectedPayment = .test
-                                confirmRideError = nil
-                            }
-                        )
-                        #endif
+                        if simulatedPaymentEnabled {
+                            paymentOptionRow(
+                                icon: "wrench.and.screwdriver",
+                                title: languageStore.settingsText(.addPaymentTestPaymentTitle),
+                                subtitle: languageStore.settingsText(.addPaymentTestPaymentSubtitle),
+                                isSelected: selectedPayment == .test,
+                                action: {
+                                    selectedPayment = .test
+                                    confirmRideError = nil
+                                }
+                            )
+                        }
                     } else {
                         paymentOptionRow(
                             icon: "plus.circle",
@@ -236,18 +281,18 @@ struct AddPaymentView: View {
                             }
                         )
 
-                        #if DEBUG
-                        paymentOptionRow(
-                            icon: "wrench.and.screwdriver",
-                            title: languageStore.settingsText(.addPaymentTestPaymentTitle),
-                            subtitle: languageStore.settingsText(.addPaymentTestPaymentSubtitle),
-                            isSelected: selectedPayment == .test,
-                            action: {
-                                selectedPayment = .test
-                                confirmRideError = nil
-                            }
-                        )
-                        #endif
+                        if simulatedPaymentEnabled {
+                            paymentOptionRow(
+                                icon: "wrench.and.screwdriver",
+                                title: languageStore.settingsText(.addPaymentTestPaymentTitle),
+                                subtitle: languageStore.settingsText(.addPaymentTestPaymentSubtitle),
+                                isSelected: selectedPayment == .test,
+                                action: {
+                                    selectedPayment = .test
+                                    confirmRideError = nil
+                                }
+                            )
+                        }
                     }
                 }
                 .padding(.horizontal, 24)
@@ -313,7 +358,10 @@ struct AddPaymentView: View {
             .presentationDragIndicator(.visible)
         }
         .toolbar(.hidden, for: .navigationBar)
-        .fullScreenCover(isPresented: $showRideConfirmed) {
+        .fullScreenCover(isPresented: $showRideConfirmed, onDismiss: {
+            // A completed or cancelled live ride should not return to a disabled payment form.
+            if createdRideId != nil && !createdWasScheduled { dismiss() }
+        }) {
             if createdWasScheduled {
                 RideScheduledView(
                     pickupAddress: pickupAddress,
@@ -333,6 +381,7 @@ struct AddPaymentView: View {
                             dropoffAddress: dropoffAddress,
                             rideTypeLabel: rideTypeLabel,
                             priceText: priceTextForSearching,
+                            isTestRide: selectedPayment == .test && simulatedPaymentEnabled,
                             supabase: LumoSupabaseConfig(
                                 baseURL: URL(string: supabaseProjectURL)!,
                                 anonKey: supabaseAnonKey,
@@ -374,7 +423,7 @@ struct AddPaymentView: View {
         case .newCard:
             return true
         case .test:
-            return true
+            return simulatedPaymentEnabled
         }
     }
 
@@ -435,7 +484,9 @@ struct AddPaymentView: View {
 
         switch selectedPayment {
         case .applePay:
-            await startApplePayFlow()
+            // Ride creation currently rejects electronic payment. Do not authorize
+            // a legacy intent before that rejection: it can leave a charge with no ride.
+            confirmRideError = "Apple Pay ride checkout is unavailable until secure ride-linked payment is configured. No payment was requested."
 
         case .savedCard, .newCard:
             showCardSheet = true
@@ -444,11 +495,11 @@ struct AddPaymentView: View {
             await confirmRide()
 
         case .test:
-            #if DEBUG
+            guard simulatedPaymentEnabled else {
+                confirmRideError = languageStore.settingsText(.addPaymentChooseMethodError)
+                return
+            }
             await confirmRide()
-            #else
-            confirmRideError = languageStore.settingsText(.addPaymentChooseMethodError)
-            #endif
 
         case .none:
             confirmRideError = languageStore.settingsText(.addPaymentChooseMethodError)
@@ -697,11 +748,104 @@ struct AddPaymentView: View {
             showRideConfirmed = true
         } catch {
             rideInsertStarted = false
+            #if DEBUG
+            let ns = error as NSError
+            print("[Ride confirmation] failed domain=\(ns.domain) code=\(ns.code) message=\(ns.localizedDescription)")
+            #endif
             confirmRideError = mapConfirmRideError(error)
         }
     }
 
     private func supabaseInsertRide(isScheduled: Bool, scheduledISO: String?) async throws -> SupabaseRideRow {
+        if selectedPayment == .cash {
+            return try await createAuthoritativeCashRide(scheduledISO: isScheduled ? scheduledISO : nil)
+        }
+        if selectedPayment == .test, simulatedPaymentEnabled {
+            // The loopback-only test service has no payment provider. Its test
+            // ride deliberately uses the cash-due server contract, so it can
+            // exercise ride creation and dispatch without a charge or paid state.
+            return try await createAuthoritativeCashRide(scheduledISO: isScheduled ? scheduledISO : nil)
+        }
+        // Electronic payments must be created by the server-owned payment flow.
+        // This remains fail-closed for Card and Apple Pay, and for every hosted backend.
+        throw NSError(domain: "AddPaymentView", code: 503,
+                      userInfo: [NSLocalizedDescriptionKey: "Secure electronic ride payment is not configured."])
+    }
+
+    private func createAuthoritativeCashRide(scheduledISO: String?) async throws -> SupabaseRideRow {
+        guard let user = Auth.auth().currentUser,
+              let baseURL = URL(string: supabaseProjectURL) else { throw URLError(.userAuthenticationRequired) }
+        let token = try await user.getIDToken()
+        let rideType = rideTypeLabel?.caseInsensitiveCompare("Share") == .orderedSame ? "SHARE" : "STANDARD"
+        let points: [String: Any] = [
+            "p_pickup_lat": pickupLat, "p_pickup_lng": pickupLng,
+            "p_dropoff_lat": dropoffLat, "p_dropoff_lng": dropoffLng,
+            "p_ride_type": rideType, "p_passenger_count": 1
+        ]
+        func rpc(_ name: String, body: [String: Any]) async throws -> Any {
+            var request = URLRequest(url: baseURL.appendingPathComponent("rest/v1/rpc/\(name)"))
+            request.httpMethod = "POST"
+            request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+            request.setValue(supabaseAnonKey, forHTTPHeaderField: "apikey")
+            request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
+            request.httpBody = try JSONSerialization.data(withJSONObject: body)
+            let (data, response) = try await URLSession.shared.data(for: request)
+            guard let http = response as? HTTPURLResponse else { throw URLError(.badServerResponse) }
+            guard (200...299).contains(http.statusCode) else {
+                let payload = (try? JSONSerialization.jsonObject(with: data)) as? [String: Any]
+                throw RideCreationContract.rpcError(status: http.statusCode, payload: payload, operation: name)
+            }
+            return try JSONSerialization.jsonObject(with: data, options: [.fragmentsAllowed])
+        }
+        var quoteBody = points
+        quoteBody["p_client_quote_id"] = authoritativeQuoteRequestID.uuidString
+        guard let quote = try await rpc("create_passenger_fare_quote_v1", body: quoteBody) as? [String: Any] else {
+            throw URLError(.cannotParseResponse)
+        }
+        guard let quoteID = quote["quote_id"] as? String else { throw URLError(.cannotParseResponse) }
+        let quoteAmount = (quote["estimated_total"] as? NSNumber)?.doubleValue
+            ?? Double(quote["estimated_total"] as? String ?? "")
+        guard let quoteAmount, quoteAmount > 0,
+              let quoteCurrency = quote["currency"] as? String else { throw URLError(.cannotParseResponse) }
+        let verifiedFare = quoteCurrency == "USD"
+            ? String(format: "$%.2f", quoteAmount)
+            : String(format: "%@ %.2f", quoteCurrency, quoteAmount)
+        authoritativeCashFareText = verifiedFare
+        if selectedPayment != .test, let displayedFare = estimatedFareAmount,
+           abs(displayedFare - quoteAmount) > 0.01,
+           approvedQuoteID != quoteID {
+            approvedQuoteID = quoteID
+            throw NSError(domain: "AddPaymentView", code: 409,
+                          userInfo: [NSLocalizedDescriptionKey:
+                            "Fare updated to \(verifiedFare). Review it, then tap Confirm ride again."])
+        }
+        var rideBody = points
+        rideBody["p_client_request_id"] = authoritativeRideRequestID.uuidString
+        rideBody["p_quote_id"] = quoteID
+        rideBody["p_pickup_address"] = pickupAddress
+        rideBody["p_dropoff_address"] = dropoffAddress
+        rideBody["p_payment_method"] = "cash"
+        if let scheduledISO { rideBody["p_scheduled_for"] = scheduledISO }
+        else { rideBody["p_scheduled_for"] = NSNull() }
+        let isTestPayment = selectedPayment == .test && simulatedPaymentEnabled
+        let createOperation = isTestPayment ? "create_jiylo_local_test_ride_v1" : "create_passenger_ride_for_payment_v1"
+        guard let ride = try await rpc(createOperation, body: rideBody) as? [String: Any] else {
+            throw URLError(.cannotParseResponse)
+        }
+        try RideCreationContract.validate(ride, scheduled: scheduledISO != nil)
+        if isTestPayment {
+            // Creation, dispatch and the TEST marker commit together. A failed
+            // marker can no longer leave an unmarked, already dispatched ride.
+            guard ride["environment"] as? String == "TEST",
+                  (ride["amount_charged_minor"] as? NSNumber)?.intValue == 0,
+                  ride["receipt_currency"] as? String == "USD" else {
+                throw URLError(.cannotParseResponse)
+            }
+        }
+        return SupabaseRideRow(id: ride["id"] as? String, status: ride["status"] as? String)
+    }
+
+    private func legacyRideInsertDisabled(isScheduled: Bool, scheduledISO: String?) async throws -> SupabaseRideRow {
         guard let baseURL = URL(string: supabaseProjectURL), baseURL.host != nil else {
             throw URLError(.badURL)
         }
@@ -862,6 +1006,8 @@ struct AddPaymentView: View {
     }
 
     private var priceTextForSearching: String? {
+        if selectedPayment == .test && simulatedPaymentEnabled { return "$0.00" }
+        if let authoritativeCashFareText { return authoritativeCashFareText }
         if let estimatedFareText, !estimatedFareText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
             return estimatedFareText
         }

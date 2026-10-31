@@ -1,0 +1,11 @@
+Resume-only checks; prior suites were not rerun.
+
+PASS: schema snapshot restored without errors
+loaded 20260824010000_authoritative_passenger_pricing.sql
+loaded 20260824020000_authoritative_passenger_payments.sql
+PASS: 4 additional checks — live-offer isolation, competing acceptance rejection, idempotent acceptance, expired acceptance rejection
+
+iOS Simulator build: BLOCKED, xcodebuild exit 74 before compilation.
+Reason: required Swift packages unavailable locally; github.com DNS resolution failed.
+No command termination was necessary. OS-wide process enumeration was denied.
+No production changes, deployment, existing ride changes, or project file deletion.

@@ -41,6 +41,7 @@ struct DeliveryRootView: View {
                         Image(systemName: "clock.arrow.circlepath")
                             .foregroundStyle(.white)
                     }
+                    .accessibilityLabel("Food orders")
                 }
             }
             .safeAreaInset(edge: .bottom) {
@@ -129,7 +130,9 @@ struct DeliveryRootView: View {
     }
 
     private func activeOrderCard(_ order: FoodOrder) -> some View {
-        NavigationLink(destination: FoodOrderTrackingView(orderId: order.id)) {
+        NavigationLink(destination: FoodOrderTrackingView(orderId: order.id, onStatusChanged: { updated in
+            activeOrder = updated.orderStatus == "cancelled" ? nil : updated
+        })) {
             HStack(spacing: 14) {
                 Image(systemName: "takeoutbag.and.cup.and.straw.fill")
                     .font(.system(size: 22)).foregroundStyle(.black)
@@ -388,7 +391,7 @@ struct FoodCheckoutView: View {
         }
         .sheet(isPresented: $showAddressPicker) { FoodAddressPicker(address: $store.address) }
         .navigationDestination(item: $placedOrder) { order in
-            FoodOrderTrackingView(orderId: order.id).navigationBarBackButtonHidden()
+            FoodOrderTrackingView(orderId: order.id)
         }
         .alert("Unable to place order", isPresented: Binding(
             get: { errorMessage != nil }, set: { if !$0 { errorMessage = nil } }
@@ -589,10 +592,14 @@ struct FoodAddressPicker: View {
 }
 
 struct FoodOrderTrackingView: View {
+    @Environment(\.dismiss) private var dismiss
     let orderId: String
+    var onStatusChanged: ((FoodOrder) -> Void)? = nil
     @State private var tracking: FoodOrderTracking?
     @State private var errorMessage: String?
     @State private var isCancelling = false
+    @State private var isLoading = true
+    @State private var cancellationConfirmed = false
 
     var body: some View {
         ZStack {
@@ -608,28 +615,46 @@ struct FoodOrderTrackingView: View {
                             driverCard(driver)
                         }
                         orderCard(tracking)
-                        if tracking.order.orderStatus == "placed" {
+                        if tracking.order.orderStatus == "placed" && !cancellationConfirmed {
                             Button(role: .destructive) { Task { await cancel() } } label: {
                                 Text(isCancelling ? "Cancelling…" : "Cancel order")
                                     .font(.system(size: 15, weight: .bold)).frame(maxWidth: .infinity).frame(height: 50)
                                     .background(Color.white.opacity(0.08)).clipShape(RoundedRectangle(cornerRadius: 15))
                             }.disabled(isCancelling)
                         }
+                        if let errorMessage {
+                            Text(errorMessage)
+                                .font(.system(size: 14))
+                                .foregroundStyle(.red)
+                                .accessibilityIdentifier("foodTrackingError")
+                        }
                     }.padding(18)
                 }
-            } else {
+            } else if isLoading {
                 ProgressView().tint(.white)
+            } else {
+                ContentUnavailableView("Order unavailable", systemImage: "exclamationmark.triangle",
+                                       description: Text(errorMessage ?? "Could not load this order."))
+                    .foregroundStyle(.white)
+                    .overlay(alignment: .bottom) {
+                        Button("Try again") { Task { await refreshTracking() } }
+                            .padding(.bottom, 24)
+                    }
             }
         }
         .navigationTitle("Order tracking").navigationBarTitleDisplayMode(.inline)
         .toolbarColorScheme(.dark, for: .navigationBar)
+        .navigationBarBackButtonHidden()
+        .toolbar {
+            ToolbarItem(placement: .topBarLeading) {
+                Button { dismiss() } label: { Image(systemName: "chevron.left") }
+                    .accessibilityLabel("Back")
+            }
+        }
         .task(id: orderId) {
             while !Task.isCancelled {
-                do {
-                    tracking = try await FoodDeliveryService.shared.tracking(orderId: orderId)
-                    if let status = tracking?.order.orderStatus,
-                       ["delivered", "cancelled", "rejected"].contains(status) { break }
-                } catch { errorMessage = error.localizedDescription }
+                await refreshTracking()
+                if cancellationConfirmed || ["delivered", "cancelled", "rejected"].contains(tracking?.order.orderStatus ?? "") { break }
                 try? await Task.sleep(for: .seconds(3))
             }
         }
@@ -678,12 +703,57 @@ struct FoodOrderTrackingView: View {
         }.padding(16).background(Color.white.opacity(0.055)).clipShape(RoundedRectangle(cornerRadius: 17))
     }
 
+    @MainActor
     private func cancel() async {
-        isCancelling = true; defer { isCancelling = false }
+        guard !isCancelling, let previous = tracking else { return }
+        isCancelling = true
+        errorMessage = nil
+        defer { isCancelling = false }
         do {
-            _ = try await FoodDeliveryService.shared.cancel(orderId: orderId)
-            tracking = try await FoodDeliveryService.shared.tracking(orderId: orderId)
-        } catch { errorMessage = error.localizedDescription }
+            let order = try await FoodDeliveryService.shared.cancel(orderId: orderId)
+            guard order.orderStatus == "cancelled" else {
+                throw FoodDeliveryError.message("The server did not confirm cancellation.")
+            }
+            cancellationConfirmed = true
+            tracking = FoodOrderTracking(order: order, items: previous.items,
+                                         statusHistory: previous.statusHistory,
+                                         deliveryAssignment: previous.deliveryAssignment)
+            onStatusChanged?(order)
+            await refreshTracking()
+        } catch {
+            let cancellationError = error.localizedDescription
+            errorMessage = "Could not cancel order: \(cancellationError)"
+            // The backend may have committed cancellation before a later step
+            // failed. Read the authoritative status rather than leaving stale UI.
+            Task {
+                await refreshTracking()
+                if cancellationConfirmed {
+                    errorMessage = "Order canceled, but the server also reported: \(cancellationError). Check payment with support if you were charged."
+                }
+            }
+        }
+    }
+
+    @MainActor
+    private func refreshTracking() async {
+        do {
+            let latest = try await FoodDeliveryService.shared.tracking(orderId: orderId)
+            if !cancellationConfirmed || latest.order.orderStatus == "cancelled" {
+                tracking = latest
+            }
+            if latest.order.orderStatus == "cancelled" {
+                cancellationConfirmed = true
+                errorMessage = nil
+                onStatusChanged?(latest.order)
+            }
+        } catch {
+            if tracking == nil {
+                errorMessage = "Could not load order: \(error.localizedDescription)"
+            } else if cancellationConfirmed {
+                errorMessage = "Order canceled, but the latest details could not load: \(error.localizedDescription)"
+            }
+        }
+        isLoading = false
     }
 }
 
@@ -699,7 +769,11 @@ struct FoodOrderHistoryView: View {
                     .foregroundStyle(.white)
             } else {
                 List(orders) { order in
-                    NavigationLink(destination: FoodOrderTrackingView(orderId: order.id)) {
+                    NavigationLink(destination: FoodOrderTrackingView(orderId: order.id, onStatusChanged: { updated in
+                        if let index = orders.firstIndex(where: { $0.id == updated.id }) {
+                            orders[index] = updated
+                        }
+                    })) {
                         VStack(alignment: .leading, spacing: 5) {
                             HStack { Text(order.restaurantName).fontWeight(.bold); Spacer(); Text(FoodLocale.amount(order.totalMinor, currency: order.currency)).fontWeight(.semibold) }
                             Text(FoodLocale.status(order.orderStatus)).font(.system(size: 13)).foregroundStyle(.secondary)

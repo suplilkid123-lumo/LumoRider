@@ -317,6 +317,8 @@ struct SearchingForDriverView: View {
     let dropoffAddress: String
     var rideTypeLabel: String? = nil
     var priceText: String? = nil
+    /// Set only by the development-only Test Payment path.
+    var isTestRide: Bool = false
 
     /// Provide your app’s Supabase URL + anon key here.
     /// You will pass this from CardPaymentView (or your existing config holder).
@@ -365,6 +367,9 @@ struct SearchingForDriverView: View {
                     NavigationLink(
                         destination: DriverTrackingView(
                             rideId: rideId.uuidString,
+                            supabaseURL: supabase.baseURL,
+                            supabaseAnonKey: supabase.anonKey,
+                            isTestRide: isTestRide,
                             onRideEnded: finishRideNavigation
                         ),
                         isActive: $goToConfirmed

@@ -228,6 +228,14 @@ struct GetStartedView: View {
 
                     // MARK: - Social / email buttons
                     VStack(spacing: 14) {
+                        if JiyloTestEnvironment.isEnabled {
+                            SocialButton(
+                                icon: Image(systemName: "testtube.2"),
+                                text: isSending ? "Signing in to Test Rider..." : "Continue as Test Rider",
+                                action: signInAsTestRider
+                            )
+                        }
+
                         SocialButton(
                             icon: Image(systemName: "apple.logo"),
                             text: isAppleSigningIn ? "Signing in..." : "Continue with Apple",
@@ -390,6 +398,36 @@ struct GetStartedView: View {
     }
 
     // MARK: - Social button handlers
+
+    private func signInAsTestRider() {
+        guard let url = JiyloTestEnvironment.testRiderSignInURL, !isSending else { return }
+        isSending = true
+        errorMessage = nil
+        Task {
+            do {
+                var request = URLRequest(url: url)
+                request.httpMethod = "POST"
+                request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+                let (data, response) = try await URLSession.shared.data(for: request)
+                guard let http = response as? HTTPURLResponse, (200...299).contains(http.statusCode),
+                      let object = try JSONSerialization.jsonObject(with: data) as? [String: Any],
+                      let token = object["customToken"] as? String,
+                      !token.isEmpty else {
+                    throw URLError(.userAuthenticationRequired)
+                }
+                _ = try await Auth.auth().signIn(withCustomToken: token)
+                await MainActor.run {
+                    isSending = false
+                    goToHome = true
+                }
+            } catch {
+                await MainActor.run {
+                    isSending = false
+                    errorMessage = "Test Rider sign-in could not be completed."
+                }
+            }
+        }
+    }
 
     private func handleApple() {
         guard !isAppleSigningIn else { return }

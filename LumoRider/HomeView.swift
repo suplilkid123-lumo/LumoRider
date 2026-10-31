@@ -526,8 +526,6 @@ struct HomeView: View {
     @State private var restoredActiveRide: ActiveRideRecord?
     @State private var restoredAccessToken: String?
     @State private var showRestoredActiveRide = false
-    @State private var restoredFoodOrderId: String?
-    @State private var showRestoredFoodOrder = false
 
     // MARK: - Scheduled pill display text
     private var scheduledPillTimeText: String {
@@ -1074,7 +1072,7 @@ struct HomeView: View {
         .onAppear {
             reconcileScheduledRideState()
         }
-        .task { await restoreActiveWorkIfNeeded() }
+        .task { await restoreActiveRideIfNeeded() }
         .onChange(of: scheduledForEpoch) { _ in
             reconcileScheduledRideState()
         }
@@ -1153,8 +1151,8 @@ struct HomeView: View {
                         rideTypeLabel: ride.displayRideType,
                         priceText: restoredFareText(ride),
                         supabase: LumoSupabaseConfig(
-                            baseURL: URL(string: "https://rpryqbdodbieioebedjg.supabase.co")!,
-                            anonKey: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJwcnlxYmRvZGJpZWlvZWJlZGpnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjUwNjE0MjYsImV4cCI6MjA4MDYzNzQyNn0.8ZTaA1bCyRUKb6U4NNZou6DMfXP3yyE1NeNL8Ljt9as",
+                            baseURL: URL(string: JiyloTestEnvironment.supabaseURLString)!,
+                            anonKey: JiyloTestEnvironment.supabaseAnonKey,
                             accessToken: restoredAccessToken
                         ),
                         onRideEnded: clearActiveRideNavigation
@@ -1170,13 +1168,6 @@ struct HomeView: View {
                 Color.clear.onAppear { showRestoredActiveRide = false }
             }
         }
-        .navigationDestination(isPresented: $showRestoredFoodOrder) {
-            if let restoredFoodOrderId {
-                FoodOrderTrackingView(orderId: restoredFoodOrderId)
-            } else {
-                Color.clear.onAppear { showRestoredFoodOrder = false }
-            }
-        }
     }
 
     @MainActor
@@ -1187,19 +1178,6 @@ struct HomeView: View {
         restoredAccessToken = nil
         activeRideId = ""
         rideService.stopObservingRideStatus()
-    }
-
-    @MainActor
-    private func restoreActiveWorkIfNeeded() async {
-        await restoreActiveRideIfNeeded()
-        guard !showRestoredActiveRide, activeRideId.isEmpty else { return }
-        do {
-            restoredFoodOrderId = try await FoodDeliveryService.shared.activeOrder()?.id
-            showRestoredFoodOrder = restoredFoodOrderId != nil
-        } catch {
-            restoredFoodOrderId = nil
-            showRestoredFoodOrder = false
-        }
     }
 
     @MainActor

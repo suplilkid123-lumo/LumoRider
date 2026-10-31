@@ -7,7 +7,7 @@
 	<key>CFBundleIconName</key>
 	<string>AppIcon</string>
 	<key>CFBundleName</key>
-	<string>Jiylo</string>
+	<string>Jiylo Rider</string>
 	<key>CFBundleURLTypes</key>
 	<array>
 		<dict>
@@ -67,6 +67,23 @@
 	</array>
 	<key>GOOGLE_DIRECTIONS_API_KEY</key>
 	<string>AIzaSyAkyE4RPsFI17JcN6MmayXBOAOrzyp0sds</string>
+	<key>JIYLO_TEST_MODE</key>
+	<string>$(JIYLO_TEST_MODE)</string>
+	<key>JIYLO_TEST_BACKEND_URL</key>
+	<string>$(JIYLO_TEST_BACKEND_URL)</string>
+	<key>JIYLO_TEST_ANON_KEY</key>
+	<string>$(JIYLO_TEST_ANON_KEY)</string>
+	<key>JIYLO_TEST_RIDER_SIGN_IN_URL</key>
+	<string>$(JIYLO_TEST_RIDER_SIGN_IN_URL)</string>
+	<key>JIYLO_TEST_FIREBASE_HOST</key>
+	<string>$(JIYLO_TEST_FIREBASE_HOST)</string>
+	<key>JIYLO_TEST_FIREBASE_PORT</key>
+	<string>$(JIYLO_TEST_FIREBASE_PORT)</string>
+	<key>NSAppTransportSecurity</key>
+	<dict>
+		<key>NSAllowsLocalNetworking</key>
+		<true/>
+	</dict>
 	<key>UIBackgroundModes</key>
 	<array>
 		<string>remote-notification</string>

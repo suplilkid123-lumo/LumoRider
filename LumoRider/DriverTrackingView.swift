@@ -50,6 +50,7 @@ public struct DriverTrackingView: View {
     private let onChat: (() -> Void)?
     private let onRideEnded: (() -> Void)?
     private let localSenderRole: String
+    private let isTestRide: Bool
 
     @Environment(\.dismiss) private var dismiss
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
@@ -79,6 +80,7 @@ public struct DriverTrackingView: View {
         ),
         supabaseURL: URL? = nil,
         supabaseAnonKey: String? = nil,
+        isTestRide: Bool = false,
         onChat: (() -> Void)? = nil,
         onRideEnded: (() -> Void)? = nil,
         localSenderRole: String = "rider"
@@ -89,6 +91,7 @@ public struct DriverTrackingView: View {
         self.onChat = onChat
         self.onRideEnded = onRideEnded
         self.localSenderRole = localSenderRole
+        self.isTestRide = isTestRide
 
         let url = supabaseURL
             ?? URL(string: (Bundle.main.object(forInfoDictionaryKey: "SUPABASE_URL") as? String) ?? "")
@@ -100,7 +103,7 @@ public struct DriverTrackingView: View {
 
         self.supabaseURL = url
         self.supabaseAnonKey = key
-        _vm = StateObject(wrappedValue: VM(rideId: normalizedRideId, supabaseURL: url, supabaseAnonKey: key, localSenderRole: localSenderRole))
+        _vm = StateObject(wrappedValue: VM(rideId: normalizedRideId, supabaseURL: url, supabaseAnonKey: key, localSenderRole: localSenderRole, isTestRide: isTestRide))
     }
 
     public var body: some View {
@@ -191,6 +194,14 @@ public struct DriverTrackingView: View {
                 supabaseAnonKey: supabaseAnonKey,
                 localSender: localSenderRole
             )
+        }
+        .sheet(isPresented: $vm.showTestReceipt, onDismiss: {
+            vm.finishTestReceipt()
+        }) {
+            TestPaymentReceiptView {
+                vm.showTestReceipt = false
+            }
+            .presentationDetents([.medium])
         }
         .fullScreenCover(
             isPresented: Binding(
@@ -584,6 +595,45 @@ public struct DriverTrackingView: View {
     }
 }
 
+private struct TestPaymentReceiptView: View {
+    let onDone: () -> Void
+
+    var body: some View {
+        VStack(spacing: 20) {
+            Image(systemName: "checkmark.seal.fill")
+                .font(.system(size: 54))
+                .foregroundStyle(.green)
+            Text("Test ride complete")
+                .font(.title2.bold())
+            Text("TEST RECEIPT")
+                .font(.caption.weight(.bold))
+                .foregroundStyle(.secondary)
+            VStack(spacing: 8) {
+                HStack {
+                    Text("Amount charged")
+                    Spacer()
+                    Text("$0.00").bold()
+                }
+                HStack {
+                    Text("Payment")
+                    Spacer()
+                    Text("Simulated").bold()
+                }
+            }
+            .padding()
+            .background(Color.secondary.opacity(0.12), in: RoundedRectangle(cornerRadius: 16))
+            Text("This ride used isolated test dispatch. No real money was charged. Do not collect cash.")
+                .font(.footnote)
+                .foregroundStyle(.secondary)
+                .multilineTextAlignment(.center)
+            Button("Done", action: onDone)
+                .buttonStyle(.borderedProminent)
+        }
+        .padding(28)
+        .presentationDragIndicator(.visible)
+    }
+}
+
 private final class VM: ObservableObject {
     enum FollowMode { case follow, free }
 
@@ -627,6 +677,7 @@ private final class VM: ObservableObject {
     @Published var assignedDriverId: String? = nil
     @Published var shouldExit: Bool = false
     @Published var isChatPresented: Bool = false
+    @Published var showTestReceipt: Bool = false
 
     @Published var unreadCount: Int = 0
     private var lastSeenMessageAt: Date? = nil
@@ -647,6 +698,7 @@ private final class VM: ObservableObject {
     let rideId: String
     let supabaseURL: URL
     let supabaseAnonKey: String
+    private let isTestRide: Bool
 
     private let riderLocation = RiderLocationSource()
     private var realtime: SupabaseRealtimeLite?
@@ -672,11 +724,12 @@ private final class VM: ObservableObject {
         Bundle.main.path(forResource: "LumoMapStyle", ofType: "json").flatMap { try? String(contentsOfFile: $0, encoding: .utf8) }
     }
 
-    init(rideId: String, supabaseURL: URL, supabaseAnonKey: String, localSenderRole: String) {
+    init(rideId: String, supabaseURL: URL, supabaseAnonKey: String, localSenderRole: String, isTestRide: Bool) {
         self.rideId = rideId
         self.supabaseURL = supabaseURL
         self.supabaseAnonKey = supabaseAnonKey
         self.localSenderRole = localSenderRole
+        self.isTestRide = isTestRide
     }
 
     func start() {
@@ -798,6 +851,12 @@ private final class VM: ObservableObject {
     private func cleanupAndExit() {
         stop()
         shouldExit = true
+    }
+
+    func finishTestReceipt() {
+        guard showTestReceipt || isTestRide else { return }
+        showTestReceipt = false
+        cleanupAndExit()
     }
 
 
@@ -1360,6 +1419,32 @@ private func checkRideStatus(generation: UUID) async {
             guard self.isRunning, self.lifecycleGeneration == generation else { return }
             SupabaseRideService.shared.stopObservingRideStatus()
             if normalizedStatus == "completed" {
+                if isTestRide || JiyloTestEnvironment.isAuthorizedTestRider {
+                    do {
+                        guard JiyloTestEnvironment.isAuthorizedTestRider else {
+                            throw URLError(.userAuthenticationRequired)
+                        }
+                        var request = URLRequest(url: supabaseURL.appendingPathComponent("rest/v1/rpc/get_jiylo_local_test_receipt_v1"))
+                        request.httpMethod = "POST"
+                        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+                        request.httpBody = try JSONSerialization.data(withJSONObject: ["p_ride_id": rideId])
+                        let (data, _) = try await SupabaseRideService.shared.authenticatedRideData(for: request)
+                        guard let receipt = try JSONSerialization.jsonObject(with: data) as? [String: Any],
+                              (receipt["ride_id"] as? String)?.lowercased() == rideId.lowercased(),
+                              receipt["environment"] as? String == "TEST",
+                              receipt["status"] as? String == "completed",
+                              receipt["currency"] as? String == "USD",
+                              (receipt["amount_charged_minor"] as? NSNumber)?.doubleValue == 0 else {
+                            throw URLError(.cannotParseResponse)
+                        }
+                        guard self.isRunning, self.lifecycleGeneration == generation else { return }
+                        stop()
+                        showTestReceipt = true
+                    } catch {
+                        errorText = "The test receipt could not be verified. Please reconnect and try again."
+                    }
+                    return
+                }
                 cleanupAndExit()
                 return
             } else if normalizedStatus == "cancelled_by_driver" || normalizedStatus == "driver_cancelled" {
@@ -2537,8 +2622,9 @@ private final class SupabaseRealtimeLite {
 
         let host = supabaseURL.host ?? ""
         var comps = URLComponents()
-        comps.scheme = "wss"
+        comps.scheme = supabaseURL.scheme == "http" ? "ws" : "wss"
         comps.host = host
+        comps.port = supabaseURL.port
         comps.path = "/realtime/v1/websocket"
         comps.queryItems = [
             URLQueryItem(name: "apikey", value: anonKey),

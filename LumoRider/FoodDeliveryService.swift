@@ -129,6 +129,7 @@ final class FoodDeliveryService {
         }
         let token = try await user.getIDToken()
         var request = URLRequest(url: foodURL.appendingPathComponent(path))
+        request.timeoutInterval = 20
         request.httpMethod = method
         request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
         request.setValue("application/json", forHTTPHeaderField: "Accept")
